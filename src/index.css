@@ -3,15 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --bg-canvas: #f6f6f8;
+  --bg-canvas: #f9f9f9;
+  --bg-sidebar: #f0f0f0;
   --bg-surface: #ffffff;
-  --bg-subtle: #eeeff3;
-  --bg-hover: #e5e5eb;
-  --border-fine: #e0e0e6;
-  --border-focus: #c7c7cf;
-  --text-main: #18181b;
-  --text-muted: #6e6e76;
-  --btn-solid: #18181b;
+  --bg-subtle: #eaeaea;
+  --bg-hover: #e3e3e3;
+  --border-fine: #e0e0e0;
+  --border-focus: #b0b0b0;
+  --text-main: #171717;
+  --text-muted: #666666;
+  --btn-solid: #171717;
   --btn-solid-fg: #ffffff;
   --badge-warn: #b45309;
   --badge-ok: #15803d;
@@ -19,27 +20,31 @@
 }
 
 .dark {
-  --bg-canvas: #131316;
-  --bg-surface: #1c1c20;
-  --bg-subtle: #25252b;
-  --bg-hover: #2e2e36;
-  --border-fine: #2d2d34;
-  --border-focus: #3f3f4a;
-  --text-main: #f4f4f6;
-  --text-muted: #8c8c96;
-  --btn-solid: #f4f4f6;
-  --btn-solid-fg: #131316;
-  --badge-warn: #fbbf24;
-  --badge-ok: #4ade80;
-  --badge-danger: #f87171;
+  /* Paleta Gris Profesional ChatGPT */
+  --bg-canvas: #212121;
+  --bg-sidebar: #171717;
+  --bg-surface: #2a2a2a;
+  --bg-subtle: #2f2f2f;
+  --bg-hover: #383838;
+  --border-fine: #333333;
+  --border-focus: #4d4d4d;
+  --text-main: #ececec;
+  --text-muted: #b4b4b4;
+  --btn-solid: #f3f3f3;
+  --btn-solid-fg: #171717;
+  --badge-warn: #eab308;
+  --badge-ok: #22c55e;
+  --badge-danger: #ef4444;
 }
 
 body {
   background-color: var(--bg-canvas);
   color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
+
 
 /* Regla estricta de uniformidad: esquinas levemente redondeadas de 8px (rounded-lg) */
 .btn-base {

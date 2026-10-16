@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
   Zap, Check, Star, Calendar, Building2, 
-  MoreVertical, ArrowUpRight, ShieldCheck, ChevronRight 
+  MoreVertical, ArrowUpRight, ShieldCheck, ChevronRight,
+  Clock, DollarSign, User, Plus
 } from 'lucide-react';
 
 export default function MobileStreamView({
@@ -15,197 +16,187 @@ export default function MobileStreamView({
 
   const findLoan = (term) => prestamos.find(p => p.nombre?.toUpperCase().includes(term.toUpperCase())) || prestamos[0];
 
-
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col bg-[#0d0e11] text-[#f5f5f7] rounded-3xl border border-[#22232a] shadow-2xl overflow-hidden min-h-[750px]">
+    <div className="w-full max-w-md mx-auto flex flex-col bg-[#212121] text-[#ececec] rounded-2xl border border-[#2e2e2e] shadow-xl overflow-hidden min-h-[700px] select-none">
       
-      {/* HEADER MÓVIL ESTILO IMAGEN 2 */}
-      <div className="px-5 pt-4 pb-3 border-b border-[#1f2027] flex items-center justify-between bg-[#121316]">
+      {/* HEADER MÓVIL ESTILO CHATGPT */}
+      <div className="px-5 py-3.5 border-b border-[#2e2e2e] flex items-center justify-between bg-[#1e1e1e]">
         <div>
-          <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider block">Flujo de Cobros</span>
-          <h3 className="text-base font-bold text-white tracking-tight">Cronograma Diario</h3>
+          <span className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider block">
+            Cronograma de Cobros
+          </span>
+          <h3 className="text-base font-bold text-white tracking-tight">Flujo Diario</h3>
         </div>
         <button 
           onClick={onOpenNewLoan}
-          className="w-8 h-8 rounded-lg bg-white text-black font-bold flex items-center justify-center text-sm shadow-xs active:scale-95 transition-all"
+          className="w-8 h-8 rounded-lg bg-[#f3f3f3] hover:bg-white text-black font-bold flex items-center justify-center text-sm shadow-xs active:scale-[0.98] transition-all"
         >
-          +
+          <Plus className="w-4 h-4 stroke-[2.5]" />
         </button>
       </div>
 
-      {/* STREAM VERTICAL CON LÍNEA CONTINUA Y NODOS CIRCULARES (FIEL A IMAGEN 2) */}
-      <div className="flex-1 p-5 overflow-y-auto custom-scroll space-y-4 relative">
+      {/* STREAM VERTICAL CON LÍNEA CONTINUA Y NODOS GRISES MINIMALISTAS */}
+      <div className="flex-1 p-5 overflow-y-auto custom-scroll space-y-4 relative bg-[#212121]">
         
-        {/* LÍNEA VERTICAL GUÍA CENTRAL (COMO EN IMAGEN 2) */}
-        <div className="absolute left-[70px] top-6 bottom-6 w-[2px] bg-[#22232c]"></div>
+        {/* LÍNEA VERTICAL GUÍA CENTRAL (NEUTRAL GREY) */}
+        <div className="absolute left-[65px] top-6 bottom-6 w-[1.5px] bg-[#333333]"></div>
 
-        {/* HITO 1: MAÑANA 17 OCT (ROBERTO VILLAZÓN) */}
+        {/* HITO 1: 17 OCT (ROBERTO VILLAZÓN) */}
         <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-12 text-right pt-1.5 shrink-0">
+          <div className="w-11 text-right pt-1.5 shrink-0">
             <span className="text-xs font-bold text-white block">17 Oct</span>
-            <span className="text-[10px] text-[#6e707b]">Mañana</span>
+            <span className="text-[11px] text-[#8e8e8e]">Mañana</span>
           </div>
 
-          {/* NODO CIRCULAR DE COLOR CON ÍCONO */}
-          <div className="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center shrink-0 shadow-md font-bold text-xs ring-4 ring-[#0d0e11]">
-            <Zap className="w-4 h-4 fill-black" />
+          {/* NODO GRIS MINIMALISTA (SIN GLOBOS DE COLORES) */}
+          <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-[#ececec] flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <Zap className="w-3.5 h-3.5 text-white" />
           </div>
 
           {/* TARJETA DEL HITO */}
           <div 
             onClick={() => onSelectLoan && onSelectLoan(findLoan('ROBERTO'))}
-            className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
+            className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] hover:border-[#404040] transition-all space-y-1.5 cursor-pointer active:scale-[0.99] shadow-xs"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="text-xs font-bold text-white">Roberto Villazón Inosente</h4>
-                <span className="text-[11px] text-[#7e808c]">Cobro Diario • Tel: 76653981</span>
+                <h4 className="text-sm font-semibold text-white">Roberto Villazón Inosente</h4>
+                <span className="text-xs text-[#a3a3a3]">Cobro Diario • Tel: 76653981</span>
               </div>
-              <button className="text-[#6e707b] hover:text-white text-xs p-1">
-                <MoreVertical className="w-3.5 h-3.5" />
-              </button>
+              <ChevronRight className="w-4 h-4 text-[#737373]" />
             </div>
             <div className="flex items-baseline justify-between pt-1">
-              <span className="text-sm font-mono font-bold text-amber-400">Bs. 300.00</span>
-              <span className="text-[10px] text-emerald-400 font-medium">12 pagos al día</span>
+              <span className="text-base font-mono font-bold text-white">Bs. 300.00</span>
+              <span className="text-xs text-emerald-400 font-medium">12 pagos al día</span>
             </div>
           </div>
         </div>
 
         {/* HITO 2: 20 OCT (ROLY CUELLAR) */}
         <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-12 text-right pt-1.5 shrink-0">
+          <div className="w-11 text-right pt-1.5 shrink-0">
             <span className="text-xs font-bold text-white block">20 Oct</span>
-            <span className="text-[10px] text-[#6e707b]">En 4d</span>
+            <span className="text-[11px] text-[#8e8e8e]">En 4d</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md text-xs font-bold ring-4 ring-[#0d0e11]">
-            <Check className="w-4 h-4 stroke-[3]" />
+          <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-[#ececec] flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
           </div>
 
           <div 
             onClick={() => onSelectLoan && onSelectLoan(findLoan('ROLY'))}
-            className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
+            className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] hover:border-[#404040] transition-all space-y-1.5 cursor-pointer active:scale-[0.99] shadow-xs"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="text-xs font-bold text-white">Roly Cuellar Balcazar</h4>
-                <span className="text-[11px] text-[#7e808c]">Debe de la Macbook</span>
+                <h4 className="text-sm font-semibold text-white">Roly Cuellar Balcazar</h4>
+                <span className="text-xs text-[#a3a3a3]">Debe de la Macbook</span>
               </div>
-              <button className="text-[#6e707b] hover:text-white text-xs p-1">
-                <MoreVertical className="w-3.5 h-3.5" />
-              </button>
+              <ChevronRight className="w-4 h-4 text-[#737373]" />
             </div>
             <div className="flex items-baseline justify-between pt-1">
-              <span className="text-sm font-mono font-bold text-white">Bs. 400.00</span>
-              <span className="text-[10px] text-[#7e808c]">Cuota 8 de 10</span>
+              <span className="text-base font-mono font-bold text-white">Bs. 400.00</span>
+              <span className="text-xs text-[#a3a3a3]">Cuota 8 de 10</span>
             </div>
           </div>
         </div>
 
         {/* HITO 3: 25 OCT (MAGALI MOLINA & TÍO RODO - FONDEO) */}
         <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-12 text-right pt-1.5 shrink-0">
-            <span className="text-xs font-bold text-purple-400 block">25 Oct</span>
-            <span className="text-[10px] text-[#6e707b]">Fondeo</span>
+          <div className="w-11 text-right pt-1.5 shrink-0">
+            <span className="text-xs font-bold text-white block">25 Oct</span>
+            <span className="text-[11px] text-[#8e8e8e]">Fondeo</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center shrink-0 shadow-md text-xs font-bold ring-4 ring-[#0d0e11]">
-            <Star className="w-4 h-4 fill-white" />
+          <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-[#ececec] flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <Star className="w-3.5 h-3.5 text-white" />
           </div>
 
           <div 
             onClick={() => onSelectLoan && onSelectLoan(findLoan('MAGALI'))}
-            className="flex-1 p-3.5 rounded-xl bg-gradient-to-br from-purple-950/40 via-[#1c1d22] to-[#1c1d22] border border-purple-500/40 hover:border-purple-400 transition-all shadow-sm space-y-2 cursor-pointer active:scale-[0.98]"
+            className="flex-1 p-3.5 rounded-xl bg-[#2f2f2f] hover:bg-[#383838] border border-[#3d3d3d] hover:border-[#4d4d4d] transition-all space-y-2 cursor-pointer active:scale-[0.99] shadow-sm"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="text-xs font-bold text-white">Magali Molina (Fondeo Tío Rodo)</h4>
-                <span className="text-[11px] text-purple-300">Capital: Bs. 15,000</span>
+                <h4 className="text-sm font-semibold text-white">Magali Molina (Fondeo Rodo)</h4>
+                <span className="text-xs text-[#b4b4b4]">Capital: Bs. 15,000</span>
               </div>
-              <button className="text-[#6e707b] hover:text-white text-xs p-1">
-                <MoreVertical className="w-3.5 h-3.5" />
-              </button>
+              <ChevronRight className="w-4 h-4 text-[#737373]" />
             </div>
-            <div className="p-2 rounded-lg bg-black/40 border border-purple-500/20 text-[11px] text-[#9e9fad] flex justify-between">
-              <span>Cobras a Magali: <strong className="text-white">Bs. 1,500</strong></span>
+            <div className="p-2.5 rounded-lg bg-[#212121] border border-[#333333] text-xs text-[#a3a3a3] flex justify-between">
+              <span>Cobras: <strong className="text-white">Bs. 1,500</strong></span>
               <span>Pagas a Rodo: <strong className="text-white">Bs. 300</strong></span>
             </div>
-            <div className="text-[10px] text-emerald-400 font-bold text-right">
-              Ganancia líquida: +Bs. 700.00
+            <div className="text-xs font-semibold text-emerald-400 text-right">
+              Ganancia neta: +Bs. 700.00
             </div>
           </div>
         </div>
 
         {/* HITO 4: 28 OCT (VICTORIA & JIMENA EN LA MISMA FECHA) */}
         <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-12 text-right pt-1.5 shrink-0">
-            <span className="text-xs font-bold text-blue-400 block">28 Oct</span>
-            <span className="text-[10px] text-[#6e707b]">2 cuotas</span>
+          <div className="w-11 text-right pt-1.5 shrink-0">
+            <span className="text-xs font-bold text-white block">28 Oct</span>
+            <span className="text-[11px] text-[#8e8e8e]">2 cobros</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md text-xs font-bold ring-4 ring-[#0d0e11]">
+          <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
             2
           </div>
 
           <div className="flex-1 space-y-2">
-            {/* Sub-tarjeta 1 */}
             <div 
               onClick={() => onSelectLoan && onSelectLoan(findLoan('VICTORIA'))}
-              className="p-3 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm cursor-pointer active:scale-[0.98]"
+              className="p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] hover:border-[#404040] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
             >
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold text-white">Victoria Coronado Duran</span>
-                <span className="text-xs font-mono font-bold text-blue-400">Bs. 500</span>
+                <span className="text-sm font-semibold text-white">Victoria Coronado Duran</span>
+                <span className="text-base font-mono font-bold text-white">Bs. 500</span>
               </div>
-              <span className="text-[10px] text-[#7e808c] block mt-0.5">CI: 5488548 • Cuota mensual</span>
+              <span className="text-xs text-[#a3a3a3] block mt-0.5">CI: 5488548 • Cuota mensual</span>
             </div>
 
-            {/* Sub-tarjeta 2 */}
             <div 
               onClick={() => onSelectLoan && onSelectLoan(findLoan('JIMENA'))}
-              className="p-3 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm cursor-pointer active:scale-[0.98]"
+              className="p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] hover:border-[#404040] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
             >
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold text-white">Jimena Cordova Parada</span>
-                <span className="text-xs font-mono font-bold text-blue-400">Bs. 220</span>
+                <span className="text-sm font-semibold text-white">Jimena Cordova Parada</span>
+                <span className="text-base font-mono font-bold text-white">Bs. 220</span>
               </div>
-              <span className="text-[10px] text-[#7e808c] block mt-0.5">Tel: 73610261 • Doc. Privado</span>
+              <span className="text-xs text-[#a3a3a3] block mt-0.5">Tel: 73610261 • Doc. Privado</span>
             </div>
           </div>
         </div>
 
-        {/* HITO 5: CRÉDITO BANCO FIE (DEUDA MENSUAL) */}
+        {/* HITO 5: CRÉDITO BANCO FIE */}
         <div className="flex items-start gap-3.5 relative z-10">
-          <div className="w-12 text-right pt-1.5 shrink-0">
-            <span className="text-xs font-bold text-rose-400 block">30 Oct</span>
-            <span className="text-[10px] text-[#6e707b]">Pagar</span>
+          <div className="w-11 text-right pt-1.5 shrink-0">
+            <span className="text-xs font-bold text-white block">30 Oct</span>
+            <span className="text-[11px] text-[#8e8e8e]">Pagar</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md text-xs font-bold ring-4 ring-[#0d0e11]">
-            <Building2 className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-[#ececec] flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <Building2 className="w-3.5 h-3.5 text-white" />
           </div>
 
           <div 
             onClick={() => onSelectLoan && onSelectLoan(findLoan('FIE'))}
-            className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-rose-500/30 hover:border-rose-500/50 transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
+            className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] hover:border-[#404040] transition-all shadow-xs space-y-1.5 cursor-pointer active:scale-[0.99]"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="text-xs font-bold text-white">Banco FIE (Crédito Recibido)</h4>
-                <span className="text-[11px] text-[#7e808c]">Cuota mensual fija</span>
+                <h4 className="text-sm font-semibold text-white">Banco FIE (Crédito Recibido)</h4>
+                <span className="text-xs text-[#a3a3a3]">Cuota mensual fija</span>
               </div>
-              <button className="text-[#6e707b] hover:text-white text-xs p-1">
-                <MoreVertical className="w-3.5 h-3.5" />
-              </button>
+              <ChevronRight className="w-4 h-4 text-[#737373]" />
             </div>
             <div className="flex items-baseline justify-between pt-1">
-              <span className="text-sm font-mono font-bold text-rose-400">Pagar Bs. 650.00</span>
-              <span className="text-[10px] text-[#7e808c]">Cuota 8 de 20</span>
+              <span className="text-base font-mono font-bold text-white">Pagar Bs. 650.00</span>
+              <span className="text-xs text-[#a3a3a3]">Cuota 8 de 20</span>
             </div>
           </div>
         </div>
-
 
       </div>
 

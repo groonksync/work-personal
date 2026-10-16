@@ -245,9 +245,9 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex bg-[#0c0d10] text-[#f4f4f7] font-sans antialiased">
+    <div className="w-screen h-screen overflow-hidden flex bg-[#212121] text-[#ececec] font-sans antialiased">
       
-      {/* 1. SIDEBAR IZQUIERDO UNIFICADO (PANTALLA COMPLETA, SIN MARGEN EXTERIOR) */}
+      {/* 1. SIDEBAR IZQUIERDO UNIFICADO (PANTALLA COMPLETA, ESTILO CHATGPT) */}
       <Sidebar
         viewMode={viewMode}
         setViewMode={(mode) => {
@@ -265,21 +265,23 @@ export default function App() {
         toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         onOpenAlerts={() => setIsAlertsOpen(true)}
         alertasCount={alertasAnticipadas.length}
+        onOpenNewLoan={() => setIsNewLoanOpen(true)}
       />
 
-      {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA) */}
-      <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#0a0a0d] relative">
+      {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
+      <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#212121] relative">
         
         {/* TOPBAR UNIFICADA (UNA SOLA CABECERA) */}
         <Topbar
+          viewMode={viewMode}
           breadcrumb={
             activeFolder 
               ? `Expediente › ${activeFolder.nombre}`
               : viewMode === 'timeline' 
-                ? 'Cronograma de Vencimientos con Nodos' 
+                ? 'Cronograma de Vencimientos' 
                 : viewMode === 'folders' 
                   ? 'Expedientes por Persona' 
-                  : 'Flujo Diario de Cobros'
+                  : 'Flujo Diario'
           }
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -341,15 +343,15 @@ export default function App() {
               </div>
 
               {loading ? (
-                <div className="p-16 text-center text-xs text-[#717382] flex items-center justify-center gap-2">
-                  <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                <div className="p-16 text-center text-xs text-[#a3a3a3] flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-white" />
                   <span>Cargando expedientes...</span>
                 </div>
               ) : carpetas.length === 0 ? (
-                <div className="p-16 text-center space-y-3 border border-white/5 rounded-2xl bg-[#111217]">
-                  <FolderIcon className="w-10 h-10 mx-auto text-[#4d4f5b]" />
+                <div className="p-16 text-center space-y-3 border border-[#333333] rounded-xl bg-[#262626]">
+                  <FolderIcon className="w-10 h-10 mx-auto text-[#737373]" />
                   <h3 className="text-sm font-semibold text-white">No hay expedientes</h3>
-                  <p className="text-xs text-[#717382] max-w-sm mx-auto">
+                  <p className="text-xs text-[#a3a3a3] max-w-sm mx-auto">
                     {searchQuery ? 'No hay resultados que coincidan con la búsqueda.' : 'Crea un primer préstamo con el botón superior.'}
                   </p>
                 </div>

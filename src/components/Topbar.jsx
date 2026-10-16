@@ -1,66 +1,78 @@
 import React from 'react';
-import { Search, Plus, Bell, Share2 } from 'lucide-react';
+import { Search, Plus, Bell, X, Calendar, Folder, Clock } from 'lucide-react';
 
 export default function Topbar({
-  breadcrumb = 'Timeline de Vencimientos & Nodos',
+  viewMode = 'timeline',
+  breadcrumb = 'Cronograma',
   searchQuery,
   setSearchQuery,
   onOpenNewLoan,
   onOpenAlerts,
   alertasCount = 0,
 }) {
+  const getIcon = () => {
+    if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-[#d4d4d4]" />;
+    if (viewMode === 'folders') return <Folder className="w-4 h-4 text-[#d4d4d4]" />;
+    return <Clock className="w-4 h-4 text-[#d4d4d4]" />;
+  };
+
   return (
-    <header className="h-14 px-6 border-b border-[#1c1d24] flex items-center justify-between gap-4 bg-[#111216] select-none shrink-0 z-20">
+    <header className="h-14 px-6 border-b border-[#2a2a2a] flex items-center justify-between gap-4 bg-[#212121] select-none shrink-0 z-20 text-[#ececec]">
       
-      {/* Breadcrumb / Título de la vista */}
-      <div className="flex items-center gap-2 text-xs text-[#717382]">
-        <span className="text-[#a0a2b2] font-semibold">Préstamos</span>
-        <span>›</span>
-        <span className="text-white font-medium">{breadcrumb}</span>
+      {/* Título de la vista actual con ícono */}
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] flex items-center justify-center">
+          {getIcon()}
+        </div>
+        <span className="text-sm font-semibold text-white tracking-tight">
+          {breadcrumb}
+        </span>
       </div>
 
-      {/* Buscador y Acciones */}
+      {/* Buscador y Acciones (Estilo ChatGPT) */}
       <div className="flex items-center gap-3">
         
-        {/* Buscador Rápido Funcional */}
-        <div className="flex items-center gap-2 bg-[#181920] px-3 py-1.5 rounded-lg text-xs text-[#717382] border border-white/[0.04] focus-within:border-purple-500/40 transition-all">
-          <Search className="w-3.5 h-3.5 text-[#717382]" />
+        {/* Buscador suave redondeado tipo ChatGPT */}
+        <div className="flex items-center gap-2 bg-[#2a2a2a] hover:bg-[#303030] px-3.5 py-1.5 rounded-full text-xs text-[#b4b4b4] border border-[#383838] focus-within:border-[#4d4d4d] focus-within:bg-[#2f2f2f] transition-all w-52 sm:w-72">
+          <Search className="w-4 h-4 text-[#8e8e8e] shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nombre, CI o teléfono..."
-            className="bg-transparent outline-none w-48 sm:w-64 text-white placeholder-[#52535d]"
+            placeholder="Buscar persona o fecha..."
+            className="bg-transparent outline-none w-full text-white placeholder-[#737373] text-[13px]"
           />
           {searchQuery ? (
-            <button onClick={() => setSearchQuery('')} className="text-[#717382] hover:text-white">✕</button>
+            <button onClick={() => setSearchQuery('')} className="text-[#8e8e8e] hover:text-white">
+              <X className="w-3.5 h-3.5" />
+            </button>
           ) : (
-            <span className="text-[10px] bg-[#22232c] px-1.5 py-0.2 rounded text-[#818391] font-mono">⌘K</span>
+            <span className="text-[10px] bg-[#212121] px-1.5 py-0.5 rounded text-[#737373] font-mono shrink-0">⌘K</span>
           )}
         </div>
 
-        {/* Campana de Avisos */}
+        {/* Campana de Vencimientos */}
         <button
           onClick={onOpenAlerts}
-          className="h-8 px-3 rounded-lg bg-[#181920] hover:bg-[#20222a] text-[#8c8e9b] hover:text-white flex items-center gap-1.5 text-xs transition-all border border-white/[0.04]"
-          title="Ver alertas de cobro"
+          className="h-8 px-3 rounded-lg bg-[#2a2a2a] hover:bg-[#333333] text-[#b4b4b4] hover:text-white flex items-center gap-1.5 text-xs transition-all border border-[#333333]"
+          title="Ver alertas y vencimientos"
         >
-          <Bell className="w-3.5 h-3.5 text-amber-400" />
-          <span className="hidden sm:inline">Avisos</span>
+          <Bell className="w-4 h-4 text-amber-400" />
           {alertasCount > 0 && (
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
+            <span className="text-[11px] font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 font-bold">
               {alertasCount}
             </span>
           )}
         </button>
 
-        {/* Botón Principal Blanco Puro (Sin trazos gruesos) */}
+        {/* Botón Nuevo Préstamo (Liso, suave y limpio) */}
         <button
           onClick={onOpenNewLoan}
-          className="h-8 px-3.5 rounded-lg bg-white hover:bg-zinc-200 text-black font-semibold text-xs flex items-center gap-1.5 transition-all active:scale-95 shadow-xs"
+          className="h-8 px-3.5 rounded-lg bg-[#f3f3f3] hover:bg-white text-[#171717] font-semibold text-xs flex items-center gap-1.5 transition-all active:scale-[0.98] shadow-xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Nuevo Préstamo</span>
+          <span className="hidden sm:inline">Nuevo Préstamo</span>
+          <span className="sm:hidden">Nuevo</span>
         </button>
 
       </div>

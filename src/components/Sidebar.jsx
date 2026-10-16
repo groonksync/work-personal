@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
-  Calendar, Folder, Zap, DollarSign, Bell, 
-  Sun, Moon, Users, ShieldAlert, ArrowUpRight 
+  Calendar, Folder, Clock, Users, ArrowUpRight, 
+  ArrowDownLeft, Bell, Sun, Moon, Plus, DollarSign 
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -18,183 +18,198 @@ export default function Sidebar({
   toggleTheme,
   onOpenAlerts,
   alertasCount = 0,
+  onOpenNewLoan,
 }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
   return (
-    <aside className="w-60 bg-[#121316] border-r border-[#1e1f26] flex flex-col justify-between shrink-0 h-full select-none z-30">
+    <aside className="w-64 bg-[#171717] border-r border-[#262626] flex flex-col justify-between shrink-0 h-full select-none z-30 text-[#ececec]">
       
-      <div className="p-4 space-y-6">
+      <div className="p-3.5 space-y-4">
         
-        {/* Identidad de la App */}
-        <div className="flex items-center justify-between">
+        {/* BOTÓN SUPERIOR ESTILO CHATGPT (+ NUEVO) */}
+        <button
+          onClick={onOpenNewLoan}
+          className="w-full py-2.5 px-3 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] text-white text-xs font-medium flex items-center justify-between transition-all border border-[#2f2f2f] hover:border-[#3d3d3d] shadow-xs active:scale-[0.99]"
+        >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 via-pink-500 to-amber-400 flex items-center justify-center text-white text-xs font-black shadow-sm">
-              W
+            <div className="w-5 h-5 rounded-md bg-white text-black flex items-center justify-center font-bold text-xs">
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
-            <div>
-              <div className="text-xs font-bold text-white flex items-center gap-1">
-                <span>WORK</span><span className="font-normal italic text-purple-400">PERSONAL</span>
-              </div>
-              <span className="text-[10px] text-[#6b6d7a] block font-mono">Gestor de Préstamos</span>
-            </div>
+            <span className="font-semibold text-[13px]">Nuevo Registro</span>
           </div>
-        </div>
+          <span className="text-[11px] text-[#8e8e8e] font-mono">⌘N</span>
+        </button>
 
-        {/* Módulo 1: Modos de Vista */}
+        {/* NAVEGACIÓN PRINCIPAL CON ÍCONOS LIMPIOS (ESTILO CHATGPT) */}
         <div className="space-y-1">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-[#52535d] px-2 block mb-1">
-            Vistas Principales
+          <span className="text-[10px] font-medium tracking-wider uppercase text-[#737373] px-2 block mb-1">
+            Vistas
           </span>
 
           <button
             onClick={() => setViewMode('timeline')}
-            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
               viewMode === 'timeline'
-                ? 'bg-[#1e1f27] text-white shadow-xs'
-                : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+                ? 'bg-[#2a2a2a] text-white'
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <span className="text-purple-400 font-bold">∿</span>
-              <span>Cronograma Nodos</span>
+              <Calendar className="w-4 h-4 text-[#d4d4d4]" />
+              <span className="text-[13px]">Cronograma</span>
             </div>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-bold">
+            <span className="text-[11px] font-mono text-[#a3a3a3] bg-[#212121] px-2 py-0.5 rounded">
               {counts.total || 9}
             </span>
           </button>
 
           <button
             onClick={() => setViewMode('folders')}
-            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
               viewMode === 'folders'
-                ? 'bg-[#1e1f27] text-white shadow-xs'
-                : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+                ? 'bg-[#2a2a2a] text-white'
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Folder className="w-3.5 h-3.5 text-[#6e707d]" />
-              <span>Expedientes / Carpetas</span>
+              <Folder className="w-4 h-4 text-[#d4d4d4]" />
+              <span className="text-[13px]">Expedientes</span>
             </div>
           </button>
 
           <button
             onClick={() => setViewMode('stream')}
-            className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
               viewMode === 'stream'
-                ? 'bg-[#1e1f27] text-white shadow-xs'
-                : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+                ? 'bg-[#2a2a2a] text-white'
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Stream Diario</span>
+              <Clock className="w-4 h-4 text-[#d4d4d4]" />
+              <span className="text-[13px]">Flujo Diario</span>
             </div>
           </button>
         </div>
 
-        {/* Módulo 2: Filtros de Cartera */}
-        <div className="space-y-1">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-[#52535d] px-2 block mb-1">
-            Cartera de Préstamos
+        {/* FILTROS DE CARTERA (ÍCONOS Y NÚMEROS LEGIBLES) */}
+        <div className="space-y-1 pt-2 border-t border-[#262626]">
+          <span className="text-[10px] font-medium tracking-wider uppercase text-[#737373] px-2 block mb-1">
+            Filtros
           </span>
 
           <button
             onClick={() => setCarteraFiltro('todos')}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-              carteraFiltro === 'todos' ? 'text-white bg-[#181920]' : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+              carteraFiltro === 'todos' 
+                ? 'bg-[#2a2a2a] text-white font-medium' 
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
-            <span>Todos los Contratos</span>
-            <span className="text-[11px] font-mono text-[#6e707d]">{counts.total || 11}</span>
+            <div className="flex items-center gap-2.5">
+              <Users className="w-4 h-4 text-[#a3a3a3]" />
+              <span className="text-[13px]">Todos</span>
+            </div>
+            <span className="text-[11px] font-mono text-[#737373]">{counts.total || 11}</span>
           </button>
 
           <button
             onClick={() => setCarteraFiltro('otorgados')}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-              carteraFiltro === 'otorgados' ? 'text-white bg-[#181920]' : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+              carteraFiltro === 'otorgados' 
+                ? 'bg-[#2a2a2a] text-white font-medium' 
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
-            <span>Cobros Activos (Prestatarios)</span>
-            <span className="text-[11px] font-mono text-emerald-400 font-bold">{counts.otorgados || 9}</span>
+            <div className="flex items-center gap-2.5">
+              <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+              <span className="text-[13px]">Cobros Activos</span>
+            </div>
+            <span className="text-[11px] font-mono text-emerald-400 font-semibold">{counts.otorgados || 9}</span>
           </button>
 
           <button
             onClick={() => setCarteraFiltro('recibidos')}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-              carteraFiltro === 'recibidos' ? 'text-purple-300 bg-purple-500/10' : 'text-[#8c8e9b] hover:bg-[#181920] hover:text-white'
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+              carteraFiltro === 'recibidos' 
+                ? 'bg-[#2a2a2a] text-white font-medium' 
+                : 'text-[#a3a3a3] hover:bg-[#212121] hover:text-white'
             }`}
           >
-            <span>Acreedores (Fondeo / Bancos)</span>
-            <span className="text-[11px] font-mono text-purple-400 font-bold">{counts.recibidos || 2}</span>
+            <div className="flex items-center gap-2.5">
+              <ArrowDownLeft className="w-4 h-4 text-purple-400" />
+              <span className="text-[13px]">Acreedores</span>
+            </div>
+            <span className="text-[11px] font-mono text-purple-400 font-semibold">{counts.recibidos || 2}</span>
           </button>
 
           <button
             onClick={onOpenAlerts}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-[#8c8e9b] hover:bg-[#181920] hover:text-white transition-all"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs text-[#a3a3a3] hover:bg-[#212121] hover:text-white transition-all"
           >
-            <div className="flex items-center gap-1.5">
-              <Bell className="w-3.5 h-3.5 text-amber-400" />
-              <span>Avisos de Cobro</span>
+            <div className="flex items-center gap-2.5">
+              <Bell className="w-4 h-4 text-amber-400" />
+              <span className="text-[13px]">Vencimientos</span>
             </div>
             {alertasCount > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">
                 {alertasCount}
               </span>
             )}
           </button>
         </div>
 
-        {/* Módulo 3: Métricas de Liquidez */}
-        <div className="p-3 rounded-xl bg-[#16171e] border border-[#20212a] space-y-1.5">
-          <span className="text-[10px] text-[#717382] uppercase font-bold tracking-wider block">
-            Capital Colocado
-          </span>
-          <div className="text-sm font-bold font-mono text-white">
-            {symbol} {Number(totalCapital).toLocaleString()}
+        {/* PANEL DE CAPITAL (NÚMEROS GRANDES Y CLAROS) */}
+        <div className="p-3.5 rounded-xl bg-[#212121] border border-[#2d2d2d] space-y-2">
+          <div>
+            <span className="text-[10px] text-[#737373] uppercase font-semibold tracking-wider block">
+              Capital Colocado
+            </span>
+            <div className="text-base font-bold font-mono text-white mt-0.5 tracking-tight">
+              {symbol} {Number(totalCapital).toLocaleString()}
+            </div>
           </div>
-          <div className="flex justify-between items-center pt-1 border-t border-[#20212a] text-[10px]">
-            <span className="text-[#717382]">Rendimiento Est.:</span>
+          
+          <div className="pt-2 border-t border-[#2a2a2a] flex items-center justify-between text-xs">
+            <span className="text-[#8e8e8e]">Rendimiento:</span>
             <span className="font-mono font-bold text-emerald-400">
-              +{symbol} {Number(totalRendimiento).toLocaleString()}/mes
+              +{symbol} {Number(totalRendimiento).toLocaleString()}/m
             </span>
           </div>
         </div>
 
       </div>
 
-      {/* Footer de Configuración y Usuario */}
-      <div className="p-4 border-t border-[#1e1f26] space-y-3">
+      {/* FOOTER DE USUARIO Y CONFIGURACIÓN */}
+      <div className="p-3.5 border-t border-[#262626] space-y-3">
         <div className="flex items-center justify-between">
-          {/* Selector de Moneda */}
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="bg-[#181920] border border-white/5 text-[11px] font-mono text-white px-2 py-1 rounded-md outline-none cursor-pointer"
+            className="bg-[#212121] hover:bg-[#2a2a2a] border border-[#2f2f2f] text-xs font-mono text-white px-2.5 py-1.5 rounded-lg outline-none cursor-pointer transition-all"
           >
             <option value="BOB">Bs. BOB</option>
             <option value="USD">$ USD</option>
             <option value="PEN">S/ PEN</option>
           </select>
 
-          {/* Toggle de Tema */}
           <button
             onClick={toggleTheme}
-            className="w-7 h-7 rounded-md bg-[#181920] hover:bg-[#20222b] text-[#7e808e] hover:text-white flex items-center justify-center transition-all"
-            title="Alternar Modo Claro / Oscuro"
+            className="w-8 h-8 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] text-[#8e8e8e] hover:text-white flex items-center justify-center border border-[#2f2f2f] transition-all"
+            title="Alternar tema"
           >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
 
-        {/* Perfil */}
-        <div className="flex items-center gap-2.5 pt-1">
-          <div className="w-7 h-7 rounded-full bg-[#242530] border border-white/10 flex items-center justify-center font-bold text-xs text-white">
+        <div className="flex items-center gap-2.5 px-1 py-1 rounded-lg hover:bg-[#212121] transition-all cursor-pointer">
+          <div className="w-7 h-7 rounded-full bg-[#2f2f2f] border border-[#3d3d3d] flex items-center justify-center font-bold text-xs text-white">
             CJ
           </div>
           <div className="overflow-hidden">
-            <span className="text-xs font-semibold text-white block truncate leading-none">Carlos Joel</span>
-            <span className="text-[10px] text-[#6b6d7a] block truncate font-mono mt-0.5">carlosjoelsb@gmail.com</span>
+            <span className="text-xs font-medium text-[#ececec] block truncate leading-none">Carlos Joel</span>
+            <span className="text-[11px] text-[#737373] block truncate font-mono mt-0.5">carlosjoelsb@gmail.com</span>
           </div>
         </div>
       </div>
