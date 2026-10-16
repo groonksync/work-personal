@@ -25,10 +25,20 @@ export default function LoanInspectorDrawer({
   const esAcreedor = loan.tipo_prestamo === 'recibido';
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[440px] bg-[#1e1e1e] border-l border-[#2e2e2e] shadow-2xl flex flex-col text-[#ececec] animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-50 flex items-end md:items-stretch md:justify-end bg-black/60 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none animate-in fade-in duration-200">
       
-      {/* HEADER DEL INSPECTOR (ESTILO CHATGPT) */}
-      <div className="p-4 border-b border-[#2e2e2e] flex items-center justify-between bg-[#1e1e1e]">
+      {/* Fondo clickeable para cerrar en móvil */}
+      <div className="absolute inset-0 md:hidden" onClick={onClose}></div>
+
+      {/* CONTENEDOR: BOTTOM SHEET EN MÓVIL / SIDE DRAWER EN DESKTOP */}
+      <div className="relative w-full md:w-[440px] max-h-[90vh] md:max-h-full h-auto md:h-full bg-[#1e1e1e] rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-[#2e2e2e] shadow-2xl flex flex-col text-[#ececec] animate-in slide-in-from-bottom md:slide-in-from-right duration-200 pb-[env(safe-area-inset-bottom,16px)] md:pb-0 z-10">
+        
+        {/* Tirador para deslizar en móvil */}
+        <div className="w-12 h-1 rounded-full bg-[#444444] mx-auto mt-2.5 md:hidden shrink-0"></div>
+
+        {/* HEADER DEL INSPECTOR (ESTILO CHATGPT) */}
+        <div className="p-4 border-b border-[#2e2e2e] flex items-center justify-between bg-[#1e1e1e] shrink-0">
+
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-[#2a2a2a] border border-[#383838] flex items-center justify-center font-bold text-sm text-white">
             {esAcreedor ? '🏦' : '👤'}
@@ -226,5 +236,6 @@ export default function LoanInspectorDrawer({
       </div>
 
     </div>
+  </div>
   );
 }
