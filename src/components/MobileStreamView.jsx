@@ -5,12 +5,16 @@ import {
 } from 'lucide-react';
 
 export default function MobileStreamView({
+  prestamos = [],
   currency = 'BOB',
-  onSelectFolder,
+  onSelectLoan,
   onOpenNewLoan,
   onPayCuota,
 }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
+
+  const findLoan = (term) => prestamos.find(p => p.nombre?.toUpperCase().includes(term.toUpperCase())) || prestamos[0];
+
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col bg-[#0d0e11] text-[#f5f5f7] rounded-3xl border border-[#22232a] shadow-2xl overflow-hidden min-h-[750px]">
@@ -49,7 +53,7 @@ export default function MobileStreamView({
 
           {/* TARJETA DEL HITO */}
           <div 
-            onClick={() => onSelectFolder && onSelectFolder('ROBERTO VILLAZON INOSENTE')}
+            onClick={() => onSelectLoan && onSelectLoan(findLoan('ROBERTO'))}
             className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
           >
             <div className="flex items-start justify-between">
@@ -80,7 +84,7 @@ export default function MobileStreamView({
           </div>
 
           <div 
-            onClick={() => onSelectFolder && onSelectFolder('ROLY CUELLAR BALCAZAR')}
+            onClick={() => onSelectLoan && onSelectLoan(findLoan('ROLY'))}
             className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
           >
             <div className="flex items-start justify-between">
@@ -111,7 +115,7 @@ export default function MobileStreamView({
           </div>
 
           <div 
-            onClick={() => onSelectFolder && onSelectFolder('MAGALI MOLINA')}
+            onClick={() => onSelectLoan && onSelectLoan(findLoan('MAGALI'))}
             className="flex-1 p-3.5 rounded-xl bg-gradient-to-br from-purple-950/40 via-[#1c1d22] to-[#1c1d22] border border-purple-500/40 hover:border-purple-400 transition-all shadow-sm space-y-2 cursor-pointer active:scale-[0.98]"
           >
             <div className="flex items-start justify-between">
@@ -147,7 +151,7 @@ export default function MobileStreamView({
           <div className="flex-1 space-y-2">
             {/* Sub-tarjeta 1 */}
             <div 
-              onClick={() => onSelectFolder && onSelectFolder('VICTORIA CORONADO DURAN')}
+              onClick={() => onSelectLoan && onSelectLoan(findLoan('VICTORIA'))}
               className="p-3 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm cursor-pointer active:scale-[0.98]"
             >
               <div className="flex justify-between items-start">
@@ -159,7 +163,7 @@ export default function MobileStreamView({
 
             {/* Sub-tarjeta 2 */}
             <div 
-              onClick={() => onSelectFolder && onSelectFolder('JIMENA CORDOVA PARADA')}
+              onClick={() => onSelectLoan && onSelectLoan(findLoan('JIMENA'))}
               className="p-3 rounded-xl bg-[#1c1d22] border border-[#282933] hover:border-[#383a48] transition-all shadow-sm cursor-pointer active:scale-[0.98]"
             >
               <div className="flex justify-between items-start">
@@ -183,7 +187,7 @@ export default function MobileStreamView({
           </div>
 
           <div 
-            onClick={() => onSelectFolder && onSelectFolder('Banco FIE')}
+            onClick={() => onSelectLoan && onSelectLoan(findLoan('FIE'))}
             className="flex-1 p-3.5 rounded-xl bg-[#1c1d22] border border-rose-500/30 hover:border-rose-500/50 transition-all shadow-sm space-y-1.5 cursor-pointer active:scale-[0.98]"
           >
             <div className="flex items-start justify-between">
@@ -201,6 +205,7 @@ export default function MobileStreamView({
             </div>
           </div>
         </div>
+
 
       </div>
 

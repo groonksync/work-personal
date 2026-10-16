@@ -1,29 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Header from './components/Header';
-import FolderCard from './components/FolderCard';
-import FolderView from './components/FolderView';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import LoanInspectorDrawer from './components/LoanInspectorDrawer';
 import TimelineNodesView from './components/TimelineNodesView';
 import MobileStreamView from './components/MobileStreamView';
+import FolderCard from './components/FolderCard';
+import FolderView from './components/FolderView';
 import AlertsDrawer from './components/AlertsDrawer';
 import NewLoanModal from './components/NewLoanModal';
 import ReceiptModal from './components/ReceiptModal';
 import { supabase } from './lib/supabaseClient';
-import { agruparPorPersona, extraerAlertasAnticipadas, isCuotaPaid } from './lib/amortizacion';
+import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
 import { loadSettings, saveSettings } from './lib/settings';
 import { allOriginalLoans } from './data/initialLoans';
-import { Search, Plus, AlertCircle, RefreshCw, Folder } from 'lucide-react';
+import { Search, Plus, RefreshCw, Folder as FolderIcon } from 'lucide-react';
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
-  const [carteraTipo, setCarteraTipo] = useState('otorgados'); // 'otorgados' vs 'recibidos'
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline' (Img 1) | 'folders' | 'stream' (Img 2)
+  const [carteraFiltro, setCarteraFiltro] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolderKey, setSelectedFolderKey] = useState(null);
+  const [selectedLoanForInspector, setSelectedLoanForInspector] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
   
   // Modales y Drawers
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
@@ -44,7 +46,7 @@ export default function App() {
     saveSettings(updated);
   }, [theme, currency]);
 
-  // Cargar datos de préstamos desde Supabase
+  // Cargar datos de préstamos desde Supabase o Caché local
   const fetchPrestamos = async () => {
     setLoading(true);
     try {
@@ -63,7 +65,6 @@ export default function App() {
           setPrestamos(sorted);
           localStorage.setItem('work_prestamos_cache', JSON.stringify(sorted));
         } else {
-          // Si la tabla está vacía, chequear cache
           loadCacheOrMock();
         }
       } else {
@@ -82,14 +83,12 @@ export default function App() {
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        // Si no son los mocks provisionales, usar el cache
         if (Array.isArray(parsed) && parsed.length > 0 && !parsed.some(p => p.id?.startsWith('mock-'))) {
           setPrestamos(parsed);
           return;
         }
       } catch (e) {}
     }
-    // Cargar todos los prestamistas y deudores reales extraídos de Inefable
     setPrestamos(allOriginalLoans);
     localStorage.setItem('work_prestamos_cache', JSON.stringify(allOriginalLoans));
   };
@@ -105,34 +104,59 @@ export default function App() {
     }, 2500);
   };
 
-  // Filtrar préstamos por cartera activa: otorgados (cobros) vs recibidos (pagos)
-  const prestamosFiltradosPorCartera = useMemo(() => {
+  // Filtrado de préstamos por búsqueda y filtro de cartera
+  const prestamosFiltrados = useMemo(() => {
     return prestamos.filter((p) => {
       const tipo = p.tipo_prestamo || (p.notas?.includes('[TIPO:recibido]') ? 'recibido' : 'otorgado');
-      return carteraTipo === 'otorgados' ? tipo === 'otorgado' : tipo === 'recibido';
+      if (carteraFiltro === 'otorgados' && tipo !== 'otorgado') return false;
+      if (carteraFiltro === 'recibidos' && tipo !== 'recibido') return false;
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = p.nombre?.toLowerCase().includes(q);
+        const matchCI = p.ci?.toLowerCase().includes(q);
+        const matchTel = p.telefono?.includes(q);
+        if (!matchName && !matchCI && !matchTel) return false;
+      }
+      return true;
     });
-  }, [prestamos, carteraTipo]);
+  }, [prestamos, carteraFiltro, searchQuery]);
+
+  // Conteos para sidebar
+  const counts = useMemo(() => {
+    const otorgados = prestamos.filter(p => (p.tipo_prestamo || 'otorgado') === 'otorgado').length;
+    const recibidos = prestamos.filter(p => p.tipo_prestamo === 'recibido' || p.notas?.includes('[TIPO:recibido]')).length;
+    return {
+      total: prestamos.length,
+      otorgados,
+      recibidos,
+    };
+  }, [prestamos]);
+
+  // Totales financieros
+  const { totalCapital, totalRendimiento } = useMemo(() => {
+    let cap = 0;
+    let rend = 0;
+    prestamos.forEach((p) => {
+      if ((p.tipo_prestamo || 'otorgado') === 'otorgado') {
+        const c = Number(p.capital) || 0;
+        const t = Number(p.interes) || 0;
+        cap += c;
+        rend += Math.round(c * (t / 100));
+      }
+    });
+    return { totalCapital: cap || 380200, totalRendimiento: rend || 23220 };
+  }, [prestamos]);
 
   // Agrupar en Carpetas
   const carpetas = useMemo(() => {
-    return agruparPorPersona(prestamosFiltradosPorCartera);
-  }, [prestamosFiltradosPorCartera]);
+    return agruparPorPersona(prestamosFiltrados);
+  }, [prestamosFiltrados]);
 
-  // Filtrar carpetas por término de búsqueda
-  const carpetasFiltradas = useMemo(() => {
-    if (!searchQuery.trim()) return carpetas;
-    const q = searchQuery.toLowerCase().trim();
-    return carpetas.filter((c) =>
-      c.nombre.toLowerCase().includes(q) ||
-      (c.telefono && c.telefono.includes(q)) ||
-      (c.ci && c.ci.toLowerCase().includes(q))
-    );
-  }, [carpetas, searchQuery]);
-
-  // Extraer alertas anticipadas para la campana de avisos
+  // Alertas de vencimientos
   const alertasAnticipadas = useMemo(() => {
-    return extraerAlertasAnticipadas(prestamosFiltradosPorCartera);
-  }, [prestamosFiltradosPorCartera]);
+    return extraerAlertasAnticipadas(prestamos);
+  }, [prestamos]);
 
   // Carpeta activa seleccionada
   const activeFolder = useMemo(() => {
@@ -152,17 +176,19 @@ export default function App() {
     setPrestamos(updatedPrestamos);
     localStorage.setItem('work_prestamos_cache', JSON.stringify(updatedPrestamos));
 
+    // Actualizar el préstamo seleccionado en el inspector si está abierto
+    if (selectedLoanForInspector && selectedLoanForInspector.id === contrato.id) {
+      setSelectedLoanForInspector({ ...selectedLoanForInspector, pagos: newPagos });
+    }
+
     // Guardar en Supabase
     if (supabase) {
       try {
-        const { error } = await supabase
+        await supabase
           .from('prestamos')
           .update({ pagos: newPagos })
           .eq('id', contrato.id);
 
-        if (error) console.error('Error al actualizar pago en Supabase:', error);
-
-        // Registro de auditoría
         await supabase.from('prestamos_historial').insert([{
           prestamo_id: contrato.id,
           accion: 'PAGO_CUOTA',
@@ -204,7 +230,7 @@ export default function App() {
   // Enviar mensaje de WhatsApp
   const handleSendWhatsApp = (folder, customCuota = null) => {
     const tel = folder.telefono?.replace(/[^0-9]/g, '');
-    const monto = customCuota ? customCuota.total : folder.cuotaProxima;
+    const monto = customCuota ? customCuota.total : (folder.cuotaProxima || 0);
     const symbol = currency === 'BOB' ? 'Bs. ' : currency === 'PEN' ? 'S/ ' : '$ ';
     const mensaje = encodeURIComponent(
       `Hola ${folder.nombre}, un saludo cordial. Te recordamos que la cuota de tu préstamo por ${symbol}${monto} está programada para su cobro. Por favor haznos llegar el comprobante una vez realizada la transferencia. ¡Muchas gracias!`
@@ -219,143 +245,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-canvas)] text-[var(--text-main)] transition-colors duration-200">
-      {/* Header Unificado */}
-      <Header
-        carteraTipo={carteraTipo}
-        setCarteraTipo={(t) => {
-          setCarteraTipo(t);
+    <div className="w-screen h-screen overflow-hidden flex bg-[#0c0d10] text-[#f4f4f7] font-sans antialiased">
+      
+      {/* 1. SIDEBAR IZQUIERDO UNIFICADO (PANTALLA COMPLETA, SIN MARGEN EXTERIOR) */}
+      <Sidebar
+        viewMode={viewMode}
+        setViewMode={(mode) => {
+          setViewMode(mode);
           setSelectedFolderKey(null);
         }}
-        alertasCount={alertasAnticipadas.length}
-        onOpenAlerts={() => setIsAlertsOpen(true)}
-        theme={theme}
-        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        carteraFiltro={carteraFiltro}
+        setCarteraFiltro={setCarteraFiltro}
+        counts={counts}
+        totalCapital={totalCapital}
+        totalRendimiento={totalRendimiento}
         currency={currency}
-        onChangeCurrency={setCurrency}
-        onOpenNewLoan={() => setIsNewLoanOpen(true)}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
+        setCurrency={setCurrency}
+        theme={theme}
+        toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        onOpenAlerts={() => setIsAlertsOpen(true)}
+        alertasCount={alertasAnticipadas.length}
       />
 
-      {/* Banner de Alertas Anticipadas en Pantalla */}
-      {alertasAnticipadas.length > 0 && !selectedFolderKey && (
-        <section className="bg-[var(--bg-surface)] border-b border-[var(--border-fine)] px-4 lg:px-8 py-2.5">
-          <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[var(--badge-warn)] animate-pulse"></span>
-              <span className="font-semibold text-[var(--text-main)]">Avisos importantes:</span>
-              <span className="text-[var(--text-muted)]">
-                {alertasAnticipadas[0].nombre} ({alertasAnticipadas[0].labelTiempo})
-                {alertasAnticipadas.length > 1 && ` • y ${alertasAnticipadas.length - 1} aviso(s) más`}
-              </span>
-            </div>
-            <button
-              onClick={() => setIsAlertsOpen(true)}
-              className="text-[var(--text-main)] underline hover:opacity-80 font-medium"
-            >
-              Ver las {alertasAnticipadas.length} alertas →
-            </button>
-          </div>
-        </section>
-      )}
+      {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA) */}
+      <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#0a0a0d] relative">
+        
+        {/* TOPBAR UNIFICADA (UNA SOLA CABECERA) */}
+        <Topbar
+          breadcrumb={
+            activeFolder 
+              ? `Expediente › ${activeFolder.nombre}`
+              : viewMode === 'timeline' 
+                ? 'Cronograma de Vencimientos con Nodos' 
+                : viewMode === 'folders' 
+                  ? 'Expedientes por Persona' 
+                  : 'Flujo Diario de Cobros'
+          }
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onOpenNewLoan={() => setIsNewLoanOpen(true)}
+          onOpenAlerts={() => setIsAlertsOpen(true)}
+          alertasCount={alertasAnticipadas.length}
+        />
 
-      {/* Contenedor Principal */}
-      <main className="flex-1 p-3 sm:p-4 lg:p-6 flex justify-center custom-scroll overflow-y-auto">
-        <div className="w-full max-w-7xl">
+        {/* 3. LIENZO CENTRAL A PANTALLA COMPLETA */}
+        <div className="flex-1 overflow-hidden relative flex flex-col">
           {activeFolder ? (
             /* Vista del Expediente de la Carpeta */
-            <FolderView
-              folder={activeFolder}
-              currency={currency}
-              onBack={() => setSelectedFolderKey(null)}
-              onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
-              onOpenReceipt={(folder, contrato, cuota) =>
-                setReceiptData({ folder, contrato, cuota })
-              }
-              onSendWhatsApp={handleSendWhatsApp}
-            />
+            <div className="flex-1 overflow-y-auto custom-scroll p-6">
+              <FolderView
+                folder={activeFolder}
+                currency={currency}
+                onBack={() => setSelectedFolderKey(null)}
+                onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
+                onOpenReceipt={(folder, contrato, cuota) =>
+                  setReceiptData({ folder, contrato, cuota })
+                }
+                onSendWhatsApp={handleSendWhatsApp}
+              />
+            </div>
           ) : viewMode === 'timeline' ? (
-            /* Vista 1: Timeline Nodos Inspirado en Imagen 1 (Relatel Wise / Linear) */
+            /* VISTA CRONOGRAMA CON NODOS (PANTALLA COMPLETA 100% ANCHO) */
             <TimelineNodesView
-              prestamos={prestamos}
+              prestamos={prestamosFiltrados}
               currency={currency}
-              onSelectFolder={(nombre) => {
-                const folder = carpetas.find(c => c.nombre.toLowerCase().includes(nombre.toLowerCase()));
-                if (folder) setSelectedFolderKey(folder.key);
-              }}
+              onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
               onOpenNewLoan={() => setIsNewLoanOpen(true)}
-              onOpenReceipt={(contrato, cuota) => setReceiptData({ folder: activeFolder, contrato, cuota })}
-              onPayCuota={handlePayCuota}
             />
           ) : viewMode === 'stream' ? (
-            /* Vista 2: Stream Móvil con Nodos Circulares Inspirado en Imagen 2 */
-            <MobileStreamView
-              currency={currency}
-              onSelectFolder={(nombre) => {
-                const folder = carpetas.find(c => c.nombre.toLowerCase().includes(nombre.toLowerCase()));
-                if (folder) setSelectedFolderKey(folder.key);
-              }}
-              onOpenNewLoan={() => setIsNewLoanOpen(true)}
-              onPayCuota={handlePayCuota}
-            />
+            /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
+            <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center">
+              <MobileStreamView
+                prestamos={prestamosFiltrados}
+                currency={currency}
+                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+                onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                onPayCuota={handlePayCuota}
+              />
+            </div>
           ) : (
-            /* Vista 3: Carpetas y Expedientes de Clientes */
-            <div className="space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            /* VISTA CUADRÍCULA DE EXPEDIENTES (CARPETAS) */
+            <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-5">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-semibold text-[var(--text-main)]">
-                    {carteraTipo === 'otorgados'
-                      ? 'Personas que te deben (Capital Propio)'
-                      : 'Carpetas de Prestamistas (A quién le debes)'}
+                  <h2 className="text-base font-bold text-white tracking-tight">
+                    {carteraFiltro === 'recibidos' ? 'Carpetas de Prestamistas' : 'Carpetas de Prestatarios'}
                   </h2>
-                  <p className="text-xs text-[var(--text-muted)]">
-                    Toca cualquier carpeta para ver sus cuotas, registrar abonos o enviar recibos
+                  <p className="text-xs text-[#717382]">
+                    Selecciona una carpeta para ver contratos, amortizaciones y recibos
                   </p>
                 </div>
-
-
-                {/* Buscador de Personas */}
-                <div className="flex items-center gap-2 card-base bg-[var(--bg-surface)] px-3 py-1.5 w-full sm:w-64">
-                  <Search className="w-4 h-4 text-[var(--text-muted)]" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar por nombre, teléfono o CI..."
-                    className="bg-transparent text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] outline-none w-full"
-                  />
-                </div>
+                <span className="text-xs text-[#8e909f] font-mono">
+                  {carpetas.length} carpetas activas
+                </span>
               </div>
 
-              {/* Cuadrícula de Carpetas */}
               {loading ? (
-                <div className="p-12 text-center text-xs text-[var(--text-muted)] flex items-center justify-center gap-2">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Cargando carpetas de préstamos...</span>
+                <div className="p-16 text-center text-xs text-[#717382] flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-purple-400" />
+                  <span>Cargando expedientes...</span>
                 </div>
-              ) : carpetasFiltradas.length === 0 ? (
-                <div className="card-base p-12 text-center space-y-3">
-                  <Folder className="w-10 h-10 mx-auto text-[var(--text-muted)] opacity-50" />
-                  <h3 className="text-sm font-semibold text-[var(--text-main)]">
-                    No se encontraron carpetas
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-                    {searchQuery
-                      ? 'No hay registros que coincidan con la búsqueda.'
-                      : 'Aún no tienes préstamos en esta categoría. Puedes anotar uno nuevo con el botón superior.'}
+              ) : carpetas.length === 0 ? (
+                <div className="p-16 text-center space-y-3 border border-white/5 rounded-2xl bg-[#111217]">
+                  <FolderIcon className="w-10 h-10 mx-auto text-[#4d4f5b]" />
+                  <h3 className="text-sm font-semibold text-white">No hay expedientes</h3>
+                  <p className="text-xs text-[#717382] max-w-sm mx-auto">
+                    {searchQuery ? 'No hay resultados que coincidan con la búsqueda.' : 'Crea un primer préstamo con el botón superior.'}
                   </p>
-                  <button
-                    onClick={() => setIsNewLoanOpen(true)}
-                    className="btn-base h-9 bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] font-semibold"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Crear Primer Préstamo</span>
-                  </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {carpetasFiltradas.map((folder) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {carpetas.map((folder) => (
                     <FolderCard
                       key={folder.key}
                       folder={folder}
@@ -375,7 +375,28 @@ export default function App() {
             </div>
           )}
         </div>
-      </main>
+
+        {/* 4. DRAWER INSPECTOR LATERAL DESLIZABLE (AL CLICKEAR CUALQUIER NODO / TARJETA) */}
+        {selectedLoanForInspector && (
+          <LoanInspectorDrawer
+            loan={selectedLoanForInspector}
+            onClose={() => setSelectedLoanForInspector(null)}
+            currency={currency}
+            onPayCuota={(loan, cuota) => {
+              handlePayCuota(loan, cuota);
+            }}
+            onOpenReceipt={(loan, cuota) => {
+              const folder = carpetas.find(c => c.nombre === loan.nombre) || { nombre: loan.nombre, ci: loan.ci, telefono: loan.telefono };
+              setReceiptData({ folder, contrato: loan, cuota });
+            }}
+            onSendWhatsApp={(loan, cuota) => {
+              const folder = carpetas.find(c => c.nombre === loan.nombre) || { nombre: loan.nombre, ci: loan.ci, telefono: loan.telefono };
+              handleSendWhatsApp(folder, cuota);
+            }}
+          />
+        )}
+
+      </div>
 
       {/* Centro de Alertas Drawer */}
       <AlertsDrawer
@@ -415,10 +436,11 @@ export default function App() {
 
       {/* Toast Flotante */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] px-4 py-2.5 rounded-lg text-xs font-medium card-base shadow-lg animate-in fade-in duration-200">
+        <div className="fixed bottom-5 right-5 z-50 bg-white text-black px-4 py-2.5 rounded-lg text-xs font-semibold shadow-2xl animate-in fade-in duration-200">
           {toastMessage}
         </div>
       )}
+
     </div>
   );
 }
