@@ -1,0 +1,271 @@
+import React, { useState } from 'react';
+import { 
+  X, DollarSign, TrendingDown, Calendar, Check, 
+  ArrowRight, Calculator, AlertCircle, FileCheck
+} from 'lucide-react';
+
+export default function CapitalPaymentModal({
+  isOpen,
+  onClose,
+  loan,
+  currency = 'BOB',
+  onConfirmCapitalPayment,
+  onShowToast,
+}) {
+  if (!isOpen || !loan) return null;
+
+  const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
+
+  const capitalOriginal = parseFloat(loan.capital) || 0;
+  const abonosPrevios = Array.isArray(loan.abonos_capital) ? loan.abonos_capital : [];
+  const totalAbonadoPrevio = abonosPrevios.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+  const saldoActual = Math.max(0, capitalOriginal - totalAbonadoPrevio);
+
+  const [montoAbono, setMontoAbono] = useState('');
+  const [metodoRecalculo, setMetodoRecalculo] = useState(loan.metodo_recalculo || 'reducir_cuota');
+  const [fechaAbono, setFechaAbono] = useState(new Date().toISOString().slice(0, 10));
+  const [notasAbono, setNotasAbono] = useState('');
+
+  const abonoNum = parseFloat(montoAbono) || 0;
+  const nuevoSaldoCapital = Math.max(0, saldoActual - abonoNum);
+
+  // Simulación de cuota
+  const tasa = parseFloat(loan.interes) || 0;
+  const plazoMeses = parseInt(loan.plazo_meses) || 6;
+  const cuotaCapitalAntigua = Math.round(saldoActual / plazoMeses);
+  const interesMensualAntiguo = Math.round(saldoActual * (tasa / 100));
+  const cuotaTotalAntigua = cuotaCapitalAntigua + interesMensualAntiguo;
+
+  const cuotaCapitalNueva = Math.round(nuevoSaldoCapital / plazoMeses);
+  const interesMensualNuevo = Math.round(nuevoSaldoCapital * (tasa / 100));
+  const cuotaTotalNueva = cuotaCapitalNueva + interesMensualNuevo;
+  const ahorroMensual = Math.max(0, cuotaTotalAntigua - cuotaTotalNueva);
+
+  const handleConfirm = () => {
+    if (abonoNum <= 0) {
+      alert('Ingresa un monto válido para el abono a capital.');
+      return;
+    }
+    if (abonoNum > saldoActual) {
+      alert(`El abono no puede superar el saldo actual de ${symbol} ${saldoActual.toLocaleString()}.`);
+      return;
+    }
+
+    const nuevoAbono = {
+      id: `abono-cap-${Date.now()}`,
+      fecha: fechaAbono,
+      monto: abonoNum,
+      metodo: metodoRecalculo,
+      notas: notasAbono.trim() || 'Abono directo a capital',
+    };
+
+    onConfirmCapitalPayment(loan.id, nuevoAbono);
+    if (onShowToast) onShowToast(`Abono a capital de ${symbol} ${abonoNum} registrado`);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
+      <div 
+        className="w-full max-w-lg bg-[#1e1e1e] border border-[#2e2e2e] rounded-2xl shadow-2xl flex flex-col text-[#ececec] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Cabecera */}
+        <div className="p-4 px-5 border-b border-[#2e2e2e] flex items-center justify-between bg-[#171717]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#262626] border border-[#383838] flex items-center justify-center text-white">
+              <TrendingDown className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white tracking-tight leading-none">
+                Abono Extraordinario a Capital
+              </h3>
+              <span className="text-[11px] text-[#8e8e8e] mt-1 block">
+                Expediente: <strong className="text-white">{loan.nombre}</strong>
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-[#262626] hover:bg-[#333333] text-[#a3a3a3] hover:text-white flex items-center justify-center transition-all"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Cuerpo */}
+        <div className="p-5 space-y-4 text-xs overflow-y-auto max-h-[75vh]">
+          
+          {/* Tarjetas de Estado de Capital */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="p-3 rounded-xl bg-[#262626] border border-[#333333]">
+              <span className="text-[10px] text-[#8e8e8e] uppercase font-semibold block">
+                Saldo Insoluto Actual
+              </span>
+              <div className="text-lg font-mono font-bold text-white mt-1">
+                {symbol} {saldoActual.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-[#737373] block mt-0.5">
+                Capital inicial: {symbol} {capitalOriginal.toLocaleString()}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#262626] border border-[#333333]">
+              <span className="text-[10px] text-[#8e8e8e] uppercase font-semibold block">
+                Nuevo Saldo Tras Abono
+              </span>
+              <div className="text-lg font-mono font-bold text-emerald-400 mt-1">
+                {symbol} {nuevoSaldoCapital.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-[#737373] block mt-0.5">
+                Amortización: -{symbol} {abonoNum.toLocaleString()}
+              </span>
+            </div>
+          </div>
+
+          {/* Formulario del Abono */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-[#262626] border border-[#333333]">
+            <div>
+              <label className="text-[11px] font-semibold text-white block mb-1">
+                Monto que Desea Abonar a Capital
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={montoAbono}
+                  onChange={(e) => setMontoAbono(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full bg-[#1c1c1c] border border-[#383838] focus:border-emerald-500/50 p-2.5 pl-8 rounded-lg text-white font-mono text-base font-bold outline-none"
+                  autoFocus
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-[#737373]">
+                  {symbol}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-[#8e8e8e] uppercase font-semibold block mb-1">
+                  Fecha del Abono
+                </label>
+                <input
+                  type="date"
+                  value={fechaAbono}
+                  onChange={(e) => setFechaAbono(e.target.value)}
+                  className="w-full bg-[#1c1c1c] border border-[#383838] p-2 rounded-lg text-white font-mono outline-none text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-[#8e8e8e] uppercase font-semibold block mb-1">
+                  Comprobante / Detalle
+                </label>
+                <input
+                  type="text"
+                  value={notasAbono}
+                  onChange={(e) => setNotasAbono(e.target.value)}
+                  placeholder="Ej: Depósito Banco BCP"
+                  className="w-full bg-[#1c1c1c] border border-[#383838] p-2 rounded-lg text-white outline-none text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Selector de Recálculo */}
+            <div className="pt-2 border-t border-[#333333] space-y-1.5">
+              <span className="text-[11px] font-semibold text-white block">
+                Método de Recálculo Financiero
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMetodoRecalculo('reducir_cuota')}
+                  className={`p-2.5 rounded-lg border text-left transition-all ${
+                    metodoRecalculo === 'reducir_cuota'
+                      ? 'bg-[#333333] border-white text-white font-medium'
+                      : 'bg-[#1c1c1c] border-[#383838] text-[#8e8e8e]'
+                  }`}
+                >
+                  <span className="block font-semibold text-white text-xs">Reducir Cuota Mensual</span>
+                  <span className="text-[10px] text-[#a3a3a3] block mt-0.5">
+                    Mantiene el plazo restante, pero baja la cuota.
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMetodoRecalculo('reducir_plazo')}
+                  className={`p-2.5 rounded-lg border text-left transition-all ${
+                    metodoRecalculo === 'reducir_plazo'
+                      ? 'bg-[#333333] border-white text-white font-medium'
+                      : 'bg-[#1c1c1c] border-[#383838] text-[#8e8e8e]'
+                  }`}
+                >
+                  <span className="block font-semibold text-white text-xs">Reducir Plazo</span>
+                  <span className="text-[10px] text-[#a3a3a3] block mt-0.5">
+                    Mantiene el monto de cuota, termina antes.
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Simulación en Vivo */}
+          {abonoNum > 0 && (
+            <div className="p-3.5 rounded-xl bg-[#262626] border border-emerald-500/25 space-y-2 animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
+                <Calculator className="w-3.5 h-3.5" />
+                <span>Simulación de Impacto Financiero</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+                <div className="p-2 rounded-lg bg-[#1c1c1c] border border-[#333]">
+                  <span className="text-[10px] text-[#8e8e8e] block">Cuota Anterior</span>
+                  <strong className="text-white font-mono text-xs block mt-0.5">
+                    {symbol} {cuotaTotalAntigua.toLocaleString()}
+                  </strong>
+                </div>
+
+                <div className="p-2 rounded-lg bg-[#1c1c1c] border border-emerald-500/30">
+                  <span className="text-[10px] text-emerald-400 block">Nueva Cuota</span>
+                  <strong className="text-emerald-400 font-mono text-xs block mt-0.5">
+                    {symbol} {cuotaTotalNueva.toLocaleString()}
+                  </strong>
+                </div>
+
+                <div className="p-2 rounded-lg bg-[#1c1c1c] border border-[#333]">
+                  <span className="text-[10px] text-[#8e8e8e] block">Ahorro Mensual</span>
+                  <strong className="text-white font-mono text-xs block mt-0.5">
+                    -{symbol} {ahorroMensual.toLocaleString()}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 px-5 border-t border-[#2e2e2e] bg-[#171717] flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-2 rounded-lg bg-[#262626] hover:bg-[#303030] text-xs font-medium text-[#d4d4d4] transition-all"
+          >
+            Cancelar
+          </button>
+
+          <button
+            onClick={handleConfirm}
+            disabled={abonoNum <= 0}
+            className="px-4 py-2 rounded-lg bg-white text-black font-semibold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          >
+            <Check className="w-4 h-4 stroke-[2.5]" />
+            <span>Confirmar Abono a Capital</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}

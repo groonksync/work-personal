@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, Bell, X, Calendar, Folder, Clock } from 'lucide-react';
+import { Search, Plus, Bell, X, Calendar, Folder, Clock, Sliders } from 'lucide-react';
 
 export default function Topbar({
   viewMode = 'timeline',
@@ -9,6 +9,7 @@ export default function Topbar({
   onOpenNewLoan,
   onOpenAlerts,
   alertasCount = 0,
+  onOpenSettings,
 }) {
   const getIcon = () => {
     if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-[#d4d4d4]" />;
@@ -63,6 +64,15 @@ export default function Topbar({
               {alertasCount}
             </span>
           )}
+        </button>
+
+        {/* Botón de Ajustes y Auditoría */}
+        <button
+          onClick={onOpenSettings}
+          className="h-8 w-8 rounded-lg bg-[#2a2a2a] hover:bg-[#333333] text-[#b4b4b4] hover:text-white flex items-center justify-center text-xs transition-all border border-[#333333]"
+          title="Ajustes y Auditoría"
+        >
+          <Sliders className="w-4 h-4" />
         </button>
 
         {/* Botón Nuevo Préstamo (Liso, suave y limpio) */}

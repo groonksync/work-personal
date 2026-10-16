@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Calendar, Folder, Clock, Users, ArrowUpRight, 
-  ArrowDownLeft, Bell, Sun, Moon, Plus, DollarSign 
+  ArrowDownLeft, Bell, Sun, Moon, Plus, DollarSign, Sliders 
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -19,6 +19,7 @@ export default function Sidebar({
   onOpenAlerts,
   alertasCount = 0,
   onOpenNewLoan,
+  onOpenSettings,
 }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
@@ -194,16 +195,30 @@ export default function Sidebar({
             <option value="PEN">S/ PEN</option>
           </select>
 
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] text-[#8e8e8e] hover:text-white flex items-center justify-center border border-[#2f2f2f] transition-all"
-            title="Alternar tema"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onOpenSettings}
+              className="w-8 h-8 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] text-[#8e8e8e] hover:text-white flex items-center justify-center border border-[#2f2f2f] transition-all"
+              title="Ajustes y Auditoría"
+            >
+              <Sliders className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-lg bg-[#212121] hover:bg-[#2a2a2a] text-[#8e8e8e] hover:text-white flex items-center justify-center border border-[#2f2f2f] transition-all"
+              title="Alternar tema"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5 px-1 py-1 rounded-lg hover:bg-[#212121] transition-all cursor-pointer">
+        <div 
+          onClick={onOpenSettings}
+          className="flex items-center gap-2.5 px-1 py-1 rounded-lg hover:bg-[#212121] transition-all cursor-pointer"
+          title="Abrir perfil y ajustes"
+        >
           <div className="w-7 h-7 rounded-full bg-[#2f2f2f] border border-[#3d3d3d] flex items-center justify-center font-bold text-xs text-white">
             CJ
           </div>

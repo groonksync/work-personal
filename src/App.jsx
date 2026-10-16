@@ -10,9 +10,13 @@ import FolderView from './components/FolderView';
 import AlertsDrawer from './components/AlertsDrawer';
 import NewLoanModal from './components/NewLoanModal';
 import ReceiptModal from './components/ReceiptModal';
+import SettingsModal from './components/SettingsModal';
+import VoucherManagerModal from './components/VoucherManagerModal';
+import ExpressNotesModal from './components/ExpressNotesModal';
+import CapitalPaymentModal from './components/CapitalPaymentModal';
 import { supabase } from './lib/supabaseClient';
 import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
-import { loadSettings, saveSettings } from './lib/settings';
+import { loadSettings, saveSettings, defaultTemplates } from './lib/settings';
 import { allOriginalLoans } from './data/initialLoans';
 import { Search, Plus, RefreshCw, Folder as FolderIcon } from 'lucide-react';
 
@@ -28,9 +32,13 @@ export default function App() {
   const [selectedLoanForInspector, setSelectedLoanForInspector] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Modales y Drawers
+  // Modales y Drawers de Auditoría y Control
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [isNewLoanOpen, setIsNewLoanOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [selectedLoanForVouchers, setSelectedLoanForVouchers] = useState(null);
+  const [selectedLoanForNotes, setSelectedLoanForNotes] = useState(null);
+  const [selectedLoanForCapital, setSelectedLoanForCapital] = useState(null);
   const [receiptData, setReceiptData] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -228,19 +236,81 @@ export default function App() {
     showToast(`📁 Carpeta creada para ${savedLoan.nombre}`);
   };
 
-  // Enviar mensaje de WhatsApp
-  const handleSendWhatsApp = (folder, customCuota = null) => {
-    const tel = folder.telefono?.replace(/[^0-9]/g, '');
-    const monto = customCuota ? customCuota.total : (folder.cuotaProxima || 0);
+  // Guardar Notas Express
+  const handleSaveNotes = async (loanId, newNotes) => {
+    const updated = prestamos.map(p => p.id === loanId ? { ...p, notas_express: newNotes } : p);
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    if (selectedLoanForInspector && selectedLoanForInspector.id === loanId) {
+      setSelectedLoanForInspector({ ...selectedLoanForInspector, notas_express: newNotes });
+    }
+    if (supabase) {
+      try {
+        await supabase.from('prestamos').update({ notas_express: newNotes }).eq('id', loanId);
+      } catch (e) {}
+    }
+  };
+
+  // Registrar Abono Extraordinario a Capital
+  const handleConfirmCapitalPayment = async (loanId, nuevoAbono) => {
+    const loan = prestamos.find(p => p.id === loanId);
+    if (!loan) return;
+    const currentAbonos = Array.isArray(loan.abonos_capital) ? loan.abonos_capital : [];
+    const updatedAbonos = [...currentAbonos, nuevoAbono];
+    const updated = prestamos.map(p => p.id === loanId ? { 
+      ...p, 
+      abonos_capital: updatedAbonos, 
+      metodo_recalculo: nuevoAbono.metodo 
+    } : p);
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    if (selectedLoanForInspector && selectedLoanForInspector.id === loanId) {
+      setSelectedLoanForInspector({ 
+        ...selectedLoanForInspector, 
+        abonos_capital: updatedAbonos, 
+        metodo_recalculo: nuevoAbono.metodo 
+      });
+    }
+    if (supabase) {
+      try {
+        await supabase.from('prestamos').update({
+          abonos_capital: updatedAbonos,
+          metodo_recalculo: nuevoAbono.metodo
+        }).eq('id', loanId);
+        await supabase.from('prestamos_historial').insert([{
+          prestamo_id: loanId,
+          accion: 'ABONO_CAPITAL',
+          detalle: `Abono extraordinario a capital: ${nuevoAbono.monto} ${currency}`,
+        }]);
+      } catch (e) {}
+    }
+    showToast(`Abono a capital de ${nuevoAbono.monto} ${currency} registrado`);
+  };
+
+  // Enviar mensaje de WhatsApp usando plantillas parametrizadas
+  const handleSendWhatsApp = (folderOrLoan, customCuota = null) => {
+    const telRaw = folderOrLoan.telefono?.replace(/[^0-9]/g, '') || '';
+    const tel = telRaw.length === 8 ? `591${telRaw}` : telRaw;
+    const monto = customCuota ? customCuota.total : (folderOrLoan.cuotaProxima || 0);
     const symbol = currency === 'BOB' ? 'Bs. ' : currency === 'PEN' ? 'S/ ' : '$ ';
-    const mensaje = encodeURIComponent(
-      `Hola ${folder.nombre}, un saludo cordial. Te recordamos que la cuota de tu préstamo por ${symbol}${monto} está programada para su cobro. Por favor haznos llegar el comprobante una vez realizada la transferencia. ¡Muchas gracias!`
-    );
+    const fecha = customCuota?.fechaVencimiento || new Date().toLocaleDateString();
+    
+    // Plantilla de recordatorio personalizada
+    const templateBase = settings.templates?.recordatorio || defaultTemplates.recordatorio;
+    const mensajeTexto = templateBase
+      .replace('{nombre}', folderOrLoan.nombre || 'Estimado/a cliente')
+      .replace('{monto}', `${symbol}${monto.toLocaleString()}`)
+      .replace('{fecha}', fecha)
+      .replace('{cuota}', customCuota?.numero ? `#${customCuota.numero}` : 'programada')
+      .replace('{banco_info}', settings.bankAccountInfo || 'Transferencia / QR')
+      .replace('{saldo}', `${symbol}${folderOrLoan.totalAdeudado || monto}`);
+
+    const encoded = encodeURIComponent(mensajeTexto);
 
     if (tel) {
-      window.open(`https://wa.me/${tel}?text=${mensaje}`, '_blank');
+      window.open(`https://wa.me/${tel}?text=${encoded}`, '_blank');
     } else {
-      navigator.clipboard.writeText(decodeURIComponent(mensaje));
+      navigator.clipboard.writeText(mensajeTexto);
       showToast('Mensaje de WhatsApp copiado al portapapeles');
     }
   };
@@ -262,6 +332,10 @@ export default function App() {
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
           onPayCuota={handlePayCuota}
           onSendWhatsApp={handleSendWhatsApp}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
+          onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
+          onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
         />
       </div>
 
@@ -289,6 +363,7 @@ export default function App() {
           onOpenAlerts={() => setIsAlertsOpen(true)}
           alertasCount={alertasAnticipadas.length}
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
         />
 
         {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
@@ -311,6 +386,7 @@ export default function App() {
             onOpenNewLoan={() => setIsNewLoanOpen(true)}
             onOpenAlerts={() => setIsAlertsOpen(true)}
             alertasCount={alertasAnticipadas.length}
+            onOpenSettings={() => setIsSettingsOpen(true)}
           />
 
           {/* 3. LIENZO CENTRAL A PANTALLA COMPLETA */}
@@ -327,6 +403,10 @@ export default function App() {
                     setReceiptData({ folder, contrato, cuota })
                   }
                   onSendWhatsApp={handleSendWhatsApp}
+                  onOpenVouchers={(contrato) => setSelectedLoanForVouchers(contrato)}
+                  onOpenExpressNotes={(contrato) => setSelectedLoanForNotes(contrato)}
+                  onOpenCapitalPayment={(contrato) => setSelectedLoanForCapital(contrato)}
+                  defaultDriveUrl={settings.googleDriveUrl}
                 />
               </div>
             ) : viewMode === 'timeline' ? (
@@ -422,6 +502,10 @@ export default function App() {
             const folder = carpetas.find(c => c.nombre === loan.nombre) || { nombre: loan.nombre, ci: loan.ci, telefono: loan.telefono };
             handleSendWhatsApp(folder, cuota);
           }}
+          onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
+          onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
+          onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
+          defaultDriveUrl={settings.googleDriveUrl}
         />
       )}
 
@@ -459,6 +543,43 @@ export default function App() {
         onClose={() => setReceiptData(null)}
         data={receiptData}
         currency={currency}
+      />
+
+      {/* Modal de Ajustes y Auditoría */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onUpdateSettings={(newSettings) => setSettings(newSettings)}
+        onShowToast={showToast}
+      />
+
+      {/* Modal de Gestión de Comprobantes / Bauchers QR */}
+      <VoucherManagerModal
+        isOpen={!!selectedLoanForVouchers}
+        onClose={() => setSelectedLoanForVouchers(null)}
+        loan={selectedLoanForVouchers}
+        currency={currency}
+        onShowToast={showToast}
+      />
+
+      {/* Modal de Bitácora de Notas Express */}
+      <ExpressNotesModal
+        isOpen={!!selectedLoanForNotes}
+        onClose={() => setSelectedLoanForNotes(null)}
+        loan={selectedLoanForNotes}
+        onSaveNotes={handleSaveNotes}
+        onShowToast={showToast}
+      />
+
+      {/* Modal de Abono Extraordinario a Capital */}
+      <CapitalPaymentModal
+        isOpen={!!selectedLoanForCapital}
+        onClose={() => setSelectedLoanForCapital(null)}
+        loan={selectedLoanForCapital}
+        currency={currency}
+        onConfirmCapitalPayment={handleConfirmCapitalPayment}
+        onShowToast={showToast}
       />
 
       {/* Toast Flotante */}

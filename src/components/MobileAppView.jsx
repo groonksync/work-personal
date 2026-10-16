@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   Calendar, Users, Zap, Bell, Plus, Search, 
   Send, Check, ChevronRight, DollarSign, ArrowUpRight, 
-  ArrowDownLeft, Clock, ShieldCheck, X
+  ArrowDownLeft, Clock, ShieldCheck, X, Sliders, Receipt, 
+  MessageSquare, TrendingDown, Landmark, HardDrive
 } from 'lucide-react';
 
 export default function MobileAppView({
@@ -15,6 +16,10 @@ export default function MobileAppView({
   onOpenNewLoan,
   onPayCuota,
   onSendWhatsApp,
+  onOpenSettings,
+  onOpenVouchers,
+  onOpenExpressNotes,
+  onOpenCapitalPayment,
 }) {
   const [mobileTab, setMobileTab] = useState('cronograma'); // 'cronograma' | 'clientes' | 'cobros' | 'avisos'
   const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
@@ -59,7 +64,7 @@ export default function MobileAppView({
             </h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {/* Selector de moneda rápido */}
             <select
               value={currency}
@@ -77,8 +82,18 @@ export default function MobileAppView({
               className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                 searchOpen ? 'bg-white text-black' : 'bg-[#262626] text-[#a3a3a3]'
               }`}
+              title="Buscar"
             >
               <Search className="w-4 h-4" />
+            </button>
+
+            {/* Ajustes y Auditoría */}
+            <button
+              onClick={onOpenSettings}
+              className="w-8 h-8 rounded-lg bg-[#262626] hover:bg-[#333] text-[#a3a3a3] hover:text-white flex items-center justify-center transition-all"
+              title="Ajustes"
+            >
+              <Sliders className="w-4 h-4" />
             </button>
 
             {/* Botón + Nuevo */}
@@ -152,7 +167,7 @@ export default function MobileAppView({
               onClick={() => setMobileTab('avisos')}
               className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-amber-500/15 text-amber-300 font-bold flex items-center gap-1"
             >
-              <span>🔔</span>
+              <Bell className="w-3 h-3 text-amber-400" />
               <span>{alertas.length} por vencer</span>
             </button>
           )}
@@ -174,7 +189,7 @@ export default function MobileAppView({
                 <span className="text-[10px] text-[#8e8e8e]">Mañana</span>
               </div>
               <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                ⚡
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('ROBERTO'))}
@@ -201,7 +216,7 @@ export default function MobileAppView({
                 <span className="text-[10px] text-[#8e8e8e]">En 4d</span>
               </div>
               <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                ✓
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('ROLY'))}
@@ -228,7 +243,7 @@ export default function MobileAppView({
                 <span className="text-[10px] text-[#8e8e8e]">Fondeo</span>
               </div>
               <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                ★
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('MAGALI'))}
@@ -257,7 +272,7 @@ export default function MobileAppView({
                 <span className="text-xs font-bold text-white block">28 Oct</span>
                 <span className="text-[10px] text-[#8e8e8e]">2 cobros</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
+              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs font-mono">
                 2
               </div>
               <div className="flex-1 space-y-2">
@@ -292,7 +307,7 @@ export default function MobileAppView({
                 <span className="text-[10px] text-[#8e8e8e]">Pagar</span>
               </div>
               <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                🏦
+                <Landmark className="w-3.5 h-3.5 text-purple-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('FIE'))}
@@ -349,7 +364,22 @@ export default function MobileAppView({
                     {loan.fin && <span className="ml-2 font-mono text-[11px]">Vence: {loan.fin}</span>}
                   </div>
 
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {/* Acciones Rápidas */}
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => onOpenVouchers && onOpenVouchers(loan)}
+                      className="p-1.5 rounded-lg bg-[#212121] hover:bg-[#333] text-emerald-400 border border-[#383838]"
+                      title="Vouchers"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onOpenExpressNotes && onOpenExpressNotes(loan)}
+                      className="p-1.5 rounded-lg bg-[#212121] hover:bg-[#333] text-amber-400 border border-[#383838]"
+                      title="Notas Express"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => onSendWhatsApp && onSendWhatsApp({ nombre: loan.nombre, telefono: loan.telefono })}
                       className="px-2.5 py-1 rounded bg-[#212121] hover:bg-[#333] text-emerald-400 text-xs font-medium border border-emerald-500/20"
@@ -409,7 +439,8 @@ export default function MobileAppView({
           <div className="space-y-3">
             {alertas.length === 0 ? (
               <div className="p-12 text-center text-xs text-[#8e8e8e] space-y-2">
-                <span>✓ No hay cuotas vencidas ni por vencer</span>
+                <Check className="w-5 h-5 text-emerald-400 mx-auto" />
+                <span>No hay cuotas vencidas ni por vencer</span>
               </div>
             ) : (
               alertas.map((alerta, idx) => (
