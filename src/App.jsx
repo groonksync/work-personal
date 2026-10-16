@@ -46,13 +46,17 @@ export default function App() {
       if (supabase) {
         const { data, error } = await supabase
           .from('prestamos')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*');
 
         if (error) throw error;
         if (data && data.length > 0) {
-          setPrestamos(data);
-          localStorage.setItem('work_prestamos_cache', JSON.stringify(data));
+          const sorted = [...data].sort((a, b) => {
+            const dateA = String(a.inicio || a.id || '');
+            const dateB = String(b.inicio || b.id || '');
+            return dateB.localeCompare(dateA);
+          });
+          setPrestamos(sorted);
+          localStorage.setItem('work_prestamos_cache', JSON.stringify(sorted));
         } else {
           // Si la tabla está vacía, chequear cache
           loadCacheOrMock();
