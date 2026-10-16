@@ -8,6 +8,7 @@ import ReceiptModal from './components/ReceiptModal';
 import { supabase } from './lib/supabaseClient';
 import { agruparPorPersona, extraerAlertasAnticipadas, isCuotaPaid } from './lib/amortizacion';
 import { loadSettings, saveSettings } from './lib/settings';
+import { allOriginalLoans } from './data/initialLoans';
 import { Search, Plus, AlertCircle, RefreshCw, Folder } from 'lucide-react';
 
 export default function App() {
@@ -76,78 +77,17 @@ export default function App() {
     const cached = localStorage.getItem('work_prestamos_cache');
     if (cached) {
       try {
-        setPrestamos(JSON.parse(cached));
-        return;
+        const parsed = JSON.parse(cached);
+        // Si no son los mocks provisionales, usar el cache
+        if (Array.isArray(parsed) && parsed.length > 0 && !parsed.some(p => p.id?.startsWith('mock-'))) {
+          setPrestamos(parsed);
+          return;
+        }
       } catch (e) {}
     }
-    // Datos iniciales de demostración con la misma estructura
-    const mock = [
-      {
-        id: 'mock-1',
-        nombre: 'Carlos Salazar',
-        telefono: '70012345',
-        ci: '8492019 LP',
-        capital: 2100,
-        interes: 5,
-        plazo_meses: 6,
-        inicio: '2026-08-17',
-        fin: '2027-02-17',
-        estado: 'Activo',
-        tipo_prestamo: 'otorgado',
-        moneda: currency,
-        pagos: ['2026-09', '2026-10'],
-        notas: '[TIPO:otorgado]',
-      },
-      {
-        id: 'mock-2',
-        nombre: 'Manuel Rodríguez',
-        telefono: '71123456',
-        ci: '4928102 SC',
-        capital: 1500,
-        interes: 10,
-        plazo_meses: 10,
-        inicio: '2026-05-20',
-        fin: '2027-03-20',
-        estado: 'Activo',
-        tipo_prestamo: 'otorgado',
-        moneda: currency,
-        pagos: ['2026-06', '2026-07', '2026-08', '2026-09', '2026-10'],
-        notas: '[TIPO:otorgado]',
-      },
-      {
-        id: 'mock-3',
-        nombre: 'Don Roberto (Prestamista)',
-        telefono: '72234567',
-        ci: '1092831 CB',
-        capital: 5000,
-        interes: 5,
-        plazo_meses: 10,
-        inicio: '2026-05-23',
-        fin: '2027-03-23',
-        estado: 'Activo',
-        tipo_prestamo: 'recibido',
-        moneda: currency,
-        pagos: ['2026-06', '2026-07', '2026-08', '2026-09', '2026-10'],
-        notas: '[TIPO:recibido]',
-      },
-      {
-        id: 'mock-4',
-        nombre: 'David Arteaga',
-        telefono: '73345678',
-        ci: '5829103 LP',
-        capital: 2000,
-        interes: 5,
-        plazo_meses: 4,
-        inicio: '2026-08-14',
-        fin: '2026-12-14',
-        estado: 'Activo',
-        tipo_prestamo: 'otorgado',
-        moneda: currency,
-        pagos: ['2026-09'],
-        notas: '[TIPO:otorgado]',
-      }
-    ];
-    setPrestamos(mock);
+    // Cargar todos los prestamistas y deudores reales extraídos de Inefable
+    setPrestamos(allOriginalLoans);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(allOriginalLoans));
   };
 
   useEffect(() => {
