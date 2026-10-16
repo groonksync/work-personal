@@ -93,29 +93,29 @@ export default function VoucherManagerModal({
       
       {/* Contenedor Modal */}
       <div 
-        className="w-full max-w-3xl bg-[#1e1e1e] border border-[#2e2e2e] rounded-2xl shadow-2xl flex flex-col text-[#ececec] overflow-hidden max-h-[92vh]"
+        className="w-full max-w-3xl bg-white dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#2e2e2e] rounded-2xl shadow-2xl flex flex-col text-zinc-900 dark:text-[#ececec] overflow-hidden max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header */}
-        <div className="p-4 px-5 border-b border-[#2e2e2e] flex items-center justify-between bg-[#171717]">
+        <div className="p-4 px-5 border-b border-zinc-200 dark:border-[#2e2e2e] flex items-center justify-between bg-zinc-50 dark:bg-[#171717]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#262626] border border-[#383838] flex items-center justify-center text-white">
-              <Receipt className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <Receipt className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white tracking-tight leading-none">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
                 Bóveda de Comprobantes (Bauchers)
               </h3>
-              <span className="text-[11px] text-[#8e8e8e] mt-1 block">
-                Expediente: <strong className="text-white">{loan.nombre}</strong> • {vouchers.length} archivo(s) guardado(s)
+              <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] mt-1 block">
+                Expediente: <strong className="text-zinc-900 dark:text-white">{loan.nombre}</strong> • {vouchers.length} archivo(s) guardado(s)
               </span>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-[#262626] hover:bg-[#333333] text-[#a3a3a3] hover:text-white flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-lg bg-zinc-200/70 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all"
           >
             <X className="w-4 h-4" />
           </button>
@@ -137,19 +137,19 @@ export default function VoucherManagerModal({
             }}
             className={`p-4 rounded-xl border-2 border-dashed transition-all flex flex-col sm:flex-row items-center justify-between gap-4 ${
               dragActive 
-                ? 'border-white bg-[#262626]' 
-                : 'border-[#383838] bg-[#1a1a1a] hover:border-[#4d4d4d]'
+                ? 'border-zinc-900 dark:border-white bg-zinc-100 dark:bg-[#262626]' 
+                : 'border-zinc-300 dark:border-[#383838] bg-zinc-50 dark:bg-[#1a1a1a] hover:border-zinc-400 dark:hover:border-[#4d4d4d]'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#262626] border border-[#383838] flex items-center justify-center shrink-0">
-                <UploadCloud className="w-5 h-5 text-[#8e8e8e]" />
+              <div className="w-10 h-10 rounded-xl bg-zinc-200/80 dark:bg-[#262626] border border-zinc-300 dark:border-[#383838] flex items-center justify-center shrink-0">
+                <UploadCloud className="w-5 h-5 text-zinc-600 dark:text-[#8e8e8e]" />
               </div>
               <div>
-                <span className="text-xs font-semibold text-white block">
+                <span className="text-xs font-semibold text-zinc-900 dark:text-white block">
                   Subir nuevo comprobante de pago QR o transferencia
                 </span>
-                <span className="text-[11px] text-[#8e8e8e] block mt-0.5">
+                <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block mt-0.5">
                   Arrastra tu captura o selecciona desde tu galería / cámara
                 </span>
               </div>
@@ -171,7 +171,7 @@ export default function VoucherManagerModal({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-white text-black font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xs"
+                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-zinc-900 hover:bg-black text-white dark:bg-white dark:hover:bg-zinc-100 dark:text-black font-semibold text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xs"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>{uploading ? 'Guardando...' : 'Seleccionar Archivo'}</span>
@@ -180,23 +180,23 @@ export default function VoucherManagerModal({
           </div>
 
           {/* Formulario Complementario de Datos del Comprobante */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[#262626] border border-[#333333] text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] text-xs">
             <div>
-              <label className="text-[10px] text-[#8e8e8e] uppercase font-semibold block mb-1">Monto Abonado</label>
+              <label className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] uppercase font-semibold block mb-1">Monto Abonado</label>
               <input
                 type="number"
                 value={monto}
                 onChange={(e) => setMonto(e.target.value)}
                 placeholder="Ej: 300"
-                className="w-full bg-[#1c1c1c] border border-[#383838] px-2.5 py-1.5 rounded-lg text-white font-mono outline-none text-xs"
+                className="w-full bg-white dark:bg-[#1c1c1c] border border-zinc-300 dark:border-[#383838] px-2.5 py-1.5 rounded-lg text-zinc-900 dark:text-white font-mono outline-none text-xs"
               />
             </div>
             <div>
-              <label className="text-[10px] text-[#8e8e8e] uppercase font-semibold block mb-1">Medio de Pago</label>
+              <label className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] uppercase font-semibold block mb-1">Medio de Pago</label>
               <select
                 value={tipoPago}
                 onChange={(e) => setTipoPago(e.target.value)}
-                className="w-full bg-[#1c1c1c] border border-[#383838] px-2.5 py-1.5 rounded-lg text-white outline-none text-xs"
+                className="w-full bg-white dark:bg-[#1c1c1c] border border-zinc-300 dark:border-[#383838] px-2.5 py-1.5 rounded-lg text-zinc-900 dark:text-white outline-none text-xs"
               >
                 <option value="QR Simple">QR Simple</option>
                 <option value="Transferencia BCP">Transferencia BCP</option>
@@ -206,13 +206,13 @@ export default function VoucherManagerModal({
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-[#8e8e8e] uppercase font-semibold block mb-1">Detalle / Cuota</label>
+              <label className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] uppercase font-semibold block mb-1">Detalle / Cuota</label>
               <input
                 type="text"
                 value={notas}
                 onChange={(e) => setNotas(e.target.value)}
                 placeholder="Ej: Cuota 4 de Octubre"
-                className="w-full bg-[#1c1c1c] border border-[#383838] px-2.5 py-1.5 rounded-lg text-white outline-none text-xs"
+                className="w-full bg-white dark:bg-[#1c1c1c] border border-zinc-300 dark:border-[#383838] px-2.5 py-1.5 rounded-lg text-zinc-900 dark:text-white outline-none text-xs"
               />
             </div>
           </div>
@@ -220,23 +220,23 @@ export default function VoucherManagerModal({
           {/* Galería de Comprobantes */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#8e8e8e] uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-zinc-500 dark:text-[#8e8e8e] uppercase tracking-wider block">
                 Comprobantes Almacenados ({vouchers.length})
               </span>
-              <span className="text-[10px] text-[#737373]">
+              <span className="text-[10px] text-zinc-400 dark:text-[#737373]">
                 Haz clic en una imagen para ampliarla en alta definición
               </span>
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-xs text-[#8e8e8e]">
+              <div className="p-12 text-center text-xs text-zinc-400 dark:text-[#8e8e8e]">
                 Cargando comprobantes...
               </div>
             ) : vouchers.length === 0 ? (
-              <div className="p-12 text-center border border-[#2e2e2e] rounded-xl bg-[#191919] space-y-2">
-                <Receipt className="w-8 h-8 text-[#555555] mx-auto" />
-                <h4 className="text-xs font-semibold text-white">No hay comprobantes guardados</h4>
-                <p className="text-[11px] text-[#8e8e8e] max-w-xs mx-auto">
+              <div className="p-12 text-center border border-zinc-200 dark:border-[#2e2e2e] rounded-xl bg-zinc-50 dark:bg-[#191919] space-y-2">
+                <Receipt className="w-8 h-8 text-zinc-300 dark:text-[#555555] mx-auto" />
+                <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">No hay comprobantes guardados</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] max-w-xs mx-auto">
                   Sube capturas de transferencias o pagos QR para mantener un respaldo inalterable de cada abono.
                 </p>
               </div>
@@ -245,12 +245,12 @@ export default function VoucherManagerModal({
                 {vouchers.map((v) => (
                   <div
                     key={v.id}
-                    className="group relative rounded-xl bg-[#262626] border border-[#333333] hover:border-[#4d4d4d] overflow-hidden flex flex-col transition-all shadow-xs"
+                    className="group relative rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] hover:border-zinc-400 dark:hover:border-[#4d4d4d] overflow-hidden flex flex-col transition-all shadow-xs"
                   >
                     {/* Miniatura clickeable */}
                     <div
                       onClick={() => setSelectedVoucherForLightbox(v)}
-                      className="h-40 bg-[#161616] overflow-hidden relative cursor-pointer flex items-center justify-center"
+                      className="h-40 bg-zinc-100 dark:bg-[#161616] overflow-hidden relative cursor-pointer flex items-center justify-center"
                     >
                       <img
                         src={v.dataUrl}
@@ -258,38 +258,38 @@ export default function VoucherManagerModal({
                         className="w-full h-full object-cover object-top group-hover:scale-105 transition-all duration-250"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <span className="p-2 rounded-lg bg-[#2a2a2a]/90 text-white text-xs flex items-center gap-1">
+                        <span className="p-2 rounded-lg bg-zinc-900/90 text-white text-xs flex items-center gap-1">
                           <Eye className="w-3.5 h-3.5" /> Ampliar
                         </span>
                       </div>
                     </div>
 
                     {/* Metadatos */}
-                    <div className="p-3 text-xs space-y-1.5 bg-[#262626] flex-1 flex flex-col justify-between">
+                    <div className="p-3 text-xs space-y-1.5 bg-white dark:bg-[#262626] flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-white text-sm">
+                          <span className="font-mono font-bold text-zinc-900 dark:text-white text-sm">
                             {v.monto ? `${symbol} ${Number(v.monto).toLocaleString()}` : 'Abono'}
                           </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-[#1e1e1e] border border-[#383838] text-[#a3a3a3]">
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-100 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#383838] text-zinc-600 dark:text-[#a3a3a3]">
                             {v.tipoPago}
                           </span>
                         </div>
                         {v.notas && (
-                          <p className="text-[11px] text-[#b4b4b4] mt-1 line-clamp-1">
+                          <p className="text-[11px] text-zinc-600 dark:text-[#b4b4b4] mt-1 line-clamp-1">
                             {v.notas}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-[10px] text-[#8e8e8e]">
+                      <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-[#333333] text-[10px] text-zinc-500 dark:text-[#8e8e8e]">
                         <span className="font-mono">{new Date(v.fecha).toLocaleDateString()}</span>
                         
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => handleDownload(v)}
-                            className="p-1 rounded hover:bg-[#333333] text-[#d4d4d4] hover:text-white"
+                            className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-[#333333] text-zinc-600 dark:text-[#d4d4d4] hover:text-zinc-900 dark:hover:text-white"
                             title="Descargar"
                           >
                             <Download className="w-3.5 h-3.5" />
@@ -297,7 +297,7 @@ export default function VoucherManagerModal({
                           <button
                             type="button"
                             onClick={() => handleDelete(v.id)}
-                            className="p-1 rounded hover:bg-rose-950/40 text-[#8e8e8e] hover:text-rose-400"
+                            className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 text-zinc-400 dark:text-[#8e8e8e] hover:text-rose-600 dark:hover:text-rose-400"
                             title="Eliminar"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

@@ -3,7 +3,7 @@ import {
   Calendar, Users, Zap, Bell, Plus, Search, 
   Send, Check, ChevronRight, DollarSign, ArrowUpRight, 
   ArrowDownLeft, Clock, ShieldCheck, X, Sliders, Receipt, 
-  MessageSquare, TrendingDown, Landmark, HardDrive
+  MessageSquare, TrendingDown, Landmark, HardDrive, Sun, Moon
 } from 'lucide-react';
 
 export default function MobileAppView({
@@ -12,6 +12,8 @@ export default function MobileAppView({
   alertas = [],
   currency = 'BOB',
   setCurrency,
+  theme = 'dark',
+  toggleTheme,
   onSelectLoan,
   onOpenNewLoan,
   onPayCuota,
@@ -47,16 +49,16 @@ export default function MobileAppView({
   const findLoan = (term) => prestamos.find(p => p.nombre?.toUpperCase().includes(term.toUpperCase())) || prestamos[0];
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#212121] text-[#ececec] overflow-hidden select-none pb-[70px]">
+    <div className="flex-1 flex flex-col h-full bg-[#f7f7f8] text-[#171717] dark:bg-[#212121] dark:text-[#ececec] overflow-hidden select-none pb-[70px] transition-colors duration-150">
       
       {/* 1. CABECERA SUPERIOR MÓVIL (COMPACTA Y ERGONÓMICA) */}
-      <header className="px-4 pt-3 pb-2.5 bg-[#171717] border-b border-[#262626] shrink-0 space-y-2.5">
+      <header className="px-4 pt-3 pb-2.5 bg-white dark:bg-[#171717] border-b border-zinc-200 dark:border-[#262626] shrink-0 space-y-2.5 transition-colors duration-150">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-semibold text-[#8e8e8e] uppercase tracking-wider block">
+            <span className="text-[10px] font-semibold text-zinc-500 dark:text-[#8e8e8e] uppercase tracking-wider block">
               Gestor Móvil
             </span>
-            <h1 className="text-base font-bold text-white tracking-tight">
+            <h1 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
               {mobileTab === 'cronograma' && 'Cronograma Diario'}
               {mobileTab === 'clientes' && 'Cartera de Clientes'}
               {mobileTab === 'cobros' && 'Cobros Inmediatos'}
@@ -69,18 +71,35 @@ export default function MobileAppView({
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="bg-[#262626] border border-[#333] text-xs font-mono text-white px-2 py-1.5 rounded-lg outline-none cursor-pointer"
+              className="bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#333] text-xs font-mono text-zinc-900 dark:text-white px-2 py-1.5 rounded-lg outline-none cursor-pointer"
             >
               <option value="BOB">Bs.</option>
               <option value="USD">$</option>
               <option value="PEN">S/</option>
             </select>
 
+            {/* Toggle de Modo Claro / Noche */}
+            {toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-zinc-600 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all border border-zinc-200 dark:border-transparent"
+                title={theme === 'dark' ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Noche'}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-zinc-700" />
+                )}
+              </button>
+            )}
+
             {/* Toggle Buscador */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                searchOpen ? 'bg-white text-black' : 'bg-[#262626] text-[#a3a3a3]'
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border border-zinc-200 dark:border-transparent ${
+                searchOpen 
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black' 
+                  : 'bg-zinc-100 text-zinc-600 dark:bg-[#262626] dark:text-[#a3a3a3]'
               }`}
               title="Buscar"
             >
@@ -90,7 +109,7 @@ export default function MobileAppView({
             {/* Ajustes y Auditoría */}
             <button
               onClick={onOpenSettings}
-              className="w-8 h-8 rounded-lg bg-[#262626] hover:bg-[#333] text-[#a3a3a3] hover:text-white flex items-center justify-center transition-all"
+              className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-zinc-600 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all border border-zinc-200 dark:border-transparent"
               title="Ajustes"
             >
               <Sliders className="w-4 h-4" />
@@ -99,7 +118,7 @@ export default function MobileAppView({
             {/* Botón + Nuevo */}
             <button
               onClick={onOpenNewLoan}
-              className="h-8 px-2.5 rounded-lg bg-white text-black font-bold text-xs flex items-center gap-1 shadow-xs active:scale-95 transition-all"
+              className="h-8 px-2.5 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-black font-bold text-xs flex items-center gap-1 shadow-xs active:scale-95 transition-all"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Nuevo</span>
@@ -109,18 +128,18 @@ export default function MobileAppView({
 
         {/* Buscador Desplegable en Móvil */}
         {searchOpen && (
-          <div className="flex items-center gap-2 bg-[#262626] px-3 py-1.5 rounded-lg border border-[#383838] animate-in fade-in duration-150">
-            <Search className="w-4 h-4 text-[#8e8e8e] shrink-0" />
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-[#262626] px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-[#383838] animate-in fade-in duration-150">
+            <Search className="w-4 h-4 text-zinc-500 dark:text-[#8e8e8e] shrink-0" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por nombre, CI o teléfono..."
-              className="bg-transparent outline-none w-full text-white placeholder-[#737373] text-xs"
+              className="bg-transparent outline-none w-full text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-[#737373] text-xs"
               autoFocus
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="text-[#8e8e8e] hover:text-white">
+              <button onClick={() => setSearchQuery('')} className="text-zinc-400 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white">
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
@@ -133,8 +152,8 @@ export default function MobileAppView({
             onClick={() => setFiltroTipo('todos')}
             className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               filtroTipo === 'todos' 
-                ? 'bg-[#333333] text-white font-semibold shadow-xs' 
-                : 'bg-[#262626] text-[#8e8e8e]'
+                ? 'bg-zinc-900 text-white font-semibold dark:bg-[#333333] dark:text-white shadow-xs' 
+                : 'bg-zinc-100 text-zinc-600 dark:bg-[#262626] dark:text-[#8e8e8e]'
             }`}
           >
             Todos ({prestamos.length})
@@ -144,8 +163,8 @@ export default function MobileAppView({
             onClick={() => setFiltroTipo('otorgados')}
             className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               filtroTipo === 'otorgados' 
-                ? 'bg-[#333333] text-white font-semibold shadow-xs' 
-                : 'bg-[#262626] text-[#8e8e8e]'
+                ? 'bg-zinc-900 text-white font-semibold dark:bg-[#333333] dark:text-white shadow-xs' 
+                : 'bg-zinc-100 text-zinc-600 dark:bg-[#262626] dark:text-[#8e8e8e]'
             }`}
           >
             Cobros ({prestamos.filter(p => (p.tipo_prestamo || 'otorgado') === 'otorgado').length})
@@ -155,8 +174,8 @@ export default function MobileAppView({
             onClick={() => setFiltroTipo('recibidos')}
             className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               filtroTipo === 'recibidos' 
-                ? 'bg-[#333333] text-white font-semibold shadow-xs' 
-                : 'bg-[#262626] text-[#8e8e8e]'
+                ? 'bg-zinc-900 text-white font-semibold dark:bg-[#333333] dark:text-white shadow-xs' 
+                : 'bg-zinc-100 text-zinc-600 dark:bg-[#262626] dark:text-[#8e8e8e]'
             }`}
           >
             Acreedores ({prestamos.filter(p => p.tipo_prestamo === 'recibido').length})
@@ -165,9 +184,9 @@ export default function MobileAppView({
           {alertas.length > 0 && (
             <button
               onClick={() => setMobileTab('avisos')}
-              className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-amber-500/15 text-amber-300 font-bold flex items-center gap-1"
+              className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold flex items-center gap-1"
             >
-              <Bell className="w-3 h-3 text-amber-400" />
+              <Bell className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               <span>{alertas.length} por vencer</span>
             </button>
           )}
@@ -180,31 +199,31 @@ export default function MobileAppView({
         {/* PESTAÑA A: CRONOGRAMA STREAM CON NODOS GRISES LIMPIOS */}
         {mobileTab === 'cronograma' && (
           <div className="space-y-4 relative">
-            <div className="absolute left-[65px] top-6 bottom-6 w-[1.5px] bg-[#333333]"></div>
+            <div className="absolute left-[65px] top-6 bottom-6 w-[1.5px] bg-zinc-300 dark:bg-[#333333]"></div>
 
             {/* 17 Oct - Roberto */}
             <div className="flex items-start gap-3.5 relative z-10">
               <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-white block">17 Oct</span>
-                <span className="text-[10px] text-[#8e8e8e]">Mañana</span>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white block">17 Oct</span>
+                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Mañana</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
+                <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('ROBERTO'))}
-                className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
+                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-white">Roberto Villazón</h4>
-                    <span className="text-xs text-[#a3a3a3]">Cobro Diario</span>
+                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Roberto Villazón</h4>
+                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cobro Diario</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#737373]" />
+                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
                 </div>
                 <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-white">Bs. 300.00</span>
-                  <span className="text-xs text-emerald-400 font-medium">Al Día</span>
+                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 300.00</span>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Al Día</span>
                 </div>
               </div>
             </div>
@@ -212,26 +231,26 @@ export default function MobileAppView({
             {/* 20 Oct - Roly */}
             <div className="flex items-start gap-3.5 relative z-10">
               <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-white block">20 Oct</span>
-                <span className="text-[10px] text-[#8e8e8e]">En 4d</span>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white block">20 Oct</span>
+                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">En 4d</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('ROLY'))}
-                className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
+                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-white">Roly Cuellar</h4>
-                    <span className="text-xs text-[#a3a3a3]">Debe de la Macbook</span>
+                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Roly Cuellar</h4>
+                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Debe de la Macbook</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#737373]" />
+                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
                 </div>
                 <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-white">Bs. 400.00</span>
-                  <span className="text-xs text-[#a3a3a3]">Cuota 8 de 10</span>
+                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 400.00</span>
+                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota 8 de 10</span>
                 </div>
               </div>
             </div>
@@ -239,28 +258,28 @@ export default function MobileAppView({
             {/* 25 Oct - Magali & Fondeo */}
             <div className="flex items-start gap-3.5 relative z-10">
               <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-white block">25 Oct</span>
-                <span className="text-[10px] text-[#8e8e8e]">Fondeo</span>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white block">25 Oct</span>
+                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Fondeo</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('MAGALI'))}
-                className="flex-1 p-3.5 rounded-xl bg-[#2f2f2f] hover:bg-[#383838] border border-[#3d3d3d] transition-all cursor-pointer active:scale-[0.99] space-y-2 shadow-sm"
+                className="flex-1 p-3.5 rounded-xl bg-zinc-50 dark:bg-[#2f2f2f] hover:bg-zinc-100 dark:hover:bg-[#383838] border border-zinc-200 dark:border-[#3d3d3d] transition-all cursor-pointer active:scale-[0.99] space-y-2 shadow-xs"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-white">Magali Molina (Fondeo)</h4>
-                    <span className="text-xs text-[#b4b4b4]">Capital: Bs. 15,000</span>
+                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Magali Molina (Fondeo)</h4>
+                    <span className="text-xs text-zinc-500 dark:text-[#b4b4b4]">Capital: Bs. 15,000</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#737373]" />
+                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
                 </div>
-                <div className="p-2 rounded-lg bg-[#212121] border border-[#333333] text-xs text-[#a3a3a3] flex justify-between">
-                  <span>Cobras: <strong className="text-white">Bs. 1,500</strong></span>
-                  <span>Pagas a Rodo: <strong className="text-white">Bs. 300</strong></span>
+                <div className="p-2 rounded-lg bg-white dark:bg-[#212121] border border-zinc-200 dark:border-[#333333] text-xs text-zinc-600 dark:text-[#a3a3a3] flex justify-between">
+                  <span>Cobras: <strong className="text-zinc-900 dark:text-white">Bs. 1,500</strong></span>
+                  <span>Pagas a Rodo: <strong className="text-zinc-900 dark:text-white">Bs. 300</strong></span>
                 </div>
-                <div className="text-xs font-semibold text-emerald-400 text-right">
+                <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 text-right">
                   Ganancia neta: +Bs. 700.00
                 </div>
               </div>
@@ -269,33 +288,33 @@ export default function MobileAppView({
             {/* 28 Oct - Victoria & Jimena */}
             <div className="flex items-start gap-3.5 relative z-10">
               <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-white block">28 Oct</span>
-                <span className="text-[10px] text-[#8e8e8e]">2 cobros</span>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white block">28 Oct</span>
+                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">2 cobros</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs font-mono">
+              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs font-mono">
                 2
               </div>
               <div className="flex-1 space-y-2">
                 <div 
                   onClick={() => onSelectLoan(findLoan('VICTORIA'))}
-                  className="p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                  className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-start">
-                    <span className="text-sm font-semibold text-white">Victoria Coronado</span>
-                    <span className="text-base font-mono font-bold text-white">Bs. 500</span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-white">Victoria Coronado</span>
+                    <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 500</span>
                   </div>
-                  <span className="text-xs text-[#a3a3a3] block mt-0.5">CI: 5488548 • Cuota mensual</span>
+                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] block mt-0.5">CI: 5488548 • Cuota mensual</span>
                 </div>
 
                 <div 
                   onClick={() => onSelectLoan(findLoan('JIMENA'))}
-                  className="p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
+                  className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-start">
-                    <span className="text-sm font-semibold text-white">Jimena Cordova</span>
-                    <span className="text-base font-mono font-bold text-white">Bs. 220</span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-white">Jimena Cordova</span>
+                    <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 220</span>
                   </div>
-                  <span className="text-xs text-[#a3a3a3] block mt-0.5">Tel: 73610261 • Doc. Privado</span>
+                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] block mt-0.5">Tel: 73610261 • Doc. Privado</span>
                 </div>
               </div>
             </div>
@@ -303,26 +322,26 @@ export default function MobileAppView({
             {/* 30 Oct - Banco FIE */}
             <div className="flex items-start gap-3.5 relative z-10">
               <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-white block">30 Oct</span>
-                <span className="text-[10px] text-[#8e8e8e]">Pagar</span>
+                <span className="text-xs font-bold text-zinc-900 dark:text-white block">30 Oct</span>
+                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Pagar</span>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-[#2a2a2a] border border-[#3d3d3d] text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Landmark className="w-3.5 h-3.5 text-purple-400" />
+              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
+                <Landmark className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               </div>
               <div 
                 onClick={() => onSelectLoan(findLoan('FIE'))}
-                className="flex-1 p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all shadow-xs space-y-1.5 cursor-pointer active:scale-[0.99]"
+                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs space-y-1.5 cursor-pointer active:scale-[0.99]"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-white">Banco FIE (Crédito)</h4>
-                    <span className="text-xs text-[#a3a3a3]">Cuota fija mensual</span>
+                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Banco FIE (Crédito)</h4>
+                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota fija mensual</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#737373]" />
+                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
                 </div>
                 <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-white">Pagar Bs. 650.00</span>
-                  <span className="text-xs text-[#a3a3a3]">Cuota 8 de 20</span>
+                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Pagar Bs. 650.00</span>
+                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota 8 de 20</span>
                 </div>
               </div>
             </div>
@@ -336,31 +355,31 @@ export default function MobileAppView({
               <div
                 key={loan.id}
                 onClick={() => onSelectLoan(loan)}
-                className="p-3.5 rounded-xl bg-[#2a2a2a] hover:bg-[#303030] border border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-2.5 shadow-xs"
+                className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-2.5 shadow-xs"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-lg bg-[#212121] border border-[#383838] flex items-center justify-center font-bold text-xs text-white">
+                    <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-[#212121] border border-zinc-200 dark:border-[#383838] flex items-center justify-center font-bold text-xs text-zinc-800 dark:text-white">
                       {loan.nombre.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-white leading-none">
+                      <h4 className="text-sm font-semibold text-zinc-900 dark:text-white leading-none">
                         {loan.nombre}
                       </h4>
-                      <span className="text-[11px] text-[#8e8e8e] mt-1 block">
+                      <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] mt-1 block">
                         CI: {loan.ci || 'Sin CI'} • Tel: {loan.telefono || 'Sin tel'}
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-xs font-mono font-bold text-white">
+                  <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
                     {symbol} {Number(loan.capital).toLocaleString()}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs">
-                  <div className="text-[#a3a3a3]">
-                    <span>Tasa: <strong className="text-white">{loan.interes}%</strong></span>
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-[#333333] text-xs">
+                  <div className="text-zinc-500 dark:text-[#a3a3a3]">
+                    <span>Tasa: <strong className="text-zinc-900 dark:text-white">{loan.interes}%</strong></span>
                     {loan.fin && <span className="ml-2 font-mono text-[11px]">Vence: {loan.fin}</span>}
                   </div>
 
@@ -368,27 +387,27 @@ export default function MobileAppView({
                   <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => onOpenVouchers && onOpenVouchers(loan)}
-                      className="p-1.5 rounded-lg bg-[#212121] hover:bg-[#333] text-emerald-400 border border-[#383838]"
+                      className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#212121] hover:bg-zinc-200 dark:hover:bg-[#333] text-emerald-600 dark:text-emerald-400 border border-zinc-200 dark:border-[#383838]"
                       title="Vouchers"
                     >
                       <Receipt className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onOpenExpressNotes && onOpenExpressNotes(loan)}
-                      className="p-1.5 rounded-lg bg-[#212121] hover:bg-[#333] text-amber-400 border border-[#383838]"
+                      className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#212121] hover:bg-zinc-200 dark:hover:bg-[#333] text-amber-500 dark:text-amber-400 border border-zinc-200 dark:border-[#383838]"
                       title="Notas Express"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onSendWhatsApp && onSendWhatsApp({ nombre: loan.nombre, telefono: loan.telefono })}
-                      className="px-2.5 py-1 rounded bg-[#212121] hover:bg-[#333] text-emerald-400 text-xs font-medium border border-emerald-500/20"
+                      className="px-2.5 py-1 rounded bg-zinc-100 dark:bg-[#212121] hover:bg-zinc-200 dark:hover:bg-[#333] text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-zinc-200 dark:border-emerald-500/20"
                     >
                       WhatsApp
                     </button>
                     <button
                       onClick={() => onSelectLoan(loan)}
-                      className="px-2.5 py-1 rounded bg-white text-black font-semibold text-xs"
+                      className="px-2.5 py-1 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-semibold text-xs shadow-2xs active:scale-95 transition-all"
                     >
                       Abonar
                     </button>
@@ -402,32 +421,32 @@ export default function MobileAppView({
         {/* PESTAÑA C: COBROS INMEDIATOS */}
         {mobileTab === 'cobros' && (
           <div className="space-y-3">
-            <div className="p-3.5 rounded-xl bg-[#262626] border border-[#333333] mb-4">
-              <span className="text-[11px] text-[#8e8e8e] uppercase font-bold block">Cobros del Período</span>
-              <div className="text-xl font-mono font-bold text-white mt-0.5">
+            <div className="p-3.5 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] mb-4 shadow-xs">
+              <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] uppercase font-bold block">Cobros del Período</span>
+              <div className="text-xl font-mono font-bold text-zinc-900 dark:text-white mt-0.5">
                 {symbol} 23,220.00
               </div>
-              <span className="text-xs text-emerald-400 font-medium">9 cuotas activas programadas</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">9 cuotas activas programadas</span>
             </div>
 
             {filteredLoans.map((loan) => (
               <div
                 key={loan.id}
                 onClick={() => onSelectLoan(loan)}
-                className="p-3.5 rounded-xl bg-[#2a2a2a] border border-[#333333] flex items-center justify-between cursor-pointer active:scale-[0.99]"
+                className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#333333] flex items-center justify-between cursor-pointer active:scale-[0.99] shadow-xs"
               >
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{loan.nombre}</h4>
-                  <span className="text-xs text-[#a3a3a3] font-mono">
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">{loan.nombre}</h4>
+                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] font-mono">
                     Vencimiento: {loan.fin || 'Continuo'}
                   </span>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-base font-mono font-bold text-white">
+                  <div className="text-base font-mono font-bold text-zinc-900 dark:text-white">
                     {symbol} {Math.round(Number(loan.capital) * (Number(loan.interes || 10) / 100)).toLocaleString()}
                   </div>
-                  <span className="text-[11px] text-emerald-400 font-medium">Abonar →</span>
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Abonar →</span>
                 </div>
               </div>
             ))}
@@ -438,30 +457,30 @@ export default function MobileAppView({
         {mobileTab === 'avisos' && (
           <div className="space-y-3">
             {alertas.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#8e8e8e] space-y-2">
-                <Check className="w-5 h-5 text-emerald-400 mx-auto" />
+              <div className="p-12 text-center text-xs text-zinc-500 dark:text-[#8e8e8e] space-y-2">
+                <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mx-auto" />
                 <span>No hay cuotas vencidas ni por vencer</span>
               </div>
             ) : (
               alertas.map((alerta, idx) => (
                 <div
                   key={idx}
-                  className="p-3.5 rounded-xl bg-[#2a2a2a] border border-amber-500/30 space-y-2 shadow-xs"
+                  className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] border border-amber-500/30 space-y-2 shadow-xs"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
                         {alerta.labelTiempo}
                       </span>
-                      <h4 className="text-sm font-bold text-white">{alerta.nombre}</h4>
+                      <h4 className="text-sm font-bold text-zinc-900 dark:text-white">{alerta.nombre}</h4>
                     </div>
-                    <span className="text-sm font-mono font-bold text-amber-300">
+                    <span className="text-sm font-mono font-bold text-amber-600 dark:text-amber-300">
                       {symbol} {alerta.montoCuota?.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[#333333] text-xs">
-                    <span className="text-[11px] text-[#a3a3a3] font-mono">
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-[#333333] text-xs">
+                    <span className="text-[11px] text-zinc-500 dark:text-[#a3a3a3] font-mono">
                       Vence: {alerta.fechaVencimiento}
                     </span>
                     <button
@@ -469,7 +488,7 @@ export default function MobileAppView({
                         const l = prestamos.find(p => p.id === alerta.prestamoId);
                         if (l) onSelectLoan(l);
                       }}
-                      className="px-3 py-1 rounded bg-white text-black font-semibold text-xs"
+                      className="px-3 py-1 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-semibold text-xs shadow-2xs active:scale-95 transition-all"
                     >
                       Gestionar Cobro
                     </button>
@@ -483,12 +502,12 @@ export default function MobileAppView({
       </main>
 
       {/* 3. BARRA DE NAVEGACIÓN INFERIOR (BOTTOM DOCK ERGONÓMICO CON SAFE-AREA) */}
-      <nav className="fixed bottom-0 inset-x-0 bg-[#171717] border-t border-[#262626] px-4 py-2 pb-[env(safe-area-inset-bottom,12px)] flex justify-around items-center z-40 select-none shadow-2xl">
+      <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-[#171717] border-t border-zinc-200 dark:border-[#262626] px-4 py-2 pb-[env(safe-area-inset-bottom,12px)] flex justify-around items-center z-40 select-none shadow-2xl transition-colors duration-150">
         
         <button
           onClick={() => setMobileTab('cronograma')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg transition-all ${
-            mobileTab === 'cronograma' ? 'text-white font-bold' : 'text-[#8e8e8e] hover:text-white'
+            mobileTab === 'cronograma' ? 'text-zinc-900 dark:text-white font-bold' : 'text-zinc-400 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white'
           }`}
         >
           <Calendar className="w-5 h-5" />
@@ -498,7 +517,7 @@ export default function MobileAppView({
         <button
           onClick={() => setMobileTab('clientes')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg transition-all ${
-            mobileTab === 'clientes' ? 'text-white font-bold' : 'text-[#8e8e8e] hover:text-white'
+            mobileTab === 'clientes' ? 'text-zinc-900 dark:text-white font-bold' : 'text-zinc-400 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white'
           }`}
         >
           <Users className="w-5 h-5" />
@@ -508,7 +527,7 @@ export default function MobileAppView({
         <button
           onClick={() => setMobileTab('cobros')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg transition-all ${
-            mobileTab === 'cobros' ? 'text-white font-bold' : 'text-[#8e8e8e] hover:text-white'
+            mobileTab === 'cobros' ? 'text-zinc-900 dark:text-white font-bold' : 'text-zinc-400 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white'
           }`}
         >
           <Zap className="w-5 h-5" />
@@ -518,7 +537,7 @@ export default function MobileAppView({
         <button
           onClick={() => setMobileTab('avisos')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg transition-all relative ${
-            mobileTab === 'avisos' ? 'text-white font-bold' : 'text-[#8e8e8e] hover:text-white'
+            mobileTab === 'avisos' ? 'text-zinc-900 dark:text-white font-bold' : 'text-zinc-400 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white'
           }`}
         >
           <div className="relative">

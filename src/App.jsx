@@ -316,7 +316,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex bg-[#212121] text-[#ececec] font-sans antialiased">
+    <div className="w-screen h-screen overflow-hidden flex bg-[#f7f7f8] text-[#171717] dark:bg-[#212121] dark:text-[#ececec] font-sans antialiased transition-colors duration-150">
       
       {/* ========================================================================= */}
       {/* VISTA MÓVIL ESPECIALIZADA (DETECCIÓN AUTOMÁTICA EN DISPOSITIVOS MÓVILES)  */}
@@ -328,6 +328,8 @@ export default function App() {
           alertas={alertasAnticipadas}
           currency={currency}
           setCurrency={setCurrency}
+          theme={theme}
+          toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
           onPayCuota={handlePayCuota}
@@ -367,7 +369,7 @@ export default function App() {
         />
 
         {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
-        <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#212121] relative">
+        <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#f7f7f8] dark:bg-[#212121] relative transition-colors duration-150">
           
           {/* TOPBAR UNIFICADA (UNA SOLA CABECERA) */}
           <Topbar
@@ -433,28 +435,28 @@ export default function App() {
               <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-white tracking-tight">
+                    <h2 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
                       {carteraFiltro === 'recibidos' ? 'Carpetas de Prestamistas' : 'Carpetas de Prestatarios'}
                     </h2>
-                    <p className="text-xs text-[#717382]">
+                    <p className="text-xs text-zinc-500 dark:text-[#8e909f]">
                       Selecciona una carpeta para ver contratos, amortizaciones y recibos
                     </p>
                   </div>
-                  <span className="text-xs text-[#8e909f] font-mono">
+                  <span className="text-xs text-zinc-500 dark:text-[#8e909f] font-mono">
                     {carpetas.length} carpetas activas
                   </span>
                 </div>
 
                 {loading ? (
-                  <div className="p-16 text-center text-xs text-[#a3a3a3] flex items-center justify-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                  <div className="p-16 text-center text-xs text-zinc-500 dark:text-[#a3a3a3] flex items-center justify-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-zinc-800 dark:text-white" />
                     <span>Cargando expedientes...</span>
                   </div>
                 ) : carpetas.length === 0 ? (
-                  <div className="p-16 text-center space-y-3 border border-[#333333] rounded-xl bg-[#262626]">
-                    <FolderIcon className="w-10 h-10 mx-auto text-[#737373]" />
-                    <h3 className="text-sm font-semibold text-white">No hay expedientes</h3>
-                    <p className="text-xs text-[#a3a3a3] max-w-sm mx-auto">
+                  <div className="p-16 text-center space-y-3 border border-zinc-200 dark:border-[#333333] rounded-xl bg-white dark:bg-[#262626]">
+                    <FolderIcon className="w-10 h-10 mx-auto text-zinc-400 dark:text-[#737373]" />
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">No hay expedientes</h3>
+                    <p className="text-xs text-zinc-500 dark:text-[#a3a3a3] max-w-sm mx-auto">
                       {searchQuery ? 'No hay resultados que coincidan con la búsqueda.' : 'Crea un primer préstamo con el botón superior.'}
                     </p>
                   </div>

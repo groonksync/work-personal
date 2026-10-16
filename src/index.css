@@ -3,38 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --bg-canvas: #f9f9f9;
-  --bg-sidebar: #f0f0f0;
+  /* Modo Claro Minimalista Estilo ChatGPT Light */
+  --bg-canvas: #f7f7f8;
+  --bg-sidebar: #f0f0f2;
   --bg-surface: #ffffff;
-  --bg-subtle: #eaeaea;
-  --bg-hover: #e3e3e3;
-  --border-fine: #e0e0e0;
-  --border-focus: #b0b0b0;
-  --text-main: #171717;
-  --text-muted: #666666;
-  --btn-solid: #171717;
+  --bg-subtle: #f0f0f2;
+  --bg-hover: #e5e5ea;
+  --border-fine: #e5e5ea;
+  --border-focus: #b8b8c2;
+  --text-main: #18181b;
+  --text-muted: #71717a;
+  --btn-solid: #18181b;
   --btn-solid-fg: #ffffff;
-  --badge-warn: #b45309;
-  --badge-ok: #15803d;
-  --badge-danger: #b91c1c;
+  --badge-warn: #d97706;
+  --badge-ok: #16a34a;
+  --badge-danger: #dc2626;
 }
 
 .dark {
-  /* Paleta Gris Profesional ChatGPT */
+  /* Modo Oscuro Gris Neutro Estilo ChatGPT */
   --bg-canvas: #212121;
   --bg-sidebar: #171717;
-  --bg-surface: #2a2a2a;
-  --bg-subtle: #2f2f2f;
-  --bg-hover: #383838;
+  --bg-surface: #262626;
+  --bg-subtle: #2a2a2a;
+  --bg-hover: #333333;
   --border-fine: #333333;
-  --border-focus: #4d4d4d;
+  --border-focus: #484848;
   --text-main: #ececec;
-  --text-muted: #b4b4b4;
-  --btn-solid: #f3f3f3;
-  --btn-solid-fg: #171717;
-  --badge-warn: #eab308;
-  --badge-ok: #22c55e;
-  --badge-danger: #ef4444;
+  --text-muted: #8e8e8e;
+  --btn-solid: #f4f4f5;
+  --btn-solid-fg: #18181b;
+  --badge-warn: #fbbf24;
+  --badge-ok: #34d399;
+  --badge-danger: #f87171;
 }
 
 body {
@@ -45,10 +46,9 @@ body {
   letter-spacing: -0.01em;
 }
 
-
-/* Regla estricta de uniformidad: esquinas levemente redondeadas de 8px (rounded-lg) */
+/* Reglas de uniformidad: esquinas suaves de 8px (rounded-lg) */
 .btn-base {
-  height: 38px;
+  height: 36px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -66,7 +66,7 @@ body {
 }
 
 .card-base {
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border-fine);
   background-color: var(--bg-surface);
 }
@@ -86,22 +86,3 @@ body {
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
-
-/* Fondos y tramas de diseño profesional (Estilo Relatel Wise / Linear) */
-.timeline-grid-bg {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-}
-
-.timeline-stripe-weekend {
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.015),
-    rgba(255, 255, 255, 0.015) 6px,
-    transparent 6px,
-    transparent 14px
-  );
-}
-
