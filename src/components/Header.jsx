@@ -11,11 +11,13 @@ export default function Header({
   currency,
   onChangeCurrency,
   onOpenNewLoan,
+  viewMode = 'timeline',
+  setViewMode,
 }) {
   return (
     <header className="sticky top-0 z-40 bg-[var(--bg-surface)] border-b border-[var(--border-fine)] px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
       {/* Identidad */}
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] flex items-center justify-center font-bold text-sm">
             W
@@ -29,38 +31,57 @@ export default function Header({
                 PERSONAL
               </span>
             </div>
-            <span className="text-[11px] text-[var(--text-muted)] font-normal">
-              Carpetas de Préstamos
+            <span className="text-[11px] text-[var(--text-muted)] font-normal hidden sm:block">
+              Gestor de Préstamos
             </span>
           </div>
         </div>
 
         <div className="h-4 w-[1px] bg-[var(--border-fine)] hidden sm:block"></div>
 
-        {/* Selector de Cartera: Presté vs Me Prestaron */}
-        <div className="hidden sm:flex items-center p-1 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-fine)] gap-1">
+        {/* Conmutador de Vistas de Diseño: Timeline Nodos (Img 1) | Carpetas | Stream Móvil (Img 2) */}
+        <div className="flex items-center p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-fine)] gap-1">
           <button
-            onClick={() => setCarteraTipo('otorgados')}
-            className={`btn-base h-8 px-3 rounded-lg ${
-              carteraTipo === 'otorgados'
-                ? 'bg-[var(--bg-surface)] text-[var(--text-main)] shadow-xs'
+            onClick={() => setViewMode && setViewMode('timeline')}
+            className={`btn-base h-7 px-2.5 rounded-md text-xs transition-all ${
+              viewMode === 'timeline'
+                ? 'bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] shadow-xs font-semibold'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
             }`}
+            title="Timeline Nodos (Inspirado en Imagen 1)"
           >
-            Personas que me deben
+            <span className="text-purple-400">∿</span>
+            <span className="hidden md:inline">Timeline</span>
           </button>
+
           <button
-            onClick={() => setCarteraTipo('recibidos')}
-            className={`btn-base h-8 px-3 rounded-lg ${
-              carteraTipo === 'recibidos'
-                ? 'bg-[var(--bg-surface)] text-[var(--text-main)] shadow-xs'
+            onClick={() => setViewMode && setViewMode('folders')}
+            className={`btn-base h-7 px-2.5 rounded-md text-xs transition-all ${
+              viewMode === 'folders'
+                ? 'bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] shadow-xs font-semibold'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
             }`}
+            title="Vista Carpetas de Expediente"
           >
-            Mis Prestamistas (A quién debo)
+            <span>📁</span>
+            <span className="hidden md:inline">Carpetas</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode && setViewMode('stream')}
+            className={`btn-base h-7 px-2.5 rounded-md text-xs transition-all ${
+              viewMode === 'stream'
+                ? 'bg-[var(--btn-solid)] text-[var(--btn-solid-fg)] shadow-xs font-semibold'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+            }`}
+            title="Stream Vertical con Nodos (Inspirado en Imagen 2)"
+          >
+            <span className="text-amber-400">⚡</span>
+            <span className="hidden md:inline">Stream</span>
           </button>
         </div>
       </div>
+
 
       {/* Controles de la barra superior */}
       <div className="flex items-center gap-2">

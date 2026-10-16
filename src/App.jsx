@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import FolderCard from './components/FolderCard';
 import FolderView from './components/FolderView';
+import TimelineNodesView from './components/TimelineNodesView';
+import MobileStreamView from './components/MobileStreamView';
 import AlertsDrawer from './components/AlertsDrawer';
 import NewLoanModal from './components/NewLoanModal';
 import ReceiptModal from './components/ReceiptModal';
@@ -16,10 +18,12 @@ export default function App() {
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
   const [carteraTipo, setCarteraTipo] = useState('otorgados'); // 'otorgados' vs 'recibidos'
+  const [viewMode, setViewMode] = useState('timeline'); // 'timeline' (Img 1) | 'folders' | 'stream' (Img 2)
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFolderKey, setSelectedFolderKey] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
   
   // Modales y Drawers
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
@@ -230,6 +234,8 @@ export default function App() {
         currency={currency}
         onChangeCurrency={setCurrency}
         onOpenNewLoan={() => setIsNewLoanOpen(true)}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
 
       {/* Banner de Alertas Anticipadas en Pantalla */}
@@ -255,8 +261,8 @@ export default function App() {
       )}
 
       {/* Contenedor Principal */}
-      <main className="flex-1 p-4 lg:p-8 flex justify-center custom-scroll overflow-y-auto">
-        <div className="w-full max-w-6xl space-y-6">
+      <main className="flex-1 p-3 sm:p-4 lg:p-6 flex justify-center custom-scroll overflow-y-auto">
+        <div className="w-full max-w-7xl">
           {activeFolder ? (
             /* Vista del Expediente de la Carpeta */
             <FolderView
@@ -269,8 +275,32 @@ export default function App() {
               }
               onSendWhatsApp={handleSendWhatsApp}
             />
+          ) : viewMode === 'timeline' ? (
+            /* Vista 1: Timeline Nodos Inspirado en Imagen 1 (Relatel Wise / Linear) */
+            <TimelineNodesView
+              prestamos={prestamos}
+              currency={currency}
+              onSelectFolder={(nombre) => {
+                const folder = carpetas.find(c => c.nombre.toLowerCase().includes(nombre.toLowerCase()));
+                if (folder) setSelectedFolderKey(folder.key);
+              }}
+              onOpenNewLoan={() => setIsNewLoanOpen(true)}
+              onOpenReceipt={(contrato, cuota) => setReceiptData({ folder: activeFolder, contrato, cuota })}
+              onPayCuota={handlePayCuota}
+            />
+          ) : viewMode === 'stream' ? (
+            /* Vista 2: Stream Móvil con Nodos Circulares Inspirado en Imagen 2 */
+            <MobileStreamView
+              currency={currency}
+              onSelectFolder={(nombre) => {
+                const folder = carpetas.find(c => c.nombre.toLowerCase().includes(nombre.toLowerCase()));
+                if (folder) setSelectedFolderKey(folder.key);
+              }}
+              onOpenNewLoan={() => setIsNewLoanOpen(true)}
+              onPayCuota={handlePayCuota}
+            />
           ) : (
-            /* Vista General de Todas las Carpetas */
+            /* Vista 3: Carpetas y Expedientes de Clientes */
             <div className="space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -283,6 +313,7 @@ export default function App() {
                     Toca cualquier carpeta para ver sus cuotas, registrar abonos o enviar recibos
                   </p>
                 </div>
+
 
                 {/* Buscador de Personas */}
                 <div className="flex items-center gap-2 card-base bg-[var(--bg-surface)] px-3 py-1.5 w-full sm:w-64">

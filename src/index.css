@@ -81,3 +81,22 @@ body {
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Fondos y tramas de diseño profesional (Estilo Relatel Wise / Linear) */
+.timeline-grid-bg {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.timeline-stripe-weekend {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.015),
+    rgba(255, 255, 255, 0.015) 6px,
+    transparent 6px,
+    transparent 14px
+  );
+}
+
