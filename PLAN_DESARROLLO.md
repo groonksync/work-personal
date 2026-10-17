@@ -6,13 +6,14 @@ Convertir la app en un registro fiable y privado de personas deudoras, varios pr
 
 ## Fases
 
-### Fase 1 — Base fiable y acceso privado (implementada)
+### Fase 1 — Base fiable y acceso privado (pendiente de completar)
 
-- Autenticar al propietario mediante enlace de acceso por correo en Supabase.
+- Mantener la cartera protegida por la política RLS de Supabase.
+- Reintegrar un acceso por correo que no oculte la interfaz y probarlo en el dominio publicado.
 - No sustituir errores ni carteras vacías por préstamos de demostración.
 - Persistir únicamente en la tabla `prestamos`, protegida por RLS; confirmar cada cambio después de guardarlo.
 - Guardar notas, pagos y documentos en el registro del préstamo correspondiente.
-- Criterio de salida: la cartera vacía se ve vacía, un fallo de red se informa y no se anuncia un pago que no se guardó.
+- Criterio de salida: la cartera vacía se ve vacía, el propietario puede iniciar sesión y los cambios fallidos nunca se presentan como guardados.
 
 ### Fase 2 — Registro de personas y contratos (implementada)
 
