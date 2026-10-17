@@ -12,8 +12,6 @@ export default function VoucherManagerModal({
   currency = 'BOB',
   onShowToast,
 }) {
-  if (!isOpen || !loan) return null;
-
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -27,12 +25,14 @@ export default function VoucherManagerModal({
   const fileInputRef = useRef(null);
 
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
+  const loanId = loan?.id;
 
   // Cargar comprobantes
   const loadVouchersList = async () => {
     setLoading(true);
     try {
-      const list = await getVouchers(loan.id);
+      if (!loanId) return;
+      const list = await getVouchers(loanId);
       setVouchers(list);
     } catch (e) {
       console.error(e);
@@ -42,8 +42,14 @@ export default function VoucherManagerModal({
   };
 
   useEffect(() => {
+    if (!isOpen || !loanId) return;
+    setSelectedVoucherForLightbox(null);
+    setMonto('');
+    setNotas('');
     loadVouchersList();
-  }, [loan.id]);
+  }, [isOpen, loanId]);
+
+  if (!isOpen || !loan) return null;
 
   // Manejar subida de archivo
   const handleFileUpload = async (file) => {

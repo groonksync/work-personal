@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   X, Shield, Lock, Phone, MessageSquare, Landmark, 
   HardDrive, Check, Save, Sliders, AlertCircle, Eye, EyeOff
@@ -12,13 +12,22 @@ export default function SettingsModal({
   onUpdateSettings,
   onShowToast,
 }) {
-  if (!isOpen) return null;
-
-  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'whatsapp' | 'banco' | 'drive' | 'seguridad'
+  const [activeTab, setActiveTab] = useState('general');
   const [formData, setFormData] = useState({ ...settings });
   const [showAdminPhone, setShowAdminPhone] = useState(false);
   const [enteredPin, setEnteredPin] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(!settings.securityPin);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setActiveTab('general');
+    setFormData({ ...settings });
+    setShowAdminPhone(false);
+    setEnteredPin('');
+    setIsUnlocked(!settings.securityPin);
+  }, [isOpen, settings]);
+
+  if (!isOpen) return null;
 
   const handleSave = () => {
     saveSettings(formData);
@@ -368,32 +377,8 @@ export default function SettingsModal({
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-3">
-                    <span className="text-xs font-semibold text-zinc-900 dark:text-white block">
-                      Política de Moras por Retraso
-                    </span>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block mb-1">Porcentaje de Mora</label>
-                        <input
-                          type="number"
-                          value={formData.moraRate}
-                          onChange={(e) => setFormData({ ...formData, moraRate: Number(e.target.value) })}
-                          className="w-full bg-white dark:bg-[#1e1e1e] border border-zinc-300 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white outline-none font-mono"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block mb-1">Tipo de Cálculo</label>
-                        <select
-                          value={formData.moraTipo}
-                          onChange={(e) => setFormData({ ...formData, moraTipo: e.target.value })}
-                          className="w-full bg-white dark:bg-[#1e1e1e] border border-zinc-300 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white outline-none"
-                        >
-                          <option value="diaria">% Diario sobre Cuota</option>
-                          <option value="fija">% Fijo una sola vez</option>
-                        </select>
-                      </div>
-                    </div>
+                  <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+                    La mora no se suma automáticamente a los saldos. Registra cada retraso en las notas del préstamo hasta definir la regla acordada para cada contrato.
                   </div>
                 </div>
               )}
