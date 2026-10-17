@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, Bell, X, Calendar, Folder, Clock, Sliders, LogOut } from 'lucide-react';
+import { Search, Plus, Bell, X, Calendar, Folder, Clock, Sliders } from 'lucide-react';
 
 export default function Topbar({
   viewMode = 'timeline',
@@ -10,7 +10,6 @@ export default function Topbar({
   onOpenAlerts,
   alertasCount = 0,
   onOpenSettings,
-  onSignOut,
 }) {
   const getIcon = () => {
     if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />;
@@ -41,7 +40,7 @@ export default function Topbar({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por persona, CI o teléfono..."
+            placeholder="Buscar por persona, CI o fecha..."
             className="bg-transparent outline-none w-full text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-[#737373] text-[13px]"
           />
           {searchQuery && (
@@ -73,8 +72,6 @@ export default function Topbar({
         >
           <Sliders className="w-4 h-4" />
         </button>
-
-        <button onClick={onSignOut} aria-label="Cerrar sesión" title="Cerrar sesión" className="h-8 w-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333333] text-zinc-700 dark:text-[#b4b4b4] flex items-center justify-center border border-zinc-200 dark:border-[#333333] transition-all"><LogOut className="w-4 h-4" /></button>
 
         {/* Botón Nuevo Préstamo */}
         <button

@@ -21,8 +21,7 @@ export default function LoanInspectorDrawer({
 }) {
   if (!loan) return null;
 
-  const currencyCode = loan.moneda || currency;
-  const symbol = currencyCode === 'BOB' ? 'Bs.' : currencyCode === 'PEN' ? 'S/' : '$';
+  const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
   const cronograma = generarCronograma(loan);
   const cuotasPagadas = cronograma.filter(c => c.pagado).length;
   const cuotaProxima = cronograma.find(c => !c.pagado) || cronograma[cronograma.length - 1];
@@ -35,9 +34,10 @@ export default function LoanInspectorDrawer({
     ? Math.min(100, Math.round((totalAbonadoCapital / capitalOriginal) * 100))
     : 0;
 
-  const notasExpressCount = Array.isArray(loan.notas_express) ? loan.notas_express.length : 0;
+  const notasExpressCount = (loan.notas_express || []).length;
+  const esFondeoRodo = loan.id === 'acreedor-tio-rodo' || loan.notas?.includes('TIO RODO');
   const esAcreedor = loan.tipo_prestamo === 'recibido';
-  const driveUrl = loan.drive_contrato || loan.drive_url || '';
+  const driveUrl = loan.drive_url || defaultDriveUrl;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-stretch md:justify-end bg-black/60 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none animate-in fade-in duration-200">
@@ -66,14 +66,22 @@ export default function LoanInspectorDrawer({
                 {loan.nombre}
               </h3>
               <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] font-medium block mt-1">
-                {loan.titulo_prestamo || 'Préstamo'} · {esAcreedor ? 'Acreedor' : `CI: ${loan.ci || 'Sin registro'}`}
+                {esAcreedor ? 'Acreedor de Capital' : `Prestatario • CI: ${loan.ci || 'Sin registro'}`}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Botón directo a Google Drive */}
-            {driveUrl ? <a href={driveUrl} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-white dark:bg-[#262626] hover:bg-zinc-100 dark:hover:bg-[#333333] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-transparent flex items-center justify-center transition-all shadow-2xs" title="Abrir documento de este préstamo en Google Drive"><HardDrive className="w-4 h-4" /></a> : <button disabled className="w-8 h-8 rounded-lg bg-white dark:bg-[#262626] text-zinc-300 dark:text-zinc-600 border border-zinc-200 dark:border-transparent flex items-center justify-center" title="Este préstamo todavía no tiene un enlace de Drive"><HardDrive className="w-4 h-4" /></button>}
+            <a
+              href={driveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-lg bg-white dark:bg-[#262626] hover:bg-zinc-100 dark:hover:bg-[#333333] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-transparent flex items-center justify-center transition-all shadow-2xs"
+              title="Abrir carpeta en Google Drive"
+            >
+              <HardDrive className="w-4 h-4" />
+            </a>
 
             <button 
               onClick={onClose}
@@ -87,6 +95,41 @@ export default function LoanInspectorDrawer({
         {/* CUERPO DEL EXPEDIENTE DETALLADO */}
         <div className="flex-1 overflow-y-auto custom-scroll p-4 space-y-4 bg-[#f7f7f8] dark:bg-[#1e1e1e] transition-colors duration-150">
           
+          {/* ESTRUCTURA DE FONDEO (TONOS GRISES LIMPIOS) */}
+          {esFondeoRodo && (
+            <div className="p-4 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] space-y-2.5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                  <span>Estructura de Fondeo</span>
+                </span>
+                <span className="text-[11px] bg-zinc-100 dark:bg-[#333333] text-zinc-800 dark:text-[#d4d4d4] px-2 py-0.5 rounded font-mono font-medium">
+                  3% Tasa Pasiva
+                </span>
+              </div>
+              
+              <p className="text-xs text-zinc-600 dark:text-[#b4b4b4] leading-relaxed">
+                Capital fondeado por <strong>Tío Rodo</strong> (Bs. 10,000) colocado a <strong>Magali Molina</strong> (Bs. 15,000 @ 10%).
+              </p>
+
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
+                  <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Cobras a Magali:</span>
+                  <strong className="text-zinc-900 dark:text-white text-sm font-mono block mt-0.5">Bs. 1,500/m</strong>
+                </div>
+                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
+                  <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Pagas a Tío Rodo:</span>
+                  <strong className="text-zinc-800 dark:text-[#e5e5e5] text-sm font-mono block mt-0.5">Bs. 300/m</strong>
+                </div>
+              </div>
+
+              <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center justify-between pt-1 border-t border-zinc-200 dark:border-[#333333]">
+                <span>Ganancia Neta Mensual:</span>
+                <span className="font-mono text-sm font-bold">+Bs. 700.00 / mes</span>
+              </div>
+            </div>
+          )}
+
           {/* ESTADO FINANCIERO Y CONTROL DE CAPITAL */}
           <div className="p-3.5 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-3 shadow-xs">
             <div className="flex items-center justify-between">

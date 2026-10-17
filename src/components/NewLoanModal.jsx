@@ -1,117 +1,279 @@
-import React, { useEffect, useState } from 'react';
-import { Check, Link2, X } from 'lucide-react';
-
-function localDateInput() {
-  const date = new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-}
-
-function addMonths(dateString, amount) {
-  if (!dateString) return '';
-  const [year, month, day] = dateString.split('-').map(Number);
-  const target = new Date(year, month - 1 + amount, 1);
-  target.setDate(Math.min(day, new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()));
-  return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
-}
+import React, { useState } from 'react';
+import { 
+  X, Plus, DollarSign, Calendar, User, Phone, 
+  Percent, Clock, Calculator, Check 
+} from 'lucide-react';
 
 export default function NewLoanModal({ isOpen, onClose, onSave, currency = 'BOB' }) {
-  const today = localDateInput();
-  const [tipo, setTipo] = useState('otorgado');
-  const [nombre, setNombre] = useState('');
-  const [titulo, setTitulo] = useState('Préstamo');
-  const [telefono, setTelefono] = useState('');
-  const [ci, setCi] = useState('');
-  const [capital, setCapital] = useState('1000');
-  const [interes, setInteres] = useState('10');
-  const [plazoMeses, setPlazoMeses] = useState('6');
-  const [inicio, setInicio] = useState(today);
-  const [fechaPrimerPago, setFechaPrimerPago] = useState(() => addMonths(today, 1));
-  const [driveContrato, setDriveContrato] = useState('');
-  const [notas, setNotas] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-  const [formError, setFormError] = useState('');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const start = localDateInput();
-    setTipo('otorgado'); setNombre(''); setTitulo('Préstamo'); setTelefono(''); setCi('');
-    setCapital('1000'); setInteres('10'); setPlazoMeses('6'); setInicio(start);
-    setFechaPrimerPago(addMonths(start, 1)); setDriveContrato(''); setNotas(''); setIsSaving(false); setFormError('');
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
-  const capitalNumber = Number(capital) || 0;
-  const interestNumber = Number(interes) || 0;
-  const termNumber = Number(plazoMeses) || 0;
+  const [tipo, setTipo] = useState('otorgado'); // 'otorgado' vs 'recibido'
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [ci, setCi] = useState('');
+  const [capital, setCapital] = useState(1000);
+  const [interes, setInteres] = useState(10);
+  const [plazoMeses, setPlazoMeses] = useState(6);
+  const [tipoPago, setTipoPago] = useState('mensual');
+  const [notas, setNotas] = useState('');
+
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
-  const installmentEstimate = termNumber > 0 ? capitalNumber / termNumber + capitalNumber * interestNumber / 100 : 0;
-  const totalEstimate = installmentEstimate * termNumber;
-  const field = 'mt-1.5 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:bg-white focus:ring-4 focus:ring-emerald-700/10 dark:border-white/10 dark:bg-white/[.035] dark:text-white dark:focus:border-emerald-400 dark:focus:bg-[#1c241e]';
-  const label = 'block text-xs font-medium text-slate-600 dark:text-slate-300';
+  
+  const capitalNum = parseFloat(capital) || 0;
+  const interesNum = parseFloat(interes) || 0;
+  const mesesNum = parseInt(plazoMeses) || 6;
+  const cuotaEstimada = Math.round((capitalNum / mesesNum) + (capitalNum * (interesNum / 100)));
+  const totalRendimientoEstimado = Math.round(capitalNum * (interesNum / 100) * mesesNum);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setFormError('');
-    if (!nombre.trim()) return setFormError('Escribe el nombre de la persona.');
-    if (!capitalNumber || capitalNumber < 0.01) return setFormError('El capital debe ser mayor que cero.');
-    if (!Number.isInteger(termNumber) || termNumber < 1 || termNumber > 60) return setFormError('El plazo debe ser de 1 a 60 meses.');
-    if (interestNumber < 0 || !Number.isFinite(interestNumber)) return setFormError('La tasa debe ser cero o mayor.');
-    if (!inicio || !fechaPrimerPago || fechaPrimerPago < inicio) return setFormError('El primer vencimiento debe ser igual o posterior a la fecha de inicio.');
-    if (driveContrato && !/^https:\/\//i.test(driveContrato.trim())) return setFormError('El enlace debe comenzar con https://');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!nombre.trim()) return alert('Por favor ingresa el nombre de la persona');
 
-    const loan = {
-      nombre: nombre.trim(), titulo_prestamo: titulo.trim() || 'Préstamo', telefono: telefono.trim(), ci: ci.trim(),
-      capital: capitalNumber, interes: interestNumber, plazo_meses: termNumber, tipo_prestamo: tipo,
-      tipo_pago: 'mensual', moneda: currency, inicio, fecha_primer_pago: fechaPrimerPago,
-      fin: addMonths(fechaPrimerPago, termNumber - 1), drive_contrato: driveContrato.trim(),
-      estado: 'Activo', pagos: [], notas, notas_express: [], abonos_capital: [], metodo_recalculo: 'reducir_cuota',
+    const hoy = new Date().toISOString().split('T')[0];
+    const fin = new Date(Date.now() + mesesNum * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const newLoan = {
+      nombre: nombre.trim(),
+      telefono: telefono.trim(),
+      ci: ci.trim(),
+      capital: capitalNum,
+      interes: interesNum,
+      plazo_meses: mesesNum,
+      tipo_prestamo: tipo,
+      tipo_pago: tipoPago,
+      moneda: currency,
+      inicio: hoy,
+      fin,
+      estado: 'Activo',
+      pagos: [],
+      notas: notas.trim() ? `[TIPO:${tipo}] ${notas.trim()}` : `[TIPO:${tipo}] Registrado en Work Personal`,
     };
-    setIsSaving(true);
-    try {
-      const saved = await onSave(loan);
-      if (saved) onClose();
-      else setFormError('No se guardó el préstamo. Conservamos lo que escribiste; vuelve a intentarlo.');
-    } catch {
-      setFormError('No se guardó el préstamo. Conservamos lo que escribiste; vuelve a intentarlo.');
-    } finally {
-      setIsSaving(false);
-    }
+
+    onSave(newLoan);
+    onClose();
+  };
+
+  const addAmount = (amt) => {
+    setCapital((prev) => parseFloat(prev || 0) + amt);
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 backdrop-blur-sm sm:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget && !isSaving) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="new-loan-title" className="flex max-h-[94vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-[0_32px_100px_-40px_rgba(0,0,0,.65)] dark:border-white/10 dark:bg-[#171d19] dark:text-slate-100">
-        <header className="flex items-start justify-between border-b border-slate-100 px-5 py-5 dark:border-white/8 sm:px-7">
-          <div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-emerald-800 dark:text-emerald-300">Nuevo contrato</p><h2 id="new-loan-title" className="mt-1 text-lg font-semibold tracking-tight">Registrar préstamo</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">La persona puede tener varios contratos independientes.</p></div>
-          <button onClick={onClose} aria-label="Cerrar" className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5"><X className="h-4 w-4" /></button>
-        </header>
-
-        <form onSubmit={handleSubmit} className="min-h-0 space-y-5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-          <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 dark:bg-white/5">
-            {[['otorgado', 'Me deben'], ['recibido', 'Debo yo']].map(([value, labelText]) => <button key={value} type="button" onClick={() => setTipo(value)} className={`h-10 rounded-lg text-sm font-semibold transition ${tipo === value ? 'bg-white text-slate-900 shadow-sm dark:bg-[#2b382f] dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{labelText}</button>)}
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
+      <div 
+        className="w-full max-w-md bg-white dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#2e2e2e] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-[#ececec] max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Cabecera */}
+        <div className="p-4 px-5 border-b border-zinc-200 dark:border-[#2e2e2e] flex items-center justify-between bg-zinc-50 dark:bg-[#181818]">
+          <div>
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
+              Anotar Nuevo Préstamo
+            </h3>
+            <p className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] mt-1">
+              Crea un nuevo expediente y plan de cuotas automático
+            </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className={`${label} sm:col-span-2`}>Nombre completo *<input required autoFocus maxLength={120} value={nombre} onChange={(event) => setNombre(event.target.value)} placeholder="Nombre de la persona" className={field} /></label>
-            <label className={label}>Referencia de este préstamo<input maxLength={80} value={titulo} onChange={(event) => setTitulo(event.target.value)} placeholder="Ej. Negocio · octubre" className={field} /></label>
-            <label className={label}>Teléfono / WhatsApp<input value={telefono} onChange={(event) => setTelefono(event.target.value)} placeholder="Número de contacto" className={field} /></label>
-            <label className={label}>CI / identificación<input value={ci} onChange={(event) => setCi(event.target.value)} placeholder="Número de documento" className={field} /></label>
-            <label className={label}>Capital ({symbol})<input type="number" min="0.01" step="0.01" required value={capital} onChange={(event) => setCapital(event.target.value)} className={field} /></label>
-            <label className={label}>Interés mensual (%)<input type="number" min="0" step="0.01" required value={interes} onChange={(event) => setInteres(event.target.value)} className={field} /></label>
-            <label className={label}>Plazo (meses)<input type="number" min="1" max="60" step="1" required value={plazoMeses} onChange={(event) => setPlazoMeses(event.target.value)} className={field} /></label>
-            <label className={label}>Fecha de inicio<input type="date" required value={inicio} onChange={(event) => { setInicio(event.target.value); setFechaPrimerPago(addMonths(event.target.value, 1)); }} className={field} /></label>
-            <label className={label}>Primer vencimiento<input type="date" required min={inicio} value={fechaPrimerPago} onChange={(event) => setFechaPrimerPago(event.target.value)} className={field} /></label>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-300 sm:col-span-2">Documento del contrato en Google Drive<div className="mt-1.5 flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-emerald-700 focus-within:ring-4 focus-within:ring-emerald-700/10 dark:border-white/10 dark:bg-white/[.035]"><Link2 className="h-4 w-4 shrink-0 text-slate-400" /><input type="url" value={driveContrato} onChange={(event) => setDriveContrato(event.target.value)} placeholder="https://drive.google.com/file/d/..." className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white" /></div><span className="mt-1 block text-[11px] font-normal text-slate-400">Este enlace queda guardado únicamente en este contrato.</span></label>
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-300 sm:col-span-2">Garantía y observaciones iniciales<textarea rows={3} maxLength={2000} value={notas} onChange={(event) => setNotas(event.target.value)} placeholder="Acuerdos, garantía o condiciones del préstamo" className={`${field} h-auto resize-y py-3`} /></label>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-zinc-200/70 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scroll text-xs">
+          
+          {/* Segmento: Otorgado vs Recibido */}
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl">
+            <button
+              type="button"
+              onClick={() => setTipo('otorgado')}
+              className={`py-2 rounded-lg text-xs font-semibold transition-all ${
+                tipo === 'otorgado'
+                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
+                  : 'text-zinc-500 dark:text-[#8e8e8e]'
+              }`}
+            >
+              Yo presto (Cobro)
+            </button>
+            <button
+              type="button"
+              onClick={() => setTipo('recibido')}
+              className={`py-2 rounded-lg text-xs font-semibold transition-all ${
+                tipo === 'recibido'
+                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
+                  : 'text-zinc-500 dark:text-[#8e8e8e]'
+              }`}
+            >
+              Me prestan (Acreedor)
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-900/10 bg-emerald-50/80 px-4 py-3.5 dark:border-emerald-100/10 dark:bg-emerald-400/[.07]"><div><p className="text-xs text-emerald-950/70 dark:text-emerald-100/70">Cuota mensual estimada</p><p className="mt-0.5 text-lg font-semibold tabular-nums text-emerald-950 dark:text-emerald-50">{symbol} {new Intl.NumberFormat('es-BO', { maximumFractionDigits: 2 }).format(installmentEstimate)}</p></div><div className="text-right"><p className="text-xs text-emerald-950/70 dark:text-emerald-100/70">Total estimado del plan</p><p className="mt-0.5 text-sm font-semibold tabular-nums text-emerald-950 dark:text-emerald-50">{symbol} {new Intl.NumberFormat('es-BO', { maximumFractionDigits: 2 }).format(totalEstimate)}</p></div></div>
-          <p className="text-[11px] leading-5 text-slate-400">Estimación: capital dividido entre cuotas más interés mensual sobre el capital inicial. La app no añade mora automática.</p>
-          {formError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-800 dark:border-rose-300/15 dark:bg-rose-400/10 dark:text-rose-200">{formError}</p>}
-          <footer className="flex justify-end gap-2 border-t border-slate-100 pt-4 dark:border-white/8"><button type="button" disabled={isSaving} onClick={onClose} className="h-10 rounded-xl border border-slate-200 px-4 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5">Cancelar</button><button type="submit" disabled={isSaving} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#193a2b] px-4 text-sm font-semibold text-white hover:bg-[#24503b] disabled:opacity-60"><Check className="h-4 w-4" />{isSaving ? 'Guardando…' : 'Guardar préstamo'}</button></footer>
+          {/* Nombre y Contacto */}
+          <div className="space-y-2.5">
+            <div>
+              <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+                Nombre Completo *
+              </label>
+              <input
+                type="text"
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ej. Roberto Villazón"
+                className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white outline-none focus:border-zinc-400 dark:focus:border-[#555] text-xs"
+                autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+                  Teléfono / WhatsApp
+                </label>
+                <input
+                  type="text"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  placeholder="Ej. 76653981"
+                  className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white outline-none text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+                  CI / Identificación
+                </label>
+                <input
+                  type="text"
+                  value={ci}
+                  onChange={(e) => setCi(e.target.value)}
+                  placeholder="Ej. 6259284 LP"
+                  className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white outline-none text-xs"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Monto Capital */}
+          <div className="space-y-1.5 p-3 rounded-xl bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838]">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e]">
+                Monto Capital ({symbol})
+              </label>
+              <span className="text-[10px] font-mono text-zinc-400 dark:text-[#737373]">
+                Moneda: {currency}
+              </span>
+            </div>
+
+            <div className="relative">
+              <input
+                type="number"
+                required
+                min="1"
+                value={capital}
+                onChange={(e) => setCapital(e.target.value)}
+                className="w-full bg-white dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#383838] px-3 py-2.5 rounded-lg text-base font-mono font-bold text-zinc-900 dark:text-white outline-none"
+              />
+            </div>
+
+            {/* Chips rápidos de suma */}
+            <div className="flex gap-1.5 pt-1">
+              {[500, 1000, 2500, 5000].map((amt) => (
+                <button
+                  type="button"
+                  key={amt}
+                  onClick={() => addAmount(amt)}
+                  className="py-1 px-2 rounded-md bg-zinc-200/60 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#333] text-[10px] font-mono font-semibold text-zinc-700 dark:text-[#a3a3a3] flex-1 border border-zinc-300/40 dark:border-[#333] transition-all"
+                >
+                  +{amt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tasa y Plazo */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div>
+              <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+                Tasa de Interés (%)
+              </label>
+              <input
+                type="number"
+                value={interes}
+                onChange={(e) => setInteres(e.target.value)}
+                className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white font-mono outline-none text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+                Plazo (Meses)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="60"
+                value={plazoMeses}
+                onChange={(e) => setPlazoMeses(e.target.value)}
+                className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] px-3 py-2 rounded-lg text-zinc-900 dark:text-white font-mono outline-none text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Notas u Observaciones */}
+          <div>
+            <label className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-[#8e8e8e] block mb-1">
+              Garantía / Cláusulas
+            </label>
+            <textarea
+              rows={2}
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              placeholder="Ej. Garantía de equipo portátil, pagaré firmado..."
+              className="w-full bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] p-2.5 rounded-lg text-zinc-900 dark:text-white outline-none resize-none text-xs"
+            />
+          </div>
+
+          {/* Simulación en vivo */}
+          <div className="p-3 rounded-xl bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] flex items-center justify-between text-xs">
+            <div>
+              <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">Cuota Mensual Estimada</span>
+              <strong className="text-base font-mono font-bold text-zinc-900 dark:text-white">
+                {symbol} {cuotaEstimada.toLocaleString()}
+              </strong>
+            </div>
+
+            <div className="text-right">
+              <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">Rendimiento Total</span>
+              <strong className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                +{symbol} {totalRendimientoEstimado.toLocaleString()}
+              </strong>
+            </div>
+          </div>
+
+          {/* Footer de Acciones */}
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-200 dark:border-[#2e2e2e]">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3.5 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-xs font-medium text-zinc-700 dark:text-[#d4d4d4] transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-semibold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Registrar Préstamo</span>
+            </button>
+          </div>
+
         </form>
-      </section>
+      </div>
     </div>
   );
 }

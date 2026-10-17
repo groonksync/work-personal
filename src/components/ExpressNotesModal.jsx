@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { 
   X, MessageSquare, Clock, Plus, Trash2, Tag, 
   CheckCircle2, AlertTriangle, ShieldAlert, Sparkles
@@ -11,18 +11,11 @@ export default function ExpressNotesModal({
   onSaveNotes,
   onShowToast,
 }) {
-  const [notes, setNotes] = useState([]);
+  if (!isOpen || !loan) return null;
+
+  const [notes, setNotes] = useState(Array.isArray(loan.notas_express) ? [...loan.notas_express] : []);
   const [newNoteText, setNewNoteText] = useState('');
   const [selectedTag, setSelectedTag] = useState('Prórroga');
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setNotes(Array.isArray(loan?.notas_express) ? [...loan.notas_express] : []);
-    setNewNoteText('');
-    setSelectedTag('Prórroga');
-  }, [loan?.id, isOpen]);
-
-  if (!isOpen || !loan) return null;
 
   const availableTags = [
     { label: 'Prórroga', color: 'border-amber-500/30 text-amber-400 bg-amber-500/10' },
@@ -40,8 +33,8 @@ export default function ExpressNotesModal({
     'Acuerdo verbal de refinanciamiento de saldo restante.',
   ];
 
-  const handleAddNote = async () => {
-    if (!newNoteText.trim() || saving) return;
+  const handleAddNote = () => {
+    if (!newNoteText.trim()) return;
 
     const newNote = {
       id: `note-${Date.now()}`,
@@ -51,26 +44,17 @@ export default function ExpressNotesModal({
     };
 
     const updated = [newNote, ...notes];
-    setSaving(true);
-    const saved = await onSaveNotes(loan.id, updated);
-    setSaving(false);
-    if (saved) {
-      setNotes(updated);
-      setNewNoteText('');
-      if (onShowToast) onShowToast('Nota guardada en este préstamo');
-    } else if (onShowToast) onShowToast('No se pudo guardar la nota.');
+    setNotes(updated);
+    setNewNoteText('');
+    onSaveNotes(loan.id, updated);
+    if (onShowToast) onShowToast('Nota Express registrada');
   };
 
-  const handleDeleteNote = async (noteId) => {
-    if (saving) return;
+  const handleDeleteNote = (noteId) => {
     const updated = notes.filter(n => n.id !== noteId);
-    setSaving(true);
-    const saved = await onSaveNotes(loan.id, updated);
-    setSaving(false);
-    if (saved) {
-      setNotes(updated);
-      if (onShowToast) onShowToast('Nota eliminada');
-    } else if (onShowToast) onShowToast('No se pudo eliminar la nota.');
+    setNotes(updated);
+    onSaveNotes(loan.id, updated);
+    if (onShowToast) onShowToast('Nota eliminada');
   };
 
   return (
@@ -90,7 +74,7 @@ export default function ExpressNotesModal({
                 Bitácora de Notas Express & Incidencias
               </h3>
               <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] mt-1 block">
-                Expediente: <strong className="text-zinc-900 dark:text-white">{loan.nombre}</strong> · <strong>{loan.titulo_prestamo || 'Préstamo'}</strong> • {notes.length} registro(s)
+                Expediente: <strong className="text-zinc-900 dark:text-white">{loan.nombre}</strong> • {notes.length} registro(s)
               </span>
             </div>
           </div>
@@ -139,11 +123,11 @@ export default function ExpressNotesModal({
 
             <button
               onClick={handleAddNote}
-              disabled={!newNoteText.trim() || saving}
+              disabled={!newNoteText.trim()}
               className="px-3.5 py-1.5 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-black font-semibold text-xs flex items-center gap-1 shadow-xs active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>{saving ? 'Guardando…' : 'Asentar Nota'}</span>
+              <span>Asentar Nota</span>
             </button>
           </div>
 
@@ -197,7 +181,6 @@ export default function ExpressNotesModal({
                       </span>
                       <button
                         onClick={() => handleDeleteNote(note.id)}
-                        disabled={saving}
                         className="p-1 rounded text-zinc-400 hover:text-rose-500 hover:bg-zinc-100 dark:text-[#737373] dark:hover:text-rose-400 dark:hover:bg-[#333]"
                         title="Eliminar nota"
                       >

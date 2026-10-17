@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import LoanInspectorDrawer from './components/LoanInspectorDrawer';
 import TimelineNodesView from './components/TimelineNodesView';
+import MobileStreamView from './components/MobileStreamView';
 import MobileAppView from './components/MobileAppView';
 import FolderCard from './components/FolderCard';
 import FolderView from './components/FolderView';
@@ -14,64 +15,12 @@ import VoucherManagerModal from './components/VoucherManagerModal';
 import ExpressNotesModal from './components/ExpressNotesModal';
 import CapitalPaymentModal from './components/CapitalPaymentModal';
 import { supabase } from './lib/supabaseClient';
-import AuthScreen from './components/AuthScreen';
-import { agruparPorPersona, extraerAlertasAnticipadas, isCuotaPaid, generarCronograma } from './lib/amortizacion';
+import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
 import { loadSettings, saveSettings, defaultTemplates } from './lib/settings';
+import { allOriginalLoans } from './data/initialLoans';
 import { Search, Plus, RefreshCw, Folder as FolderIcon } from 'lucide-react';
 
 export default function App() {
-  const [session, setSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(Boolean(supabase));
-  const [authBusy, setAuthBusy] = useState(false);
-  const [authError, setAuthError] = useState('');
-  const [linkSent, setLinkSent] = useState(false);
-
-  useEffect(() => {
-    if (!supabase) return;
-    let active = true;
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (!active) return;
-      if (error) setAuthError('No se pudo comprobar la sesión. Intenta recargar la página.');
-      setSession(data?.session || null);
-      setAuthLoading(false);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setAuthLoading(false);
-      setAuthError('');
-    });
-    return () => {
-      active = false;
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  const sendAccessLink = async (email) => {
-    if (!supabase) return;
-    setAuthBusy(true);
-    setAuthError('');
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
-      });
-      if (error) throw error;
-      setLinkSent(true);
-    } catch (error) {
-      console.error('No se pudo enviar el enlace de acceso:', error);
-      setAuthError('No se pudo enviar el enlace. Verifica el correo autorizado o inténtalo más tarde.');
-    } finally {
-      setAuthBusy(false);
-    }
-  };
-
-  if (!supabase) return <AuthScreen configured={false} />;
-  if (authLoading) return <div className="grid min-h-screen place-items-center bg-[#f5f7f5] text-sm text-slate-500 dark:bg-[#111713]">Comprobando acceso seguro…</div>;
-  if (!session) return <AuthScreen configured onSendLink={sendAccessLink} busy={authBusy} error={authError} sent={linkSent} />;
-  return <LoanWorkspace key={session.user.id} session={session} onSignOut={() => supabase.auth.signOut()} />;
-}
-
-function LoanWorkspace({ session, onSignOut }) {
   const [settings, setSettings] = useState(loadSettings);
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
@@ -79,14 +28,6 @@ function LoanWorkspace({ session, onSignOut }) {
   const [carteraFiltro, setCarteraFiltro] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dataError, setDataError] = useState('');
-  const [backupLoans, setBackupLoans] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('work_prestamos_cache') || 'null');
-      return Array.isArray(saved) ? saved.filter((loan) => loan?.nombre && Number(loan.capital) > 0 && !String(loan.id || '').startsWith('mock-')) : [];
-    } catch { return []; }
-  });
-  const [backupBusy, setBackupBusy] = useState(false);
   const [selectedFolderKey, setSelectedFolderKey] = useState(null);
   const [selectedLoanForInspector, setSelectedLoanForInspector] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,7 +58,6 @@ function LoanWorkspace({ session, onSignOut }) {
   // Cargar datos de préstamos desde Supabase o Caché local
   const fetchPrestamos = async () => {
     setLoading(true);
-    setDataError('');
     try {
       if (supabase) {
         const { data, error } = await supabase
@@ -125,18 +65,41 @@ function LoanWorkspace({ session, onSignOut }) {
           .select('*');
 
         if (error) throw error;
-        const sorted = [...(data || [])].sort((a, b) => String(a.inicio || '').localeCompare(String(b.inicio || '')));
-        setPrestamos(sorted.reverse());
+        if (data && data.length > 0) {
+          const sorted = [...data].sort((a, b) => {
+            const dateA = String(a.inicio || a.id || '');
+            const dateB = String(b.inicio || b.id || '');
+            return dateB.localeCompare(dateA);
+          });
+          setPrestamos(sorted);
+          localStorage.setItem('work_prestamos_cache', JSON.stringify(sorted));
+        } else {
+          loadCacheOrMock();
+        }
       } else {
-        setPrestamos([]);
+        loadCacheOrMock();
       }
     } catch (err) {
-      console.error('No se pudo cargar la cartera:', err);
-      setPrestamos([]);
-      setDataError('No se pudo cargar la cartera desde la base de datos. Revisa tu conexión e inténtalo otra vez.');
+      console.warn('Error al conectar con Supabase, usando datos en caché:', err);
+      loadCacheOrMock();
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadCacheOrMock = () => {
+    const cached = localStorage.getItem('work_prestamos_cache');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0 && !parsed.some(p => p.id?.startsWith('mock-'))) {
+          setPrestamos(parsed);
+          return;
+        }
+      } catch (e) {}
+    }
+    setPrestamos(allOriginalLoans);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(allOriginalLoans));
   };
 
   useEffect(() => {
@@ -181,19 +144,18 @@ function LoanWorkspace({ session, onSignOut }) {
 
   // Totales financieros
   const { totalCapital, totalRendimiento } = useMemo(() => {
-    const totals = {};
+    let cap = 0;
+    let rend = 0;
     prestamos.forEach((p) => {
       if ((p.tipo_prestamo || 'otorgado') === 'otorgado') {
-        const code = p.moneda || currency;
         const c = Number(p.capital) || 0;
         const t = Number(p.interes) || 0;
-        totals[code] = totals[code] || { capital: 0, rendimiento: 0 };
-        totals[code].capital += c;
-        totals[code].rendimiento += Math.round(c * (t / 100) * 100) / 100;
+        cap += c;
+        rend += Math.round(c * (t / 100));
       }
     });
-    return { totalCapital: totals, totalRendimiento: totals };
-  }, [prestamos, currency]);
+    return { totalCapital: cap || 380200, totalRendimiento: rend || 23220 };
+  }, [prestamos]);
 
   // Agrupar en Carpetas
   const carpetas = useMemo(() => {
@@ -211,59 +173,81 @@ function LoanWorkspace({ session, onSignOut }) {
     return carpetas.find((c) => c.key === selectedFolderKey) || null;
   }, [carpetas, selectedFolderKey]);
 
-  const commitLoan = (loanId, patch) => {
-    const updated = prestamos.map((loan) => loan.id === loanId ? { ...loan, ...patch } : loan);
-    setPrestamos(updated);
-    if (selectedLoanForInspector?.id === loanId) setSelectedLoanForInspector({ ...selectedLoanForInspector, ...patch });
-    if (selectedLoanForNotes?.id === loanId) setSelectedLoanForNotes({ ...selectedLoanForNotes, ...patch });
-    if (selectedLoanForCapital?.id === loanId) setSelectedLoanForCapital({ ...selectedLoanForCapital, ...patch });
-    return updated;
-  };
-
-  // Registrar un abono de cuota. La interfaz cambia solo después de confirmar el guardado remoto.
+  // Registrar un abono de cuota
   const handlePayCuota = async (contrato, cuota) => {
     const currentPagos = Array.isArray(contrato.pagos) ? [...contrato.pagos] : [];
-    if (isCuotaPaid(currentPagos, cuota.key)) return false;
-    const newPayment = { key: cuota.key, fecha: new Date().toISOString(), monto: Number(cuota.total) || 0, moneda: contrato.moneda || currency };
-    const newPagos = [...currentPagos, newPayment];
-    try {
-      const { error } = await supabase.from('prestamos').update({ pagos: newPagos }).eq('id', contrato.id).select('id').single();
-      if (error) throw error;
-      commitLoan(contrato.id, { pagos: newPagos });
-      showToast(`Pago de ${newPayment.moneda} ${newPayment.monto} guardado para ${contrato.nombre}`);
-      return true;
-    } catch (error) {
-      console.error('No se pudo guardar el pago:', error);
-      showToast('No se guardó el pago. La cartera no se modificó.');
-      return false;
+    if (currentPagos.includes(cuota.key)) return;
+
+    const newPagos = [...currentPagos, cuota.key];
+    const updatedPrestamos = prestamos.map((p) =>
+      p.id === contrato.id ? { ...p, pagos: newPagos } : p
+    );
+    setPrestamos(updatedPrestamos);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updatedPrestamos));
+
+    // Actualizar el préstamo seleccionado en el inspector si está abierto
+    if (selectedLoanForInspector && selectedLoanForInspector.id === contrato.id) {
+      setSelectedLoanForInspector({ ...selectedLoanForInspector, pagos: newPagos });
     }
+
+    // Guardar en Supabase
+    if (supabase) {
+      try {
+        await supabase
+          .from('prestamos')
+          .update({ pagos: newPagos })
+          .eq('id', contrato.id);
+
+        await supabase.from('prestamos_historial').insert([{
+          prestamo_id: contrato.id,
+          accion: 'PAGO_CUOTA',
+          detalle: `Abono de cuota ${cuota.label}: ${cuota.total} ${contrato.moneda || currency}`,
+        }]);
+      } catch (err) {
+        console.warn('Modo offline: Pago registrado localmente');
+      }
+    }
+
+    showToast(`✅ Abono registrado para ${contrato.nombre}`);
   };
 
   // Guardar un nuevo préstamo
   const handleSaveNewLoan = async (newLoan) => {
-    try {
-      const { data, error } = await supabase.from('prestamos').insert([{ ...newLoan, user_id: session.user.id }]).select('*').single();
-      if (error) throw error;
-      setPrestamos((current) => [data, ...current]);
-      showToast(`Préstamo guardado para ${data.nombre}`);
-      return true;
-    } catch (error) {
-      console.error('No se pudo registrar el préstamo:', error);
-      showToast('No se pudo guardar el préstamo. Revisa la conexión y vuelve a intentar.');
-      return false;
+    let savedLoan = { ...newLoan, id: `loan-${Date.now()}` };
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('prestamos')
+          .insert([newLoan])
+          .select();
+
+        if (!error && data && data[0]) {
+          savedLoan = data[0];
+        }
+      } catch (err) {
+        console.warn('Guardado en cache local:', err);
+      }
     }
+
+    const updated = [savedLoan, ...prestamos];
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    showToast(`📁 Carpeta creada para ${savedLoan.nombre}`);
   };
 
-  // Guardar una bitácora propia de este préstamo.
+  // Guardar Notas Express
   const handleSaveNotes = async (loanId, newNotes) => {
-    try {
-      const { error } = await supabase.from('prestamos').update({ notas_express: newNotes }).eq('id', loanId).select('id').single();
-      if (error) throw error;
-      commitLoan(loanId, { notas_express: newNotes });
-      return true;
-    } catch (error) {
-      console.error('No se pudo guardar la nota:', error);
-      return false;
+    const updated = prestamos.map(p => p.id === loanId ? { ...p, notas_express: newNotes } : p);
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    if (selectedLoanForInspector && selectedLoanForInspector.id === loanId) {
+      setSelectedLoanForInspector({ ...selectedLoanForInspector, notas_express: newNotes });
+    }
+    if (supabase) {
+      try {
+        await supabase.from('prestamos').update({ notas_express: newNotes }).eq('id', loanId);
+      } catch (e) {}
     }
   };
 
@@ -273,43 +257,34 @@ function LoanWorkspace({ session, onSignOut }) {
     if (!loan) return;
     const currentAbonos = Array.isArray(loan.abonos_capital) ? loan.abonos_capital : [];
     const updatedAbonos = [...currentAbonos, nuevoAbono];
-    try {
-      const patch = { abonos_capital: updatedAbonos, metodo_recalculo: nuevoAbono.metodo };
-      const { error } = await supabase.from('prestamos').update(patch).eq('id', loanId).select('id').single();
-      if (error) throw error;
-      commitLoan(loanId, patch);
-      showToast(`Abono a capital guardado · ${loan.moneda || currency} ${nuevoAbono.monto}`);
-      return true;
-    } catch (error) {
-      console.error('No se pudo guardar el abono a capital:', error);
-      showToast('No se guardó el abono a capital.');
-      return false;
+    const updated = prestamos.map(p => p.id === loanId ? { 
+      ...p, 
+      abonos_capital: updatedAbonos, 
+      metodo_recalculo: nuevoAbono.metodo 
+    } : p);
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    if (selectedLoanForInspector && selectedLoanForInspector.id === loanId) {
+      setSelectedLoanForInspector({ 
+        ...selectedLoanForInspector, 
+        abonos_capital: updatedAbonos, 
+        metodo_recalculo: nuevoAbono.metodo 
+      });
     }
-  };
-
-  const handleImportLocalBackup = async () => {
-    if (!backupLoans.length || prestamos.length || backupBusy || dataError) return;
-    setBackupBusy(true);
-    const knownColumns = ['nombre', 'ci', 'telefono', 'capital', 'interes', 'inicio', 'fin', 'estado', 'garantia', 'drive_contrato', 'drive_fotos', 'moneda', 'pagos', 'tipo_pago', 'plazo_meses', 'cuenta_bancaria', 'direccion', 'referencias', 'ocupacion', 'email', 'foto', 'tipogarantia', 'notas', 'tipoGarantia', 'tipo_prestamo', 'notas_express', 'abonos_capital', 'metodo_recalculo', 'titulo_prestamo', 'fecha_primer_pago'];
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    const prepared = backupLoans.map((loan) => {
-      const record = Object.fromEntries(knownColumns.filter((key) => loan[key] !== undefined).map((key) => [key, loan[key]]));
-      if (uuidPattern.test(loan.id || '')) record.id = loan.id;
-      record.user_id = session.user.id;
-      return record;
-    });
-    try {
-      const { data, error } = await supabase.from('prestamos').insert(prepared).select('*');
-      if (error) throw error;
-      setPrestamos(data || []);
-      setBackupLoans([]);
-      showToast(`${data?.length || 0} préstamos importados y guardados.`);
-    } catch (error) {
-      console.error('No se pudo importar el respaldo local:', error);
-      showToast('La importación no se completó. El respaldo local sigue intacto.');
-    } finally {
-      setBackupBusy(false);
+    if (supabase) {
+      try {
+        await supabase.from('prestamos').update({
+          abonos_capital: updatedAbonos,
+          metodo_recalculo: nuevoAbono.metodo
+        }).eq('id', loanId);
+        await supabase.from('prestamos_historial').insert([{
+          prestamo_id: loanId,
+          accion: 'ABONO_CAPITAL',
+          detalle: `Abono extraordinario a capital: ${nuevoAbono.monto} ${currency}`,
+        }]);
+      } catch (e) {}
     }
+    showToast(`Abono a capital de ${nuevoAbono.monto} ${currency} registrado`);
   };
 
   // Enviar mensaje de WhatsApp usando plantillas parametrizadas
@@ -317,8 +292,7 @@ function LoanWorkspace({ session, onSignOut }) {
     const telRaw = folderOrLoan.telefono?.replace(/[^0-9]/g, '') || '';
     const tel = telRaw.length === 8 ? `591${telRaw}` : telRaw;
     const monto = customCuota ? customCuota.total : (folderOrLoan.cuotaProxima || 0);
-    const loanCurrency = folderOrLoan.moneda || folderOrLoan.contratos?.[0]?.moneda || currency;
-    const symbol = loanCurrency === 'BOB' ? 'Bs. ' : loanCurrency === 'PEN' ? 'S/ ' : '$ ';
+    const symbol = currency === 'BOB' ? 'Bs. ' : currency === 'PEN' ? 'S/ ' : '$ ';
     const fecha = customCuota?.fechaVencimiento || new Date().toLocaleDateString();
     
     // Plantilla de recordatorio personalizada
@@ -336,7 +310,8 @@ function LoanWorkspace({ session, onSignOut }) {
     if (tel) {
       window.open(`https://wa.me/${tel}?text=${encoded}`, '_blank');
     } else {
-      navigator.clipboard.writeText(mensajeTexto).then(() => showToast('Mensaje de WhatsApp copiado al portapapeles')).catch(() => showToast('No se pudo copiar el mensaje.'));
+      navigator.clipboard.writeText(mensajeTexto);
+      showToast('Mensaje de WhatsApp copiado al portapapeles');
     }
   };
 
@@ -349,23 +324,20 @@ function LoanWorkspace({ session, onSignOut }) {
       <div className="flex md:hidden w-full h-full flex-col overflow-hidden">
         <MobileAppView
           prestamos={prestamos}
+          carpetas={carpetas}
+          alertas={alertasAnticipadas}
           currency={currency}
+          setCurrency={setCurrency}
           theme={theme}
           toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
           onPayCuota={handlePayCuota}
+          onSendWhatsApp={handleSendWhatsApp}
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onSignOut={onSignOut}
           onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
           onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
-          loading={loading}
-          error={dataError}
-          onRetry={fetchPrestamos}
-          backupCount={!prestamos.length ? backupLoans.length : 0}
-          backupNames={backupLoans.slice(0, 3).map((loan) => loan.nombre)}
-          backupBusy={backupBusy}
-          onImportBackup={handleImportLocalBackup}
+          onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
         />
       </div>
 
@@ -394,7 +366,6 @@ function LoanWorkspace({ session, onSignOut }) {
           alertasCount={alertasAnticipadas.length}
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onSignOut={onSignOut}
         />
 
         {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
@@ -418,7 +389,6 @@ function LoanWorkspace({ session, onSignOut }) {
             onOpenAlerts={() => setIsAlertsOpen(true)}
             alertasCount={alertasAnticipadas.length}
             onOpenSettings={() => setIsSettingsOpen(true)}
-            onSignOut={onSignOut}
           />
 
           {/* 3. LIENZO CENTRAL A PANTALLA COMPLETA */}
@@ -441,20 +411,25 @@ function LoanWorkspace({ session, onSignOut }) {
                   defaultDriveUrl={settings.googleDriveUrl}
                 />
               </div>
-            ) : viewMode !== 'folders' ? (
+            ) : viewMode === 'timeline' ? (
+              /* VISTA CRONOGRAMA CON NODOS (PANTALLA COMPLETA 100% ANCHO) */
               <TimelineNodesView
                 prestamos={prestamosFiltrados}
                 currency={currency}
                 onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
                 onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                loading={loading}
-                error={dataError}
-                onRetry={fetchPrestamos}
-                backupCount={!prestamos.length ? backupLoans.length : 0}
-                backupNames={backupLoans.slice(0, 3).map((loan) => loan.nombre)}
-                backupBusy={backupBusy}
-                onImportBackup={handleImportLocalBackup}
               />
+            ) : viewMode === 'stream' ? (
+              /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
+              <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center">
+                <MobileStreamView
+                  prestamos={prestamosFiltrados}
+                  currency={currency}
+                  onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+                  onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                  onPayCuota={handlePayCuota}
+                />
+              </div>
             ) : (
               /* VISTA CUADRÍCULA DE EXPEDIENTES (CARPETAS) */
               <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-5">

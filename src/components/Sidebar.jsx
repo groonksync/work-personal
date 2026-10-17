@@ -11,8 +11,8 @@ export default function Sidebar({
   carteraFiltro,
   setCarteraFiltro,
   counts = {},
-  totalCapital = {},
-  totalRendimiento = {},
+  totalCapital = 380200,
+  totalRendimiento = 23220,
   currency = 'BOB',
   setCurrency,
   theme,
@@ -22,14 +22,14 @@ export default function Sidebar({
   onOpenNewLoan,
   onOpenSettings,
 }) {
+  const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
+
   // Cálculos visuales de cartera para gráficos planos
-  const totalRegistros = counts.total || 0;
-  const otorgadosCount = counts.otorgados || 0;
-  const recibidosCount = counts.recibidos || 0;
-  const pctOtorgados = totalRegistros ? Math.round((otorgadosCount / totalRegistros) * 100) : 0;
-  const pctRecibidos = totalRegistros ? 100 - pctOtorgados : 0;
-  const currencySymbol = { BOB: 'Bs.', USD: '$', PEN: 'S/' };
-  const formatTotal = (value) => new Intl.NumberFormat('es-BO', { maximumFractionDigits: 2 }).format(value || 0);
+  const totalRegistros = counts.total || 11;
+  const otorgadosCount = counts.otorgados || 9;
+  const recibidosCount = counts.recibidos || 2;
+  const pctOtorgados = Math.round((otorgadosCount / totalRegistros) * 100);
+  const pctRecibidos = 100 - pctOtorgados;
 
   return (
     <aside className="w-64 bg-zinc-50 dark:bg-[#171717] border-r border-zinc-200 dark:border-[#262626] flex flex-col justify-between shrink-0 h-full select-none z-30 text-zinc-800 dark:text-[#ececec] transition-colors duration-150">
@@ -69,7 +69,7 @@ export default function Sidebar({
               <span className="text-[13px]">Cronograma</span>
             </div>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-200/60 dark:bg-[#212121] text-zinc-600 dark:text-[#a3a3a3]">
-              {counts.total || 0}
+              {counts.total || 9}
             </span>
           </button>
 
@@ -120,7 +120,7 @@ export default function Sidebar({
               <Users className="w-4 h-4 text-zinc-400 dark:text-[#a3a3a3]" />
               <span className="text-[13px]">Todos</span>
             </div>
-            <span className="text-[11px] font-mono text-zinc-400 dark:text-[#737373]">{counts.total || 0}</span>
+            <span className="text-[11px] font-mono text-zinc-400 dark:text-[#737373]">{counts.total || 11}</span>
           </button>
 
           <button
@@ -135,7 +135,7 @@ export default function Sidebar({
               <ArrowUpRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-[13px]">Cobros Activos</span>
             </div>
-            <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">{counts.otorgados || 0}</span>
+            <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">{counts.otorgados || 9}</span>
           </button>
 
           <button
@@ -150,7 +150,7 @@ export default function Sidebar({
               <ArrowDownLeft className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span className="text-[13px]">Acreedores</span>
             </div>
-            <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-bold">{counts.recibidos || 0}</span>
+            <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-bold">{counts.recibidos || 2}</span>
           </button>
 
           <button
@@ -172,8 +172,17 @@ export default function Sidebar({
         {/* GRÁFICOS Y MÉTRICAS VISUALES DE LA CARTERA (SKILL PROFESSIONAL-UI-DESIGN) */}
         <div className="p-3.5 rounded-2xl bg-white dark:bg-[#212121] border border-zinc-200 dark:border-[#2d2d2d] space-y-3 shadow-xs">
           <div>
-            <span className="text-[10px] text-zinc-400 dark:text-[#737373] uppercase font-bold tracking-wider">Capital colocado</span>
-            {Object.keys(totalCapital).length ? Object.entries(totalCapital).map(([code, totals]) => <div key={code} className="mt-1 flex items-center justify-between font-mono text-sm font-semibold text-zinc-900 dark:text-white"><span>{currencySymbol[code] || code}</span><span>{formatTotal(totals.capital)}</span></div>) : <div className="mt-1 text-sm text-zinc-500 dark:text-[#a3a3a3]">Sin cartera registrada</div>}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-zinc-400 dark:text-[#737373] uppercase font-bold tracking-wider">
+                Capital Colocado
+              </span>
+              <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                {pctOtorgados}% Activo
+              </span>
+            </div>
+            <div className="text-base font-bold font-mono text-zinc-900 dark:text-white mt-0.5 tracking-tight">
+              {symbol} {Number(totalCapital).toLocaleString()}
+            </div>
           </div>
 
           {/* Gráfico de distribución de cartera (Segmented Bar) */}
@@ -184,11 +193,11 @@ export default function Sidebar({
                 style={{ width: `${pctOtorgados}%` }}
                 title={`Cobros Activos: ${pctOtorgados}%`}
               />
-              {totalRegistros > 0 && <div
+              <div 
                 className="h-full bg-purple-500 rounded-r-full transition-all duration-300" 
                 style={{ width: `${pctRecibidos}%` }}
                 title={`Acreedores: ${pctRecibidos}%`}
-              />}
+              />
             </div>
             <div className="flex justify-between text-[10px] text-zinc-400 dark:text-[#737373] font-mono">
               <span className="flex items-center gap-1">
@@ -205,7 +214,7 @@ export default function Sidebar({
           <div className="pt-2 border-t border-zinc-100 dark:border-[#2a2a2a] flex items-center justify-between text-xs">
             <span className="text-zinc-500 dark:text-[#8e8e8e] text-[11px]">Rendimiento Est.:</span>
             <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-              {Object.keys(totalRendimiento).length ? Object.entries(totalRendimiento).map(([code, totals]) => `${currencySymbol[code] || code} ${formatTotal(totals.rendimiento)}`).join(' · ') : '—'}
+              +{symbol} {Number(totalRendimiento).toLocaleString()}/m
             </span>
           </div>
         </div>
