@@ -1,14 +1,12 @@
 import React from 'react';
-import { Folder, Clock, ArrowRight, User, TrendingUp } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuickPay }) {
-  const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
-
-  // Cálculo de progreso visual de amortización
-  const totalCapital = folder.totalCapital || 1;
-  const totalAdeudado = folder.totalAdeudado || 0;
-  const totalPagado = Math.max(0, totalCapital - totalAdeudado);
-  const porcentajePagado = Math.min(100, Math.round((totalPagado / totalCapital) * 100));
+  const symbols = { BOB: 'Bs.', USD: '$', PEN: 'S/' };
+  const count = folder.cuotasPagadasCount + folder.cuotasPendientesCount;
+  const porcentajePagado = count ? Math.round(folder.cuotasPagadasCount / count * 100) : 0;
+  const formatAmounts = (totals = {}) => Object.entries(totals).map(([code, amount]) => `${symbols[code] || code} ${new Intl.NumberFormat('es-BO', { maximumFractionDigits: 2 }).format(amount)}`);
+  const balances = formatAmounts(folder.totalAdeudadoPorMoneda);
 
   // Configuración de badge de estado con colores nítidos
   const getBadgeInfo = () => {
@@ -81,8 +79,8 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
         {/* Barra de progreso visual de amortización */}
         <div className="space-y-1 pt-1">
           <div className="flex justify-between text-[11px] font-medium text-zinc-500 dark:text-[#8e8e8e]">
-            <span>Amortizado</span>
-            <span className="font-mono font-bold text-zinc-900 dark:text-white">{porcentajePagado}%</span>
+            <span>Cuotas pagadas</span>
+            <span className="font-mono font-bold text-zinc-900 dark:text-white">{folder.cuotasPagadasCount}/{count} · {porcentajePagado}%</span>
           </div>
           <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-[#1a1a1a] overflow-hidden">
             <div 
@@ -99,7 +97,7 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
               Próxima Cuota
             </span>
             <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white">
-              {symbol} {folder.cuotaProxima?.toLocaleString() || 0}
+              {(folder.monedaProxima || currency) in symbols ? symbols[folder.monedaProxima || currency] : folder.monedaProxima || currency} {new Intl.NumberFormat('es-BO', { maximumFractionDigits: 2 }).format(folder.cuotaProxima || 0)}
             </span>
           </div>
           <div>
@@ -107,7 +105,7 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
               Saldo Restante
             </span>
             <span className="text-sm font-mono font-medium text-zinc-600 dark:text-[#a3a3a3]">
-              {symbol} {folder.totalAdeudado?.toLocaleString() || 0}
+              {balances.length ? balances.join(' · ') : 'Saldado'}
             </span>
           </div>
         </div>
@@ -120,7 +118,8 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
             e.stopPropagation();
             onQuickPay(folder);
           }}
-          className="h-8 px-3 rounded-lg bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-semibold text-xs transition-all active:scale-95 shadow-xs"
+          disabled={folder.cuotasPendientesCount === 0}
+          className="h-8 px-3 rounded-lg bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-semibold text-xs transition-all active:scale-95 shadow-xs disabled:opacity-40 disabled:pointer-events-none"
         >
           Abonar
         </button>
