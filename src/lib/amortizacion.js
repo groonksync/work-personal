@@ -1,15 +1,14 @@
 // Motor Financiero y Matemático de Auditoría de Préstamos
+export const TASA_MORA_DIARIA = 0.05; // 5% diario
 export const DIAS_GRACIA_DEFAULT = 0;
 
 export function toDate(str) {
-  if (str instanceof Date) return new Date(str.getFullYear(), str.getMonth(), str.getDate());
   if (!str) return new Date();
-  const match = String(str).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!match) {
-    const parsed = new Date(str);
-    return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
-  }
-  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const parts = str.split('-');
+  if (parts.length !== 3) return new Date();
+  const [y, m, d] = parts.map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return new Date();
+  return new Date(y, m - 1, d);
 }
 
 export function formatDate(d) {
@@ -17,18 +16,15 @@ export function formatDate(d) {
 }
 
 export function diasEntre(fecha1, fecha2) {
-  const toUtcDay = (value) => {
-    const date = toDate(value);
-    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-  };
-  return Math.round((toUtcDay(fecha2) - toUtcDay(fecha1)) / 86400000);
+  const f1 = new Date(fecha1);
+  const f2 = new Date(fecha2);
+  return Math.floor((f2 - f1) / (1000 * 60 * 60 * 24));
 }
 
-export function getFechaVencimiento(inicio, mesIndex, fechaPrimerPago = null) {
-  const base = toDate(fechaPrimerPago || inicio);
-  const monthOffset = fechaPrimerPago ? mesIndex : mesIndex + 1;
-  const diaPago = base.getDate();
-  const venc = new Date(base.getFullYear(), base.getMonth() + monthOffset, 1);
+export function getFechaVencimiento(inicio, mesIndex) {
+  const d = toDate(inicio);
+  const diaPago = d.getDate();
+  const venc = new Date(d.getFullYear(), d.getMonth() + 1 + mesIndex, 1);
   const ultimoDiaMes = new Date(venc.getFullYear(), venc.getMonth() + 1, 0).getDate();
   const diaSeguro = Math.min(diaPago, ultimoDiaMes);
   venc.setDate(diaSeguro);
@@ -47,17 +43,14 @@ export function isCuotaPaid(pagos, key) {
 // Genera el cronograma de cuotas mensuales con soporte para abonos a capital
 export function generarCronograma(prestamo) {
   if (!prestamo?.id) return [];
-  const { inicio, fecha_primer_pago, capital, interes, pagos, plazo_meses, abonos_capital = [], metodo_recalculo = 'reducir_cuota' } = prestamo;
+  const { inicio, capital, interes, pagos, plazo_meses, abonos_capital = [], metodo_recalculo = 'reducir_cuota' } = prestamo;
   const tasaInteres = parseFloat(interes) || 0;
   const capitalInicial = parseFloat(capital) || 0;
-  const cuotasCount = parseInt(plazo_meses, 10);
-  if (prestamo.tipo_pago && prestamo.tipo_pago !== 'mensual') return [];
-  if (!Number.isInteger(cuotasCount) || cuotasCount < 1 || !inicio) return [];
+  const cuotasCount = parseInt(plazo_meses) || 6;
 
   // Calcular abonos extraordinarios a capital
-  const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
-  const totalAbonadoCapital = (Array.isArray(abonos_capital) ? abonos_capital : []).reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
-  const saldoCapitalActual = Math.max(0, roundMoney(capitalInicial - totalAbonadoCapital));
+  const totalAbonadoCapital = abonos_capital.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+  const saldoCapitalActual = Math.max(0, capitalInicial - totalAbonadoCapital);
 
   const cuotas = [];
   const hoy = new Date();
@@ -65,9 +58,8 @@ export function generarCronograma(prestamo) {
 
   // Cuotas pagadas previamente
   let cuotasPagadasCount = 0;
-  let pendingOrdinal = 0;
   for (let mesIndex = 0; mesIndex < cuotasCount; mesIndex++) {
-    const fechaVenc = getFechaVencimiento(inicio, mesIndex, fecha_primer_pago);
+    const fechaVenc = getFechaVencimiento(inicio, mesIndex);
     const vencDate = toDate(fechaVenc);
     const key = generarKey(vencDate.getFullYear(), vencDate.getMonth());
     if (isCuotaPaid(pagos, key)) {
@@ -77,45 +69,31 @@ export function generarCronograma(prestamo) {
 
   const cuotasRestantesCount = Math.max(1, cuotasCount - cuotasPagadasCount);
 
-  // Base original (sin abonos)
-  const cuotaCapitalOriginal = roundMoney(capitalInicial / cuotasCount);
-  const interesMensualOriginal = roundMoney(capitalInicial * (tasaInteres / 100));
+  // Cuota y tasa recalculada según saldo insoluto
+  const cuotaCapitalRecalculada = saldoCapitalActual / cuotasRestantesCount;
+  const interesMensualRecalculado = Math.round(saldoCapitalActual * (tasaInteres / 100));
+  const valorCuotaRecalculada = Math.round(cuotaCapitalRecalculada + interesMensualRecalculado);
 
-  // Con reducir cuota se conserva el plazo; con reducir plazo se conserva
-  // el capital periódico original y el saldo termina antes.
-  const cuotaCapitalRecalculada = metodo_recalculo === 'reducir_plazo'
-    ? cuotaCapitalOriginal
-    : roundMoney(saldoCapitalActual / cuotasRestantesCount);
-  const interesMensualRecalculado = roundMoney(saldoCapitalActual * (tasaInteres / 100));
-  let saldoRestanteConAbono = saldoCapitalActual;
+  // Base original (sin abonos)
+  const cuotaCapitalOriginal = capitalInicial / cuotasCount;
+  const interesMensualOriginal = Math.round(capitalInicial * (tasaInteres / 100));
+  const valorCuotaOriginal = Math.round(cuotaCapitalOriginal + interesMensualOriginal);
 
   for (let mesIndex = 0; mesIndex < cuotasCount; mesIndex++) {
-    const fechaVenc = getFechaVencimiento(inicio, mesIndex, fecha_primer_pago);
+    const fechaVenc = getFechaVencimiento(inicio, mesIndex);
     const vencDate = toDate(fechaVenc);
     const key = generarKey(vencDate.getFullYear(), vencDate.getMonth());
     const pagada = isCuotaPaid(pagos, key);
-    if (!pagada && totalAbonadoCapital > 0 && metodo_recalculo === 'reducir_plazo' && saldoRestanteConAbono <= 0) break;
 
     // Si ya está pagada usa el valor original, si está pendiente y hay abono a capital usa el valor recalculado
     const usaRecalculo = !pagada && totalAbonadoCapital > 0;
-    let cuotaCap = usaRecalculo ? cuotaCapitalRecalculada : cuotaCapitalOriginal;
-    const cuotaInt = roundMoney(usaRecalculo
-      ? metodo_recalculo === 'reducir_plazo' ? saldoRestanteConAbono * (tasaInteres / 100) : interesMensualRecalculado
-      : interesMensualOriginal);
-    if (usaRecalculo && metodo_recalculo === 'reducir_plazo') {
-      cuotaCap = roundMoney(Math.min(cuotaCapitalOriginal, saldoRestanteConAbono));
-      saldoRestanteConAbono = roundMoney(Math.max(0, saldoRestanteConAbono - cuotaCap));
-    } else if (!pagada && pendingOrdinal === cuotasRestantesCount - 1 && usaRecalculo) {
-      cuotaCap = roundMoney(Math.max(0, saldoCapitalActual - cuotaCapitalRecalculada * Math.max(0, cuotasRestantesCount - 1)));
-    } else if (mesIndex === cuotasCount - 1 && !usaRecalculo) {
-      cuotaCap = roundMoney(Math.max(0, capitalInicial - cuotaCapitalOriginal * Math.max(0, cuotasCount - 1)));
-    }
-    if (!pagada) pendingOrdinal++;
-    cuotaCap = roundMoney(cuotaCap);
-    const valorCuota = roundMoney(cuotaCap + cuotaInt);
+    const cuotaCap = Math.round(usaRecalculo ? cuotaCapitalRecalculada : cuotaCapitalOriginal);
+    const cuotaInt = usaRecalculo ? interesMensualRecalculado : interesMensualOriginal;
+    const valorCuota = usaRecalculo ? valorCuotaRecalculada : valorCuotaOriginal;
 
     let estado = 'pendiente';
     let diasAtraso = 0;
+    let mora = 0;
     let diffDays = diasEntre(hoyStr, fechaVenc);
 
     if (pagada) {
@@ -123,6 +101,7 @@ export function generarCronograma(prestamo) {
     } else if (diffDays < 0) {
       estado = 'vencido';
       diasAtraso = Math.abs(diffDays);
+      mora = Math.round(valorCuota * TASA_MORA_DIARIA * diasAtraso * 100) / 100;
     } else if (diffDays === 0) {
       estado = 'hoy';
     } else if (diffDays <= 3) {
@@ -140,7 +119,7 @@ export function generarCronograma(prestamo) {
       interes: cuotaInt,
       total: valorCuota,
       pagado: pagada,
-      mora: 0,
+      mora,
       diasAtraso,
       diasRestantes: diffDays,
       estado,
@@ -154,12 +133,9 @@ export function generarCronograma(prestamo) {
 // Agrupador de préstamos por persona (Carpetas)
 export function agruparPorPersona(prestamosList) {
   const groups = {};
-
-  const normalizeIdentity = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '');
   
   (prestamosList || []).forEach(p => {
-    const identity = normalizeIdentity(p.ci);
-    const key = identity ? `ci:${identity}` : `nombre:${normalizeIdentity(p.nombre) || 'SINNOMBRE'}`;
+    const key = p.nombre ? p.nombre.trim().toLowerCase() : 'sin-nombre';
     if (!groups[key]) {
       groups[key] = {
         key,
@@ -170,17 +146,12 @@ export function agruparPorPersona(prestamosList) {
         totalCapital: 0,
         totalCapitalActual: 0,
         totalAdeudado: 0,
-        totalAdeudadoPorMoneda: {},
-        totalCapitalPorMoneda: {},
-        totalCapitalActualPorMoneda: {},
-        cuotasPagadasCount: 0,
-        cuotasPendientesCount: 0,
         interesMensual: 0,
         cuotaProxima: 0,
         fechaProxima: null,
         diasParaVencer: 999,
         estadoGlobal: 'Al Día',
-        driveUrl: p.drive_contrato || p.drive_url || null,
+        driveUrl: p.drive_url || null,
         tipo_prestamo: p.tipo_prestamo || (p.notas?.includes('[TIPO:recibido]') ? 'recibido' : 'otorgado'),
         notasExpressCount: 0,
         vouchersCount: 0,
@@ -189,27 +160,21 @@ export function agruparPorPersona(prestamosList) {
 
     groups[key].contratos.push(p);
     const cap = parseFloat(p.capital) || 0;
-    const abonosCap = (Array.isArray(p.abonos_capital) ? p.abonos_capital : []).reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+    const abonosCap = (p.abonos_capital || []).reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
     const capActual = Math.max(0, cap - abonosCap);
-    const moneda = p.moneda || 'BOB';
 
     groups[key].totalCapital += cap;
     groups[key].totalCapitalActual += capActual;
-    groups[key].totalCapitalPorMoneda[moneda] = (groups[key].totalCapitalPorMoneda[moneda] || 0) + cap;
-    groups[key].totalCapitalActualPorMoneda[moneda] = (groups[key].totalCapitalActualPorMoneda[moneda] || 0) + capActual;
-    groups[key].notasExpressCount += (Array.isArray(p.notas_express) ? p.notas_express.length : 0);
-    if ((p.drive_contrato || p.drive_url) && !groups[key].driveUrl) {
-      groups[key].driveUrl = p.drive_contrato || p.drive_url;
+    groups[key].notasExpressCount += (p.notas_express || []).length;
+    if (p.drive_url && !groups[key].driveUrl) {
+      groups[key].driveUrl = p.drive_url;
     }
 
     // Calcular cuotas para este contrato
     const cuotas = generarCronograma(p);
     const cuotasPendientes = cuotas.filter(c => !c.pagado);
-    groups[key].cuotasPagadasCount += cuotas.filter(c => c.pagado).length;
-    groups[key].cuotasPendientesCount += cuotasPendientes.length;
     const saldoPendiente = cuotasPendientes.reduce((acc, c) => acc + c.total, 0);
     groups[key].totalAdeudado += saldoPendiente;
-    groups[key].totalAdeudadoPorMoneda[moneda] = (groups[key].totalAdeudadoPorMoneda[moneda] || 0) + saldoPendiente;
 
     // Próxima cuota pendiente
     if (cuotasPendientes.length > 0) {
@@ -218,7 +183,6 @@ export function agruparPorPersona(prestamosList) {
         groups[key].diasParaVencer = prox.diasRestantes;
         groups[key].fechaProxima = prox.fechaVencimiento;
         groups[key].cuotaProxima = prox.total;
-        groups[key].monedaProxima = moneda;
       }
     }
   });

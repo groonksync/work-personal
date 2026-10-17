@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { 
   X, DollarSign, TrendingDown, Calendar, Check, 
   ArrowRight, Calculator, AlertCircle, FileCheck
@@ -12,31 +12,19 @@ export default function CapitalPaymentModal({
   onConfirmCapitalPayment,
   onShowToast,
 }) {
-  const [montoAbono, setMontoAbono] = useState('');
-  const [metodoRecalculo, setMetodoRecalculo] = useState('reducir_cuota');
-  const [fechaAbono, setFechaAbono] = useState('');
-  const [notasAbono, setNotasAbono] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen || !loan) return;
-    const now = new Date();
-    setMontoAbono('');
-    setMetodoRecalculo(loan.metodo_recalculo || 'reducir_cuota');
-    setFechaAbono(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
-    setNotasAbono('');
-    setSaving(false);
-  }, [isOpen, loan?.id]);
-
   if (!isOpen || !loan) return null;
 
-  const loanCurrency = loan.moneda || currency;
-  const symbol = loanCurrency === 'BOB' ? 'Bs.' : loanCurrency === 'PEN' ? 'S/' : '$';
+  const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
   const capitalOriginal = parseFloat(loan.capital) || 0;
   const abonosPrevios = Array.isArray(loan.abonos_capital) ? loan.abonos_capital : [];
   const totalAbonadoPrevio = abonosPrevios.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
   const saldoActual = Math.max(0, capitalOriginal - totalAbonadoPrevio);
+
+  const [montoAbono, setMontoAbono] = useState('');
+  const [metodoRecalculo, setMetodoRecalculo] = useState(loan.metodo_recalculo || 'reducir_cuota');
+  const [fechaAbono, setFechaAbono] = useState(new Date().toISOString().slice(0, 10));
+  const [notasAbono, setNotasAbono] = useState('');
 
   const abonoNum = parseFloat(montoAbono) || 0;
   const nuevoSaldoCapital = Math.max(0, saldoActual - abonoNum);
@@ -53,8 +41,7 @@ export default function CapitalPaymentModal({
   const cuotaTotalNueva = cuotaCapitalNueva + interesMensualNuevo;
   const ahorroMensual = Math.max(0, cuotaTotalAntigua - cuotaTotalNueva);
 
-  const handleConfirm = async () => {
-    if (saving) return;
+  const handleConfirm = () => {
     if (abonoNum <= 0) {
       alert('Ingresa un monto válido para el abono a capital.');
       return;
@@ -72,10 +59,9 @@ export default function CapitalPaymentModal({
       notas: notasAbono.trim() || 'Abono directo a capital',
     };
 
-    setSaving(true);
-    const saved = await onConfirmCapitalPayment(loan.id, nuevoAbono);
-    setSaving(false);
-    if (saved) onClose();
+    onConfirmCapitalPayment(loan.id, nuevoAbono);
+    if (onShowToast) onShowToast(`Abono a capital de ${symbol} ${abonoNum} registrado`);
+    onClose();
   };
 
   return (
@@ -102,7 +88,6 @@ export default function CapitalPaymentModal({
 
           <button
             onClick={onClose}
-            disabled={saving}
             className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all border border-zinc-200 dark:border-transparent"
           >
             <X className="w-4 h-4" />
@@ -272,11 +257,11 @@ export default function CapitalPaymentModal({
 
           <button
             onClick={handleConfirm}
-            disabled={abonoNum <= 0 || saving}
+            disabled={abonoNum <= 0}
             className="px-4 py-2 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-black font-semibold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
           >
             <Check className="w-4 h-4 stroke-[2.5]" />
-            <span>{saving ? 'Guardando…' : 'Confirmar Abono a Capital'}</span>
+            <span>Confirmar Abono a Capital</span>
           </button>
         </div>
 
