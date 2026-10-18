@@ -153,12 +153,12 @@ export default function TimelineNodesView({
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-semibold px-2.5 text-zinc-900 dark:text-white font-mono text-xs min-w-[125px] text-center">
+            <span className="font-semibold px-2.5 text-white font-mono text-xs min-w-[125px] text-center">
               {MESES_NOMBRES[selectedMonth]} {selectedYear}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-1 rounded-lg text-zinc-600 dark:text-[#a3a3a3] hover:text-zinc-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#282828] transition-all"
+              className="p-1 rounded-lg text-[#8b8f98] hover:text-white hover:bg-[#1f2127] transition-all"
               title="Mes Siguiente"
             >
               <ChevronRight className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function TimelineNodesView({
 
           <button
             onClick={handleGoToday}
-            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] border border-zinc-200 dark:border-[#383838] text-zinc-800 dark:text-[#ececec] transition-all active:scale-[0.98]"
+            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-[#141518] hover:bg-[#1f2127] border border-[#24252a] text-[#f3f4f6] transition-all active:scale-[0.98]"
           >
             Hoy
           </button>
@@ -175,13 +175,13 @@ export default function TimelineNodesView({
 
         {/* Selector de Modo de Vista Segmentado */}
         <div className="flex items-center gap-2">
-          <div className="p-1 bg-zinc-100 dark:bg-[#171717] border border-zinc-200 dark:border-[#2f2f2f] rounded-xl flex gap-1 text-xs">
+          <div className="p-1 bg-[#141518] border border-[#24252a] rounded-xl flex gap-1 text-xs">
             <button
               onClick={() => setCalendarViewMode('columns')}
               className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                 calendarViewMode === 'columns'
-                  ? 'bg-white dark:bg-[#2a2a2a] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white text-[#0d0e11] shadow-xs'
+                  : 'text-[#8b8f98] hover:text-white'
               }`}
             >
               Columnas por Día
@@ -190,8 +190,8 @@ export default function TimelineNodesView({
               onClick={() => setCalendarViewMode('grid')}
               className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                 calendarViewMode === 'grid'
-                  ? 'bg-white dark:bg-[#2a2a2a] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white text-[#0d0e11] shadow-xs'
+                  : 'text-[#8b8f98] hover:text-white'
               }`}
             >
               Matriz Calendario
@@ -200,8 +200,8 @@ export default function TimelineNodesView({
               onClick={() => setCalendarViewMode('list')}
               className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                 calendarViewMode === 'list'
-                  ? 'bg-white dark:bg-[#2a2a2a] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e] hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white text-[#0d0e11] shadow-xs'
+                  : 'text-[#8b8f98] hover:text-white'
               }`}
             >
               Lista Cronológica
@@ -212,10 +212,10 @@ export default function TimelineNodesView({
           {onOpenSimulator && (
             <button
               onClick={onOpenSimulator}
-              className="h-8 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] border border-zinc-200 dark:border-[#383838] text-xs font-semibold text-zinc-800 dark:text-[#ececec] flex items-center gap-1.5 transition-all shadow-xs"
+              className="h-8 px-3 rounded-xl bg-[#141518] hover:bg-[#1f2127] border border-[#24252a] text-xs font-semibold text-[#f3f4f6] flex items-center gap-1.5 transition-all shadow-xs"
               title="Abrir Simulador Financiero"
             >
-              <Calculator className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+              <Calculator className="w-3.5 h-3.5 text-zinc-400" />
               <span className="hidden sm:inline">Simulador</span>
             </button>
           )}
@@ -223,10 +223,10 @@ export default function TimelineNodesView({
           {/* Botón de exportar agenda */}
           <button
             onClick={handleCopyAgenda}
-            className="h-8 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] border border-zinc-200 dark:border-[#383838] text-xs font-semibold text-zinc-800 dark:text-[#ececec] flex items-center gap-1.5 transition-all shadow-xs"
+            className="h-8 px-3 rounded-xl bg-[#141518] hover:bg-[#1f2127] border border-[#24252a] text-xs font-semibold text-[#f3f4f6] flex items-center gap-1.5 transition-all shadow-xs"
             title="Copiar Agenda de Cobros"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-zinc-400" />
             <span className="hidden sm:inline">Exportar</span>
           </button>
         </div>
@@ -234,7 +234,7 @@ export default function TimelineNodesView({
       </div>
 
       {/* 2. CHIPS DE FILTRO RÁPIDO & RESUMEN DE COBRANZAS */}
-      <div className="px-6 py-2.5 border-b border-zinc-200 dark:border-[#1f2025] flex flex-wrap items-center justify-between gap-3 bg-zinc-50/70 dark:bg-[#131416] shrink-0 text-xs">
+      <div className="px-6 py-2.5 border-b border-[#202126] flex flex-wrap items-center justify-between gap-3 bg-[#0d0e11] shrink-0 text-xs">
         
         {/* Chips de Urgencia */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
@@ -250,8 +250,8 @@ export default function TimelineNodesView({
               onClick={() => setFiltroUrgencia(f.id)}
               className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all border ${
                 filtroUrgencia === f.id
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-xs'
-                  : 'bg-white dark:bg-[#262626] text-zinc-600 dark:text-[#a3a3a3] border-zinc-200 dark:border-[#383838] hover:bg-zinc-100 dark:hover:bg-[#303030]'
+                  ? 'bg-white text-[#0d0e11] border-white shadow-xs font-bold'
+                  : 'bg-[#141518] text-[#8b8f98] border-[#24252a] hover:bg-[#1b1c21] hover:text-white'
               }`}
             >
               {f.label}
@@ -259,28 +259,28 @@ export default function TimelineNodesView({
           ))}
         </div>
 
-        {/* KPIs de Liquidez en Cápsulas */}
+        {/* KPIs de Liquidez Monocromáticos */}
         <div className="flex items-center gap-3 text-[11px] font-mono">
-          <div className="flex items-center gap-1 text-zinc-600 dark:text-[#a3a3a3]">
+          <div className="flex items-center gap-1 text-[#8b8f98]">
             <span>Mes:</span>
-            <strong className="text-zinc-900 dark:text-white font-bold">{symbol} {summaryKPIs.totalMes.toLocaleString()}</strong>
+            <strong className="text-white font-bold">{symbol} {summaryKPIs.totalMes.toLocaleString()}</strong>
           </div>
-          <span className="text-zinc-300 dark:text-[#444]">•</span>
-          <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+          <span className="text-[#32353f]">•</span>
+          <div className="flex items-center gap-1 text-zinc-300">
             <span>Cobrado:</span>
-            <strong className="font-bold">{symbol} {summaryKPIs.totalCobrado.toLocaleString()} ({summaryKPIs.porcentajeCobrado}%)</strong>
+            <strong className="font-bold text-white">{symbol} {summaryKPIs.totalCobrado.toLocaleString()} ({summaryKPIs.porcentajeCobrado}%)</strong>
           </div>
-          <span className="text-zinc-300 dark:text-[#444]">•</span>
-          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+          <span className="text-[#32353f]">•</span>
+          <div className="flex items-center gap-1 text-zinc-400">
             <span>Pendiente:</span>
-            <strong className="font-bold">{symbol} {summaryKPIs.totalPendiente.toLocaleString()}</strong>
+            <strong className="font-bold text-white">{symbol} {summaryKPIs.totalPendiente.toLocaleString()}</strong>
           </div>
           {summaryKPIs.totalMora > 0 && (
             <>
-              <span className="text-zinc-300 dark:text-[#444]">•</span>
-              <div className="flex items-center gap-1 text-rose-600 dark:text-rose-400">
+              <span className="text-[#32353f]">•</span>
+              <div className="flex items-center gap-1 text-zinc-400">
                 <span>Mora:</span>
-                <strong className="font-bold">+{symbol} {summaryKPIs.totalMora.toLocaleString()}</strong>
+                <strong className="font-bold text-zinc-200">+{symbol} {summaryKPIs.totalMora.toLocaleString()}</strong>
               </div>
             </>
           )}
@@ -297,22 +297,22 @@ export default function TimelineNodesView({
         {calendarViewMode === 'columns' && (
           <div 
             ref={containerRef}
-            className="flex-1 overflow-x-auto overflow-y-auto custom-scroll p-6 flex gap-4 items-start bg-[#f7f7f8] dark:bg-[#111214]"
+            className="flex-1 overflow-x-auto overflow-y-auto custom-scroll p-6 flex gap-4 items-start bg-[#08090a]"
           >
             {dayColumns.length === 0 ? (
               <div className="m-auto text-center p-12 max-w-md space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] flex items-center justify-center mx-auto text-zinc-400">
+                <div className="w-12 h-12 rounded-2xl bg-[#141518] border border-[#24252a] flex items-center justify-center mx-auto text-[#8b8f98]">
                   <CalendarIcon className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-zinc-900 dark:text-white">
+                <h4 className="text-sm font-bold text-white">
                   No hay cobros registrados para este filtro
                 </h4>
-                <p className="text-xs text-zinc-500 dark:text-[#8e8e8e] leading-relaxed">
+                <p className="text-xs text-[#8b8f98] leading-relaxed">
                   Cambia de mes o ajusta los filtros de urgencia para ver los vencimientos programados.
                 </p>
                 <button
                   onClick={handleGoToday}
-                  className="px-3.5 py-1.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold shadow-xs"
+                  className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-[#0d0e11] text-xs font-semibold shadow-xs"
                 >
                   Ir al mes actual
                 </button>
@@ -327,28 +327,26 @@ export default function TimelineNodesView({
                     data-is-today={col.esHoy ? 'true' : 'false'}
                     className={`w-72 shrink-0 flex flex-col rounded-2xl border transition-all duration-200 max-h-full ${
                       col.esHoy
-                        ? 'bg-white dark:bg-[#242424] border-zinc-400 dark:border-zinc-500 ring-2 ring-zinc-400/20 dark:ring-white/10 shadow-md'
-                        : col.esPasado && col.totalPendiente > 0
-                          ? 'bg-white dark:bg-[#212121] border-rose-300 dark:border-rose-900/50 shadow-xs'
-                          : 'bg-white dark:bg-[#212121] border-zinc-200 dark:border-[#2f2f2f] shadow-xs'
+                        ? 'bg-[#141518] border-[#3e414c] ring-1 ring-white/10 shadow-lg'
+                        : 'bg-[#141518] border-[#24252a] shadow-xs'
                     }`}
                   >
                     {/* Cabecera de la Columna del Día */}
-                    <div className="p-3.5 border-b border-zinc-100 dark:border-[#2e2e2e] space-y-2 shrink-0">
+                    <div className="p-3.5 border-b border-[#202126] space-y-2 shrink-0">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className={`text-base font-bold font-mono ${
                             col.esHoy 
-                              ? 'text-zinc-900 dark:text-white' 
-                              : 'text-zinc-800 dark:text-[#e0e0e0]'
+                              ? 'text-white' 
+                              : 'text-zinc-200'
                           }`}>
                             {col.diaNumero}
                           </span>
                           <div>
-                            <span className="text-xs font-semibold text-zinc-900 dark:text-white uppercase tracking-wider block leading-none">
+                            <span className="text-xs font-semibold text-white uppercase tracking-wider block leading-none">
                               {col.diaSemana}
                             </span>
-                            <span className="text-[10px] text-zinc-400 dark:text-[#777] block mt-0.5">
+                            <span className="text-[10px] text-[#717580] block mt-0.5">
                               {col.mesNombre}
                             </span>
                           </div>
@@ -356,19 +354,19 @@ export default function TimelineNodesView({
 
                         {/* Badge de Estado del Día */}
                         {col.esHoy ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-black shadow-2xs">
                             HOY
                           </span>
                         ) : col.esManana ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#22242b] border border-white/10 text-white">
                             Mañana
                           </span>
                         ) : col.esPasado && col.totalPendiente > 0 ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-700 dark:text-rose-300">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#22242b] border border-white/10 text-zinc-300">
                             En Mora
                           </span>
                         ) : (
-                          <span className="text-[10px] font-mono text-zinc-400 dark:text-[#888]">
+                          <span className="text-[10px] font-mono text-[#717580]">
                             {col.items.length} {col.items.length === 1 ? 'cobro' : 'cobros'}
                           </span>
                         )}
@@ -376,18 +374,18 @@ export default function TimelineNodesView({
 
                       {/* Monto Total a Cobrar en este Día */}
                       <div className="flex items-baseline justify-between pt-0.5">
-                        <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
+                        <span className="text-xs font-mono font-bold text-white">
                           {symbol} {col.totalDia.toLocaleString()}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-500 dark:text-[#999]">
+                        <span className="text-[10px] font-mono text-[#8b8f98]">
                           {col.pagadosCount}/{col.cobrosCount} pagados
                         </span>
                       </div>
 
                       {/* Mini barra de progreso del día */}
-                      <div className="w-full h-1 bg-zinc-100 dark:bg-[#191919] rounded-full overflow-hidden">
+                      <div className="w-full h-1 bg-[#0d0e11] rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-emerald-500 transition-all duration-300"
+                          className="h-full bg-zinc-300 transition-all duration-300"
                           style={{ width: `${pctPagado}%` }}
                         />
                       </div>
@@ -405,10 +403,8 @@ export default function TimelineNodesView({
                             key={item.id}
                             className={`p-3 rounded-xl border transition-all duration-150 space-y-2 ${
                               pagado
-                                ? 'bg-zinc-50/70 dark:bg-[#1a1a1a] border-zinc-200/60 dark:border-[#2a2a2a] opacity-75'
-                                : cuota.estado === 'vencido'
-                                  ? 'bg-rose-50/40 dark:bg-[#251818] border-rose-200 dark:border-rose-950/60 hover:border-rose-300'
-                                  : 'bg-white dark:bg-[#282828] border-zinc-200 dark:border-[#383838] hover:border-zinc-300 dark:hover:border-[#4d4d4d] shadow-2xs'
+                                ? 'bg-[#121316] border-[#1e2025] opacity-60'
+                                : 'bg-[#18191d] border-[#24252a] hover:border-[#383b46] shadow-xs'
                             }`}
                           >
                             {/* Nombre del deudor y badge de tipo */}
@@ -417,21 +413,21 @@ export default function TimelineNodesView({
                                 onClick={() => onSelectLoan && onSelectLoan(prestamo)}
                                 className="cursor-pointer hover:underline overflow-hidden"
                               >
-                                <h4 className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                                <h4 className="text-xs font-bold text-white truncate">
                                   {item.nombre}
                                 </h4>
-                                <span className="text-[10px] text-zinc-400 dark:text-[#888] block truncate">
+                                <span className="text-[10px] text-[#717580] block truncate">
                                   {esAcreedor ? 'Acreedor' : item.ci ? `CI: ${item.ci}` : item.label}
                                 </span>
                               </div>
 
                               {pagado ? (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 shrink-0">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22242b] border border-white/10 text-white flex items-center gap-0.5 shrink-0">
                                   <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                                   <span>PAGADO</span>
                                 </span>
                               ) : cuota.estado === 'vencido' ? (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 shrink-0">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22242b] border border-white/10 text-zinc-300 shrink-0 font-mono">
                                   +{diasAtraso}d
                                 </span>
                               ) : null}
@@ -440,22 +436,22 @@ export default function TimelineNodesView({
                             {/* Monto de la cuota y detalles */}
                             <div className="flex items-baseline justify-between pt-0.5">
                               <div>
-                                <span className="text-sm font-bold font-mono text-zinc-900 dark:text-white">
+                                <span className="text-sm font-bold font-mono text-white">
                                   {symbol} {item.monto.toLocaleString()}
                                 </span>
                                 {mora > 0 && !pagado && (
-                                  <span className="text-[10px] text-rose-500 font-mono block">
+                                  <span className="text-[10px] text-[#8b8f98] font-mono block">
                                     + {symbol}{mora} mora
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[10px] text-zinc-500 dark:text-[#999] font-mono">
+                              <span className="text-[10px] text-[#717580] font-mono">
                                 {cuota.label}
                               </span>
                             </div>
 
                             {/* BOTONERA DE ACCIÓN RÁPIDA (PAGAR / WHATSAPP / DRIVE / RECIBO / INSPECCIONAR) */}
-                            <div className="pt-2 border-t border-zinc-100 dark:border-[#333] flex items-center justify-between gap-1 text-xs">
+                            <div className="pt-2 border-t border-[#202126] flex items-center justify-between gap-1 text-xs">
                               
                               <div className="flex items-center gap-1">
                                 {/* Botón 1-Clic Pagar / Desmarcar */}
@@ -463,10 +459,10 @@ export default function TimelineNodesView({
                                   <button
                                     onClick={() => onPayCuota(prestamo, cuota)}
                                     disabled={pagado}
-                                    className={`h-7 px-2 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all ${
+                                    className={`h-7 px-2.5 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all ${
                                       pagado
-                                        ? 'text-zinc-400 bg-zinc-100 dark:bg-[#202020] cursor-default'
-                                        : 'bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 active:scale-[0.97]'
+                                        ? 'text-[#6e737e] bg-[#141518] cursor-default'
+                                        : 'bg-[#f3f4f6] hover:bg-white text-[#0d0e11] active:scale-[0.97] font-bold shadow-xs'
                                     }`}
                                     title={pagado ? 'Cuota ya cancelada' : 'Abonar cuota en 1 clic'}
                                   >
@@ -479,7 +475,7 @@ export default function TimelineNodesView({
                                 {onSendWhatsApp && (
                                   <button
                                     onClick={() => onSendWhatsApp(prestamo, cuota)}
-                                    className="h-7 w-7 rounded-lg bg-zinc-100 hover:bg-emerald-50 dark:bg-[#1f1f1f] dark:hover:bg-[#263328] text-emerald-600 dark:text-emerald-400 border border-zinc-200 dark:border-[#383838] flex items-center justify-center transition-all shadow-2xs"
+                                    className="h-7 w-7 rounded-lg bg-[#22242b] hover:bg-[#2b2d35] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center transition-all shadow-xs"
                                     title="Enviar aviso por WhatsApp"
                                   >
                                     <MessageCircle className="w-3.5 h-3.5" />
@@ -491,7 +487,7 @@ export default function TimelineNodesView({
                                   href={driveUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="h-7 w-7 rounded-lg bg-zinc-100 hover:bg-sky-50 dark:bg-[#1f1f1f] dark:hover:bg-[#1b2b38] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-[#383838] flex items-center justify-center transition-all shadow-2xs"
+                                  className="h-7 w-7 rounded-lg bg-[#22242b] hover:bg-[#2b2d35] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center transition-all shadow-xs"
                                   title="Abrir contrato o carpeta en Google Drive"
                                 >
                                   <HardDrive className="w-3.5 h-3.5" />
@@ -501,7 +497,7 @@ export default function TimelineNodesView({
                                 {pagado && onOpenReceipt && (
                                   <button
                                     onClick={() => onOpenReceipt({ nombre: item.nombre, ci: item.ci }, prestamo, cuota)}
-                                    className="h-7 w-7 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#1f1f1f] dark:hover:bg-[#333] text-zinc-700 dark:text-[#ccc] border border-zinc-200 dark:border-[#383838] flex items-center justify-center transition-all shadow-2xs"
+                                    className="h-7 w-7 rounded-lg bg-[#22242b] hover:bg-[#2b2d35] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center transition-all shadow-xs"
                                     title="Ver o imprimir recibo digital"
                                   >
                                     <FileText className="w-3.5 h-3.5" />
@@ -509,10 +505,10 @@ export default function TimelineNodesView({
                                 )}
                               </div>
 
-                              {/* Abrir expediente / Inspector */}
+                              {/* Ver expediente */}
                               <button
                                 onClick={() => onSelectLoan && onSelectLoan(prestamo)}
-                                className="h-7 px-2 rounded-lg text-[10px] text-zinc-500 hover:text-zinc-900 dark:text-[#888] dark:hover:text-white flex items-center gap-0.5 hover:bg-zinc-100 dark:hover:bg-[#333] transition-all"
+                                className="h-7 px-2 rounded-lg text-[10px] text-[#8b8f98] hover:text-white flex items-center gap-0.5 hover:bg-[#22242b] transition-all"
                                 title="Ver detalles y expediente completo"
                               >
                                 <span>Ver</span>
@@ -537,11 +533,11 @@ export default function TimelineNodesView({
         {/* VISTA 2: MATRIZ DE CALENDARIO MENSUAL (7 COLUMNAS LUNES A DOMINGO)       */}
         {/* ========================================================================= */}
         {calendarViewMode === 'grid' && (
-          <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#f7f7f8] dark:bg-[#212121]">
+          <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#08090a]">
             <div className="max-w-6xl mx-auto space-y-4">
               
               {/* Encabezado de Días de la Semana */}
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-zinc-500 dark:text-[#888] pb-1 uppercase tracking-wider">
+              <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold text-[#8b8f98] pb-1 uppercase tracking-wider">
                 {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(d => (
                   <div key={d} className="py-1">{d}</div>
                 ))}
@@ -562,7 +558,7 @@ export default function TimelineNodesView({
                   // Espacios vacíos previos
                   for (let i = 0; i < startDay; i++) {
                     celdas.push(
-                      <div key={`empty-${i}`} className="min-h-[105px] rounded-xl bg-zinc-100/40 dark:bg-[#1a1a1a]/40 border border-transparent" />
+                      <div key={`empty-${i}`} className="min-h-[105px] rounded-xl bg-[#0e0f12] border border-transparent" />
                     );
                   }
 
@@ -581,23 +577,23 @@ export default function TimelineNodesView({
                         onClick={() => col && setSelectedDayFocus(col)}
                         className={`min-h-[105px] p-2.5 rounded-xl border flex flex-col justify-between transition-all cursor-pointer ${
                           esHoy
-                            ? 'bg-white dark:bg-[#282828] border-zinc-900 dark:border-white ring-1 ring-zinc-900 dark:ring-white shadow-sm'
+                            ? 'bg-[#141518] border-white/40 ring-1 ring-white/20 shadow-md'
                             : col
-                              ? 'bg-white dark:bg-[#242424] border-zinc-200 dark:border-[#333] hover:border-zinc-400 dark:hover:border-[#555] shadow-2xs'
-                              : 'bg-zinc-50/70 dark:bg-[#1c1c1c] border-zinc-200/50 dark:border-[#2a2a2a] text-zinc-400'
+                              ? 'bg-[#141518] border-[#24252a] hover:border-[#383b46] shadow-2xs'
+                              : 'bg-[#0f1013] border-[#1a1b1f] text-[#555a64]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className={`text-xs font-bold font-mono ${
-                            esHoy ? 'text-zinc-900 dark:text-white' : 'text-zinc-700 dark:text-[#bbb]'
+                            esHoy ? 'text-white' : 'text-[#d1d5db]'
                           }`}>
                             {d}
                           </span>
                           {esHoy && (
-                            <span className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white" />
+                            <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
                           )}
                           {col && !esHoy && (
-                            <span className="text-[10px] font-mono text-zinc-400">
+                            <span className="text-[10px] font-mono text-[#717580]">
                               {col.items.length}
                             </span>
                           )}
@@ -605,26 +601,26 @@ export default function TimelineNodesView({
 
                         {col ? (
                           <div className="space-y-1 my-1">
-                            <span className="text-[11px] font-mono font-bold text-zinc-900 dark:text-white block">
+                            <span className="text-[11px] font-mono font-bold text-white block">
                               {symbol} {col.totalDia.toLocaleString()}
                             </span>
                             <div className="space-y-0.5">
                               {col.items.slice(0, 2).map(it => (
                                 <div 
                                   key={it.id} 
-                                  className={`text-[9px] px-1.5 py-0.5 rounded truncate font-medium ${
+                                  className={`text-[9px] px-1.5 py-0.5 rounded truncate font-medium border ${
                                     it.pagado 
-                                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                      ? 'bg-[#121316] text-[#717580] border-[#1e2025]'
                                       : it.estado === 'vencido'
-                                        ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
-                                        : 'bg-zinc-100 dark:bg-[#333] text-zinc-800 dark:text-[#ddd]'
+                                        ? 'bg-[#1f2026] text-white border-white/20'
+                                        : 'bg-[#18191d] text-[#e0e2e7] border-[#26282f]'
                                   }`}
                                 >
                                   {it.nombre.split(' ')[0]} • {symbol}{it.monto}
                                 </div>
                               ))}
                               {col.items.length > 2 && (
-                                <span className="text-[9px] text-zinc-400 block pl-1">
+                                <span className="text-[9px] text-[#717580] block pl-1">
                                   +{col.items.length - 2} más
                                 </span>
                               )}
@@ -634,7 +630,7 @@ export default function TimelineNodesView({
                           <div className="flex-1" />
                         )}
 
-                        <div className="text-[9px] font-mono text-zinc-400 text-right">
+                        <div className="text-[9px] font-mono text-[#717580] text-right">
                           {col ? `${col.pagadosCount}/${col.cobrosCount}` : ''}
                         </div>
                       </div>
@@ -653,43 +649,43 @@ export default function TimelineNodesView({
         {/* VISTA 3: LISTA CRONOLÓGICA DE COBROS (HIGH DENSITY STREAM)                 */}
         {/* ========================================================================= */}
         {calendarViewMode === 'list' && (
-          <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#f7f7f8] dark:bg-[#212121]">
+          <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#08090a]">
             <div className="max-w-4xl mx-auto space-y-4">
               {dayColumns.map(col => (
                 <div 
                   key={col.fecha}
-                  className="p-4 rounded-2xl bg-white dark:bg-[#242424] border border-zinc-200 dark:border-[#333] shadow-xs space-y-3"
+                  className="p-4 rounded-2xl bg-[#141518] border border-[#24252a] shadow-xs space-y-3"
                 >
-                  <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-[#2f2f2f]">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#202126]">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-zinc-900 dark:text-white">
+                      <span className="text-sm font-bold text-white">
                         {col.diaSemana} {col.diaNumero} de {col.mesNombre}
                       </span>
                       {col.esHoy && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-[#0d0e11]">
                           HOY
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
+                    <span className="text-xs font-mono font-bold text-white">
                       Total: {symbol} {col.totalDia.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="divide-y divide-zinc-100 dark:divide-[#2e2e2e]">
+                  <div className="divide-y divide-[#202126]">
                     {col.items.map(it => (
                       <div key={it.id} className="py-2.5 flex items-center justify-between gap-3 text-xs">
                         <div>
-                          <h5 className="font-semibold text-zinc-900 dark:text-white">
+                          <h5 className="font-semibold text-white">
                             {it.nombre}
                           </h5>
-                          <span className="text-[11px] text-zinc-500 dark:text-[#888]">
+                          <span className="text-[11px] text-[#8b8f98]">
                             {it.label} {it.ci ? `• CI: ${it.ci}` : ''}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-4">
-                          <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white">
+                          <span className="text-sm font-mono font-bold text-white">
                             {symbol} {it.monto.toLocaleString()}
                           </span>
 
@@ -697,20 +693,20 @@ export default function TimelineNodesView({
                             {onPayCuota && !it.pagado && (
                               <button
                                 onClick={() => onPayCuota(it.prestamo, it.cuota)}
-                                className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-semibold"
+                                className="px-2.5 py-1 rounded-lg bg-white hover:bg-zinc-200 text-[#0d0e11] text-xs font-semibold"
                               >
                                 Cobrar
                               </button>
                             )}
                             {it.pagado && (
-                              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <span className="text-[11px] font-semibold text-[#8b8f98]">
                                 Pagado ✓
                               </span>
                             )}
                             {onSendWhatsApp && (
                               <button
                                 onClick={() => onSendWhatsApp(it.prestamo, it.cuota)}
-                                className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#333] text-emerald-600 dark:text-emerald-400"
+                                className="p-1.5 rounded-lg bg-[#18191d] hover:bg-[#202127] text-zinc-300 hover:text-white border border-white/5"
                                 title="WhatsApp"
                               >
                                 <MessageCircle className="w-3.5 h-3.5" />
@@ -720,14 +716,14 @@ export default function TimelineNodesView({
                               href={it.driveUrl || 'https://drive.google.com'}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#333] text-sky-600 dark:text-sky-400"
+                              className="p-1.5 rounded-lg bg-[#18191d] hover:bg-[#202127] text-zinc-300 hover:text-white border border-white/5"
                               title="Google Drive"
                             >
                               <HardDrive className="w-3.5 h-3.5" />
                             </a>
                             <button
                               onClick={() => onSelectLoan && onSelectLoan(it.prestamo)}
-                              className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#333] text-zinc-700 dark:text-white"
+                              className="p-1.5 rounded-lg bg-[#18191d] hover:bg-[#202127] text-zinc-300 hover:text-white border border-white/5"
                               title="Inspeccionar"
                             >
                               <ChevronRight className="w-3.5 h-3.5" />

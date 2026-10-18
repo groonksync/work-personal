@@ -532,6 +532,7 @@ export default function App() {
                   setReceiptData({ folder, contrato, cuota })
                 }
                 onOpenFolder={(folderKey) => setSelectedFolderKey(folderKey)}
+                onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
                 onChangeViewMode={(mode) => setViewMode(mode)}
                 defaultDriveUrl={settings.googleDriveUrl}
               />
