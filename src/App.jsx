@@ -14,6 +14,8 @@ import SettingsModal from './components/SettingsModal';
 import VoucherManagerModal from './components/VoucherManagerModal';
 import ExpressNotesModal from './components/ExpressNotesModal';
 import CapitalPaymentModal from './components/CapitalPaymentModal';
+import ContractExtensionModal from './components/ContractExtensionModal';
+import LoanSimulatorModal from './components/LoanSimulatorModal';
 import { supabase } from './lib/supabaseClient';
 import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
 import { loadSettings, saveSettings, defaultTemplates } from './lib/settings';
@@ -36,6 +38,9 @@ export default function App() {
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [isNewLoanOpen, setIsNewLoanOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+  const [selectedLoanForExtension, setSelectedLoanForExtension] = useState(null);
+  const [newLoanPrefill, setNewLoanPrefill] = useState(null);
   const [selectedLoanForVouchers, setSelectedLoanForVouchers] = useState(null);
   const [selectedLoanForNotes, setSelectedLoanForNotes] = useState(null);
   const [selectedLoanForCapital, setSelectedLoanForCapital] = useState(null);
@@ -287,6 +292,98 @@ export default function App() {
     showToast(`Abono a capital de ${nuevoAbono.monto} ${currency} registrado`);
   };
 
+  // Confirmar prórroga o extensión de contrato
+  const handleConfirmExtension = async (payload) => {
+    const { loanId, nuevoPlazoMeses, nuevaFechaFin, nuevaTasa, motivo, mesesAgregados } = payload;
+    const loan = prestamos.find(p => p.id === loanId);
+    if (!loan) return;
+
+    const currentNotes = Array.isArray(loan.notas_express) ? loan.notas_express : [];
+    const nuevaNota = {
+      id: `ext-${Date.now()}`,
+      fecha: new Date().toISOString(),
+      texto: `Prórroga de contrato concedida: +${mesesAgregados} mes(es). Nuevo vencimiento: ${nuevaFechaFin}. Motivo: ${motivo}`,
+      etiqueta: 'Prórroga',
+    };
+    const updatedNotes = [nuevaNota, ...currentNotes];
+
+    const updatedLoans = prestamos.map(p => {
+      if (p.id === loanId) {
+        return {
+          ...p,
+          plazo_meses: nuevoPlazoMeses,
+          fin: nuevaFechaFin,
+          interes: nuevaTasa,
+          notas_express: updatedNotes,
+        };
+      }
+      return p;
+    });
+
+    setPrestamos(updatedLoans);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updatedLoans));
+
+    if (selectedLoanForInspector && selectedLoanForInspector.id === loanId) {
+      setSelectedLoanForInspector({
+        ...selectedLoanForInspector,
+        plazo_meses: nuevoPlazoMeses,
+        fin: nuevaFechaFin,
+        interes: nuevaTasa,
+        notas_express: updatedNotes,
+      });
+    }
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('prestamos')
+          .update({
+            plazo_meses: nuevoPlazoMeses,
+            fin: nuevaFechaFin,
+            interes: nuevaTasa,
+            notas_express: updatedNotes,
+          })
+          .eq('id', loanId);
+
+        await supabase.from('prestamos_historial').insert([{
+          prestamo_id: loanId,
+          accion: 'PRORROGA_CONTRATO',
+          detalle: `Extensión de plazo por ${mesesAgregados} meses hasta ${nuevaFechaFin}. Motivo: ${motivo}`,
+        }]);
+      } catch (err) {
+        console.warn('Prórroga registrada en modo local');
+      }
+    }
+
+    showToast(`⏱️ Prórroga confirmada: +${mesesAgregados} mes(es) para ${loan.nombre}`);
+  };
+
+  // Actualizar datos del préstamo (ej. Google Drive URL, notas, garantía)
+  const handleUpdateLoan = async (updatedLoan) => {
+    const updated = prestamos.map(p => p.id === updatedLoan.id ? updatedLoan : p);
+    setPrestamos(updated);
+    localStorage.setItem('work_prestamos_cache', JSON.stringify(updated));
+    if (selectedLoanForInspector && selectedLoanForInspector.id === updatedLoan.id) {
+      setSelectedLoanForInspector(updatedLoan);
+    }
+    if (supabase) {
+      try {
+        await supabase
+          .from('prestamos')
+          .update({
+            drive_url: updatedLoan.drive_url || null,
+            drive_contrato: updatedLoan.drive_contrato || null,
+            telefono: updatedLoan.telefono || null,
+            ci: updatedLoan.ci || null,
+            garantia: updatedLoan.garantia || null,
+            notas: updatedLoan.notas || null,
+          })
+          .eq('id', updatedLoan.id);
+      } catch (err) {}
+    }
+    showToast(`✅ Expediente de ${updatedLoan.nombre} actualizado`);
+  };
+
   // Enviar mensaje de WhatsApp usando plantillas parametrizadas
   const handleSendWhatsApp = (folderOrLoan, customCuota = null) => {
     const telRaw = folderOrLoan.telefono?.replace(/[^0-9]/g, '') || '';
@@ -335,6 +432,8 @@ export default function App() {
           onPayCuota={handlePayCuota}
           onSendWhatsApp={handleSendWhatsApp}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenSimulator={() => setIsSimulatorOpen(true)}
+          onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
           onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
           onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
           onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
@@ -366,6 +465,7 @@ export default function App() {
           alertasCount={alertasAnticipadas.length}
           onOpenNewLoan={() => setIsNewLoanOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenSimulator={() => setIsSimulatorOpen(true)}
         />
 
         {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
@@ -389,6 +489,7 @@ export default function App() {
             onOpenAlerts={() => setIsAlertsOpen(true)}
             alertasCount={alertasAnticipadas.length}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenSimulator={() => setIsSimulatorOpen(true)}
           />
 
           {/* 3. LIENZO CENTRAL A PANTALLA COMPLETA */}
@@ -418,6 +519,13 @@ export default function App() {
                 currency={currency}
                 onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
                 onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                onPayCuota={handlePayCuota}
+                onSendWhatsApp={handleSendWhatsApp}
+                onOpenReceipt={(folder, contrato, cuota) =>
+                  setReceiptData({ folder, contrato, cuota })
+                }
+                onOpenSimulator={() => setIsSimulatorOpen(true)}
+                onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
               />
             ) : viewMode === 'stream' ? (
               /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
@@ -428,6 +536,7 @@ export default function App() {
                   onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
                   onOpenNewLoan={() => setIsNewLoanOpen(true)}
                   onPayCuota={handlePayCuota}
+                  onSendWhatsApp={handleSendWhatsApp}
                 />
               </div>
             ) : (
@@ -505,6 +614,8 @@ export default function App() {
             handleSendWhatsApp(folder, cuota);
           }}
           onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
+          onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
+          onUpdateLoan={handleUpdateLoan}
           onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
           onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
           defaultDriveUrl={settings.googleDriveUrl}
@@ -534,9 +645,37 @@ export default function App() {
       {/* Modal de Nuevo Préstamo */}
       <NewLoanModal
         isOpen={isNewLoanOpen}
-        onClose={() => setIsNewLoanOpen(false)}
-        onSave={handleSaveNewLoan}
+        onClose={() => {
+          setIsNewLoanOpen(false);
+          setNewLoanPrefill(null);
+        }}
+        onSave={(nuevoPrestamo) => {
+          handleSaveNewLoan(nuevoPrestamo);
+          setNewLoanPrefill(null);
+        }}
         currency={currency}
+        prefill={newLoanPrefill}
+      />
+
+      {/* Modal de Prórroga / Extensión de Contrato */}
+      <ContractExtensionModal
+        isOpen={!!selectedLoanForExtension}
+        onClose={() => setSelectedLoanForExtension(null)}
+        loan={selectedLoanForExtension}
+        currency={currency}
+        onConfirmExtension={handleConfirmExtension}
+      />
+
+      {/* Modal de Simulador Financiero de Crédito */}
+      <LoanSimulatorModal
+        isOpen={isSimulatorOpen}
+        onClose={() => setIsSimulatorOpen(false)}
+        currency={currency}
+        onApplySimulationToNewLoan={(simData) => {
+          setNewLoanPrefill(simData);
+          setIsSimulatorOpen(false);
+          setIsNewLoanOpen(true);
+        }}
       />
 
       {/* Modal de Recibo Digital */}

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Calendar, Users, Zap, Bell, Plus, Search, 
   Send, Check, ChevronRight, DollarSign, ArrowUpRight, 
   ArrowDownLeft, Clock, ShieldCheck, X, Sliders, Receipt, 
-  MessageSquare, TrendingDown, Landmark, HardDrive, Sun, Moon
+  MessageSquare, MessageCircle, Calculator, TrendingDown, Landmark, HardDrive, Sun, Moon
 } from 'lucide-react';
+import { obtenerCobrosPorDias } from '../lib/amortizacion';
 
 export default function MobileAppView({
   prestamos = [],
@@ -19,6 +20,8 @@ export default function MobileAppView({
   onPayCuota,
   onSendWhatsApp,
   onOpenSettings,
+  onOpenSimulator,
+  onOpenExtension,
   onOpenVouchers,
   onOpenExpressNotes,
   onOpenCapitalPayment,
@@ -31,20 +34,32 @@ export default function MobileAppView({
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
   // Filtrado
-  const filteredLoans = prestamos.filter(p => {
-    const tipo = p.tipo_prestamo || (p.notas?.includes('[TIPO:recibido]') ? 'recibido' : 'otorgado');
-    if (filtroTipo === 'otorgados' && tipo !== 'otorgado') return false;
-    if (filtroTipo === 'recibidos' && tipo !== 'recibido') return false;
+  const filteredLoans = useMemo(() => {
+    return prestamos.filter(p => {
+      const tipo = p.tipo_prestamo || (p.notas?.includes('[TIPO:recibido]') ? 'recibido' : 'otorgado');
+      if (filtroTipo === 'otorgados' && tipo !== 'otorgado') return false;
+      if (filtroTipo === 'recibidos' && tipo !== 'recibido') return false;
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      const matchName = p.nombre?.toLowerCase().includes(q);
-      const matchCI = p.ci?.toLowerCase().includes(q);
-      const matchTel = p.telefono?.includes(q);
-      if (!matchName && !matchCI && !matchTel) return false;
-    }
-    return true;
-  });
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = p.nombre?.toLowerCase().includes(q);
+        const matchCI = p.ci?.toLowerCase().includes(q);
+        const matchTel = p.telefono?.includes(q);
+        if (!matchName && !matchCI && !matchTel) return false;
+      }
+      return true;
+    });
+  }, [prestamos, filtroTipo, searchQuery]);
+
+  // Columnas dinámicas de cobros agrupadas por día para el cronograma móvil
+  const dynamicDayColumns = useMemo(() => {
+    const res = obtenerCobrosPorDias(filteredLoans, {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      searchQuery: searchQuery,
+    });
+    return res?.dayColumns || [];
+  }, [filteredLoans, searchQuery]);
 
   const findLoan = (term) => prestamos.find(p => p.nombre?.toUpperCase().includes(term.toUpperCase())) || prestamos[0];
 
@@ -105,6 +120,17 @@ export default function MobileAppView({
             >
               <Search className="w-4 h-4" />
             </button>
+
+            {/* Simulador Financiero */}
+            {onOpenSimulator && (
+              <button
+                onClick={onOpenSimulator}
+                className="w-8 h-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-emerald-600 dark:text-emerald-400 flex items-center justify-center transition-all border border-zinc-200 dark:border-transparent"
+                title="Simulador de Préstamos"
+              >
+                <Calculator className="w-4 h-4" />
+              </button>
+            )}
 
             {/* Ajustes y Auditoría */}
             <button
@@ -196,155 +222,133 @@ export default function MobileAppView({
       {/* 2. ÁREA PRINCIPAL MÓVIL SEGÚN PESTAÑA */}
       <main className="flex-1 overflow-y-auto custom-scroll p-4">
         
-        {/* PESTAÑA A: CRONOGRAMA STREAM CON NODOS GRISES LIMPIOS */}
+        {/* PESTAÑA A: CRONOGRAMA STREAM DINÁMICO POR DÍAS (100% REAL) */}
         {mobileTab === 'cronograma' && (
           <div className="space-y-4 relative">
-            <div className="absolute left-[65px] top-6 bottom-6 w-[1.5px] bg-zinc-300 dark:bg-[#333333]"></div>
-
-            {/* 17 Oct - Roberto */}
-            <div className="flex items-start gap-3.5 relative z-10">
-              <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-zinc-900 dark:text-white block">17 Oct</span>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Mañana</span>
+            {dynamicDayColumns.length === 0 ? (
+              <div className="p-8 text-center text-xs text-zinc-500 dark:text-[#8e8e8e] space-y-2">
+                <Calendar className="w-8 h-8 text-zinc-400 mx-auto" />
+                <p className="font-semibold text-zinc-700 dark:text-[#ccc]">No hay cobros programados para este período</p>
+                <p className="text-[11px]">Los nuevos préstamos y cuotas aparecerán aquí organizados por día.</p>
               </div>
-              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-              </div>
-              <div 
-                onClick={() => onSelectLoan(findLoan('ROBERTO'))}
-                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Roberto Villazón</h4>
-                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cobro Diario</span>
+            ) : (
+              dynamicDayColumns.map((col) => (
+                <div key={col.fecha} className="space-y-2">
+                  {/* Encabezado del Día */}
+                  <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold font-mono text-zinc-900 dark:text-white">
+                        {col.diaNumero} {col.mesNombre.slice(0, 3)}
+                      </span>
+                      <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] uppercase font-semibold">
+                        {col.diaSemana}
+                      </span>
+                      {col.esHoy && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">
+                          HOY
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
+                      {symbol} {col.totalDia.toLocaleString()}
+                    </span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
-                </div>
-                <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 300.00</span>
-                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Al Día</span>
-                </div>
-              </div>
-            </div>
 
-            {/* 20 Oct - Roly */}
-            <div className="flex items-start gap-3.5 relative z-10">
-              <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-zinc-900 dark:text-white block">20 Oct</span>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">En 4d</span>
-              </div>
-              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div 
-                onClick={() => onSelectLoan(findLoan('ROLY'))}
-                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all cursor-pointer active:scale-[0.99] space-y-1.5 shadow-xs"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Roly Cuellar</h4>
-                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Debe de la Macbook</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
-                </div>
-                <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 400.00</span>
-                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota 8 de 10</span>
-                </div>
-              </div>
-            </div>
+                  {/* Tarjetas de personas que pagan en este día */}
+                  <div className="space-y-2">
+                    {col.items.map((item) => {
+                      const { prestamo, cuota, pagado, mora } = item;
+                      const driveUrl = item.driveUrl || 'https://drive.google.com';
 
-            {/* 25 Oct - Magali & Fondeo */}
-            <div className="flex items-start gap-3.5 relative z-10">
-              <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-zinc-900 dark:text-white block">25 Oct</span>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Fondeo</span>
-              </div>
-              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-              </div>
-              <div 
-                onClick={() => onSelectLoan(findLoan('MAGALI'))}
-                className="flex-1 p-3.5 rounded-xl bg-zinc-50 dark:bg-[#2f2f2f] hover:bg-zinc-100 dark:hover:bg-[#383838] border border-zinc-200 dark:border-[#3d3d3d] transition-all cursor-pointer active:scale-[0.99] space-y-2 shadow-xs"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Magali Molina (Fondeo)</h4>
-                    <span className="text-xs text-zinc-500 dark:text-[#b4b4b4]">Capital: Bs. 15,000</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
-                </div>
-                <div className="p-2 rounded-lg bg-white dark:bg-[#212121] border border-zinc-200 dark:border-[#333333] text-xs text-zinc-600 dark:text-[#a3a3a3] flex justify-between">
-                  <span>Cobras: <strong className="text-zinc-900 dark:text-white">Bs. 1,500</strong></span>
-                  <span>Pagas a Rodo: <strong className="text-zinc-900 dark:text-white">Bs. 300</strong></span>
-                </div>
-                <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 text-right">
-                  Ganancia neta: +Bs. 700.00
-                </div>
-              </div>
-            </div>
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3.5 rounded-xl border transition-all space-y-2 ${
+                            pagado
+                              ? 'bg-zinc-50/70 dark:bg-[#1a1a1a] border-zinc-200/60 dark:border-[#2a2a2a] opacity-80'
+                              : cuota.estado === 'vencido'
+                                ? 'bg-rose-50/30 dark:bg-[#251818] border-rose-200 dark:border-rose-950/60'
+                                : 'bg-white dark:bg-[#262626] border-zinc-200 dark:border-[#333333] shadow-xs'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div 
+                              onClick={() => onSelectLoan(prestamo)}
+                              className="cursor-pointer overflow-hidden flex-1 pr-2"
+                            >
+                              <h4 className="text-sm font-bold text-zinc-900 dark:text-white truncate">
+                                {item.nombre}
+                              </h4>
+                              <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] block mt-0.5 truncate">
+                                {cuota.label} {item.ci ? `• CI: ${item.ci}` : ''}
+                              </span>
+                            </div>
 
-            {/* 28 Oct - Victoria & Jimena */}
-            <div className="flex items-start gap-3.5 relative z-10">
-              <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-zinc-900 dark:text-white block">28 Oct</span>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">2 cobros</span>
-              </div>
-              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs font-mono">
-                2
-              </div>
-              <div className="flex-1 space-y-2">
-                <div 
-                  onClick={() => onSelectLoan(findLoan('VICTORIA'))}
-                  className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="text-sm font-semibold text-zinc-900 dark:text-white">Victoria Coronado</span>
-                    <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 500</span>
-                  </div>
-                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] block mt-0.5">CI: 5488548 • Cuota mensual</span>
-                </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white block">
+                                {symbol} {item.monto.toLocaleString()}
+                              </span>
+                              {pagado ? (
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                  PAGADO ✓
+                                </span>
+                              ) : mora > 0 ? (
+                                <span className="text-[10px] text-rose-500 font-mono">
+                                  +{symbol}{mora} mora
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
 
-                <div 
-                  onClick={() => onSelectLoan(findLoan('JIMENA'))}
-                  className="p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs cursor-pointer active:scale-[0.99]"
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="text-sm font-semibold text-zinc-900 dark:text-white">Jimena Cordova</span>
-                    <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Bs. 220</span>
-                  </div>
-                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] block mt-0.5">Tel: 73610261 • Doc. Privado</span>
-                </div>
-              </div>
-            </div>
+                          {/* Botonera de acciones rápidas móviles */}
+                          <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-[#333333]">
+                            <div className="flex items-center gap-1.5">
+                              {onPayCuota && !pagado && (
+                                <button
+                                  onClick={() => onPayCuota(prestamo, cuota)}
+                                  className="px-2.5 py-1 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-semibold text-xs flex items-center gap-1 shadow-2xs active:scale-95"
+                                >
+                                  <Check className="w-3 h-3 stroke-[2.5]" />
+                                  <span>Cobrar</span>
+                                </button>
+                              )}
 
-            {/* 30 Oct - Banco FIE */}
-            <div className="flex items-start gap-3.5 relative z-10">
-              <div className="w-11 text-right pt-1.5 shrink-0">
-                <span className="text-xs font-bold text-zinc-900 dark:text-white block">30 Oct</span>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Pagar</span>
-              </div>
-              <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#2a2a2a] border border-zinc-200 dark:border-[#3d3d3d] text-zinc-800 dark:text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-xs">
-                <Landmark className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div 
-                onClick={() => onSelectLoan(findLoan('FIE'))}
-                className="flex-1 p-3.5 rounded-xl bg-white dark:bg-[#2a2a2a] hover:bg-zinc-50 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333333] transition-all shadow-xs space-y-1.5 cursor-pointer active:scale-[0.99]"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-white">Banco FIE (Crédito)</h4>
-                    <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota fija mensual</span>
+                              {onSendWhatsApp && (
+                                <button
+                                  onClick={() => onSendWhatsApp(prestamo, cuota)}
+                                  className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] text-emerald-600 dark:text-emerald-400 border border-zinc-200 dark:border-[#383838]"
+                                  title="Enviar WhatsApp"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+
+                              <a
+                                href={driveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-[#383838]"
+                                title="Abrir Google Drive"
+                              >
+                                <HardDrive className="w-3.5 h-3.5" />
+                              </a>
+                            </div>
+
+                            <button
+                              onClick={() => onSelectLoan(prestamo)}
+                              className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center gap-0.5"
+                            >
+                              <span>Ver</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-400 dark:text-[#737373]" />
                 </div>
-                <div className="flex items-baseline justify-between pt-1">
-                  <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">Pagar Bs. 650.00</span>
-                  <span className="text-xs text-zinc-500 dark:text-[#a3a3a3]">Cuota 8 de 20</span>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
         )}
 

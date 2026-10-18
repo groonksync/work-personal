@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, Bell, X, Calendar, Folder, Clock, Sliders } from 'lucide-react';
+import { Search, Plus, Bell, X, Calendar, Folder, Clock, Sliders, Calculator } from 'lucide-react';
 
 export default function Topbar({
   viewMode = 'timeline',
@@ -10,6 +10,7 @@ export default function Topbar({
   onOpenAlerts,
   alertasCount = 0,
   onOpenSettings,
+  onOpenSimulator,
 }) {
   const getIcon = () => {
     if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />;
@@ -49,6 +50,16 @@ export default function Topbar({
             </button>
           )}
         </div>
+
+        {/* Botón de Simulador de Créditos */}
+        <button
+          onClick={onOpenSimulator}
+          className="h-8 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333333] text-zinc-700 hover:text-zinc-900 dark:text-[#b4b4b4] dark:hover:text-white flex items-center gap-1.5 text-xs transition-all border border-zinc-200 dark:border-[#333333]"
+          title="Simulador de Préstamos y Rendimiento"
+        >
+          <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="hidden xl:inline font-medium">Simulador</span>
+        </button>
 
         {/* Campana de Vencimientos */}
         <button

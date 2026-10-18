@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Calendar, Folder, Clock, Users, ArrowUpRight, 
   ArrowDownLeft, Bell, Sun, Moon, Plus, DollarSign, Sliders,
-  PieChart, Activity, TrendingUp
+  PieChart, Activity, TrendingUp, Calculator
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -21,6 +21,7 @@ export default function Sidebar({
   alertasCount = 0,
   onOpenNewLoan,
   onOpenSettings,
+  onOpenSimulator,
 }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
@@ -166,6 +167,21 @@ export default function Sidebar({
                 {alertasCount}
               </span>
             )}
+          </button>
+
+          {/* SIMULADOR FINANCIERO PRO */}
+          <button
+            onClick={onOpenSimulator}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white transition-all"
+            title="Simulador de préstamos y retorno de inversión"
+          >
+            <div className="flex items-center gap-2.5">
+              <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[13px]">Simulador</span>
+            </div>
+            <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
+              PRO
+            </span>
           </button>
         </div>
 
