@@ -33,14 +33,14 @@ export default function Sidebar({
   const pctRecibidos = 100 - pctOtorgados;
 
   return (
-    <aside className="w-64 bg-zinc-50 dark:bg-[#171717] border-r border-zinc-200 dark:border-[#262626] flex flex-col justify-between shrink-0 h-full select-none z-30 text-zinc-800 dark:text-[#ececec] transition-colors duration-150">
+    <aside className="w-64 bg-zinc-50 dark:bg-[#131416] border-r border-zinc-200 dark:border-[#1f2025] flex flex-col justify-between shrink-0 h-full select-none z-30 text-zinc-800 dark:text-[#f3f4f6] transition-colors duration-150">
       
       <div className="p-3.5 space-y-4 overflow-y-auto custom-scroll">
         
-        {/* BOTÓN SUPERIOR (+ NUEVO) SIN ATAJOS DE TECLADO */}
+        {/* BOTÓN SUPERIOR (+ NUEVO) */}
         <button
           onClick={onOpenNewLoan}
-          className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#242424] dark:hover:bg-[#2c2c2c] text-white text-xs font-semibold flex items-center justify-between transition-all border border-zinc-800 dark:border-[#333333] shadow-xs active:scale-[0.99]"
+          className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-[#1e1f24] dark:hover:bg-[#25262c] text-white text-xs font-semibold flex items-center justify-between transition-all border border-zinc-800 dark:border-[#2b2d35] shadow-xs active:scale-[0.99]"
         >
           <div className="flex items-center gap-2.5">
             <div className="w-5 h-5 rounded-md bg-white text-black flex items-center justify-center font-bold text-xs">
@@ -48,12 +48,12 @@ export default function Sidebar({
             </div>
             <span className="text-[13px]">Nuevo Registro</span>
           </div>
-          <span className="text-[10px] text-zinc-400 dark:text-[#8e8e8e] font-medium">+ Préstamo</span>
+          <span className="text-[10px] text-zinc-400 dark:text-[#8b8f98] font-medium">+ Préstamo</span>
         </button>
 
         {/* NAVEGACIÓN PRINCIPAL CON ÍCONOS LIMPIOS */}
         <div className="space-y-1">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-zinc-400 dark:text-[#737373] px-2 block mb-1">
+          <span className="text-[10px] font-semibold tracking-wider uppercase text-zinc-400 dark:text-[#6e737e] px-2 block mb-1">
             Vistas
           </span>
 
@@ -61,15 +61,15 @@ export default function Sidebar({
             onClick={() => setViewMode('timeline')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
               viewMode === 'timeline'
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#333]'
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#2e3036]'
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Calendar className="w-4 h-4 text-zinc-500 dark:text-[#d4d4d4]" />
+              <Calendar className="w-4 h-4 text-zinc-500 dark:text-[#a0a5b0]" />
               <span className="text-[13px]">Cronograma</span>
             </div>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-200/60 dark:bg-[#212121] text-zinc-600 dark:text-[#a3a3a3]">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-200/60 dark:bg-[#1a1b1f] text-zinc-600 dark:text-[#8b8f98]">
               {counts.total || 9}
             </span>
           </button>
@@ -78,12 +78,12 @@ export default function Sidebar({
             onClick={() => setViewMode('folders')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
               viewMode === 'folders'
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#333]'
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#2e3036]'
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Folder className="w-4 h-4 text-zinc-500 dark:text-[#d4d4d4]" />
+              <Folder className="w-4 h-4 text-zinc-500 dark:text-[#a0a5b0]" />
               <span className="text-[13px]">Expedientes</span>
             </div>
           </button>
@@ -92,20 +92,20 @@ export default function Sidebar({
             onClick={() => setViewMode('stream')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
               viewMode === 'stream'
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#333]'
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white shadow-xs border border-zinc-200/80 dark:border-[#2e3036]'
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-zinc-500 dark:text-[#d4d4d4]" />
+              <Clock className="w-4 h-4 text-zinc-500 dark:text-[#a0a5b0]" />
               <span className="text-[13px]">Flujo Diario</span>
             </div>
           </button>
         </div>
 
         {/* FILTROS DE CARTERA */}
-        <div className="space-y-1 pt-2 border-t border-zinc-200 dark:border-[#262626]">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-zinc-400 dark:text-[#737373] px-2 block mb-1">
+        <div className="space-y-1 pt-2 border-t border-zinc-200 dark:border-[#1f2025]">
+          <span className="text-[10px] font-semibold tracking-wider uppercase text-zinc-400 dark:text-[#6e737e] px-2 block mb-1">
             Filtros de Cartera
           </span>
 
@@ -113,23 +113,23 @@ export default function Sidebar({
             onClick={() => setCarteraFiltro('todos')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all ${
               carteraFiltro === 'todos' 
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#333]' 
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#2e3036]' 
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-zinc-400 dark:text-[#a3a3a3]" />
+              <Users className="w-4 h-4 text-zinc-400 dark:text-[#8b8f98]" />
               <span className="text-[13px]">Todos</span>
             </div>
-            <span className="text-[11px] font-mono text-zinc-400 dark:text-[#737373]">{counts.total || 11}</span>
+            <span className="text-[11px] font-mono text-zinc-400 dark:text-[#6e737e]">{counts.total || 11}</span>
           </button>
 
           <button
             onClick={() => setCarteraFiltro('otorgados')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all ${
               carteraFiltro === 'otorgados' 
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#333]' 
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#2e3036]' 
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -143,8 +143,8 @@ export default function Sidebar({
             onClick={() => setCarteraFiltro('recibidos')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all ${
               carteraFiltro === 'recibidos' 
-                ? 'bg-white dark:bg-[#262626] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#333]' 
-                : 'text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#222328] text-zinc-900 dark:text-white font-semibold shadow-xs border border-zinc-200/80 dark:border-[#2e3036]' 
+                : 'text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
             <div className="flex items-center gap-2.5">
@@ -156,7 +156,7 @@ export default function Sidebar({
 
           <button
             onClick={onOpenAlerts}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white transition-all"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white transition-all"
           >
             <div className="flex items-center gap-2.5">
               <Bell className="w-4 h-4 text-amber-500 dark:text-amber-400" />
@@ -172,7 +172,7 @@ export default function Sidebar({
           {/* SIMULADOR FINANCIERO PRO */}
           <button
             onClick={onOpenSimulator}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-200/60 dark:hover:bg-[#212121] hover:text-zinc-900 dark:hover:text-white transition-all"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-zinc-600 dark:text-[#8b8f98] hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] hover:text-zinc-900 dark:hover:text-white transition-all"
             title="Simulador de préstamos y retorno de inversión"
           >
             <div className="flex items-center gap-2.5">
@@ -185,11 +185,11 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* GRÁFICOS Y MÉTRICAS VISUALES DE LA CARTERA (SKILL PROFESSIONAL-UI-DESIGN) */}
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-[#212121] border border-zinc-200 dark:border-[#2d2d2d] space-y-3 shadow-xs">
+        {/* GRÁFICOS Y MÉTRICAS VISUALES DE LA CARTERA */}
+        <div className="p-3.5 rounded-2xl bg-white dark:bg-[#18191c] border border-zinc-200 dark:border-[#24252a] space-y-3 shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-zinc-400 dark:text-[#737373] uppercase font-bold tracking-wider">
+              <span className="text-[10px] text-zinc-400 dark:text-[#6e737e] uppercase font-bold tracking-wider">
                 Capital Colocado
               </span>
               <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
@@ -203,7 +203,7 @@ export default function Sidebar({
 
           {/* Gráfico de distribución de cartera (Segmented Bar) */}
           <div className="space-y-1">
-            <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-[#191919] overflow-hidden flex">
+            <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-[#101113] overflow-hidden flex">
               <div 
                 className="h-full bg-emerald-500 rounded-l-full transition-all duration-300" 
                 style={{ width: `${pctOtorgados}%` }}
@@ -215,7 +215,7 @@ export default function Sidebar({
                 title={`Acreedores: ${pctRecibidos}%`}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-zinc-400 dark:text-[#737373] font-mono">
+            <div className="flex justify-between text-[10px] text-zinc-400 dark:text-[#6e737e] font-mono">
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Cobros ({otorgadosCount})
@@ -227,8 +227,8 @@ export default function Sidebar({
             </div>
           </div>
           
-          <div className="pt-2 border-t border-zinc-100 dark:border-[#2a2a2a] flex items-center justify-between text-xs">
-            <span className="text-zinc-500 dark:text-[#8e8e8e] text-[11px]">Rendimiento Est.:</span>
+          <div className="pt-2 border-t border-zinc-100 dark:border-[#22242a] flex items-center justify-between text-xs">
+            <span className="text-zinc-500 dark:text-[#8b8f98] text-[11px]">Rendimiento Est.:</span>
             <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
               +{symbol} {Number(totalRendimiento).toLocaleString()}/m
             </span>
@@ -238,12 +238,12 @@ export default function Sidebar({
       </div>
 
       {/* FOOTER DE USUARIO, MONEDA Y ALTERNADOR DE MODO CLARO / OSCURO */}
-      <div className="p-3.5 border-t border-zinc-200 dark:border-[#262626] space-y-3 bg-zinc-50/50 dark:bg-[#171717]">
+      <div className="p-3.5 border-t border-zinc-200 dark:border-[#1f2025] space-y-3 bg-zinc-50/50 dark:bg-[#131416]">
         <div className="flex items-center justify-between gap-2">
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="flex-1 bg-white dark:bg-[#212121] hover:bg-zinc-100 dark:hover:bg-[#2a2a2a] border border-zinc-200 dark:border-[#2f2f2f] text-xs font-mono text-zinc-900 dark:text-white px-2.5 py-1.5 rounded-lg outline-none cursor-pointer transition-all"
+            className="flex-1 bg-white dark:bg-[#1a1b1e] hover:bg-zinc-100 dark:hover:bg-[#202126] border border-zinc-200 dark:border-[#24252a] text-xs font-mono text-zinc-900 dark:text-white px-2.5 py-1.5 rounded-lg outline-none cursor-pointer transition-all"
           >
             <option value="BOB">Bs. BOB</option>
             <option value="USD">$ USD</option>
@@ -253,7 +253,7 @@ export default function Sidebar({
           <div className="flex items-center gap-1">
             <button
               onClick={onOpenSettings}
-              className="w-8 h-8 rounded-lg bg-white dark:bg-[#212121] hover:bg-zinc-100 dark:hover:bg-[#2a2a2a] text-zinc-600 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white flex items-center justify-center border border-zinc-200 dark:border-[#2f2f2f] transition-all"
+              className="w-8 h-8 rounded-lg bg-white dark:bg-[#1a1b1e] hover:bg-zinc-100 dark:hover:bg-[#202126] text-zinc-600 hover:text-zinc-900 dark:text-[#8b8f98] dark:hover:text-white flex items-center justify-center border border-zinc-200 dark:border-[#24252a] transition-all"
               title="Ajustes y Auditoría"
             >
               <Sliders className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function Sidebar({
             {/* BOTÓN TOGGLE MODO CLARO / MODO NOCHE */}
             <button
               onClick={toggleTheme}
-              className="w-8 h-8 rounded-lg bg-white dark:bg-[#212121] hover:bg-zinc-100 dark:hover:bg-[#2a2a2a] text-zinc-600 hover:text-zinc-900 dark:text-[#8e8e8e] dark:hover:text-white flex items-center justify-center border border-zinc-200 dark:border-[#2f2f2f] transition-all"
+              className="w-8 h-8 rounded-lg bg-white dark:bg-[#1a1b1e] hover:bg-zinc-100 dark:hover:bg-[#202126] text-zinc-600 hover:text-zinc-900 dark:text-[#8b8f98] dark:hover:text-white flex items-center justify-center border border-zinc-200 dark:border-[#24252a] transition-all"
               title={theme === 'dark' ? 'Activar Modo Claro' : 'Activar Modo Noche'}
             >
               {theme === 'dark' ? (
@@ -276,10 +276,10 @@ export default function Sidebar({
 
         <div 
           onClick={onOpenSettings}
-          className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-zinc-200/60 dark:hover:bg-[#212121] transition-all cursor-pointer"
+          className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-zinc-200/60 dark:hover:bg-[#1a1b1f] transition-all cursor-pointer"
           title="Abrir perfil y ajustes"
         >
-          <div className="w-7 h-7 rounded-full bg-zinc-900 dark:bg-[#2f2f2f] border border-zinc-700 dark:border-[#3d3d3d] flex items-center justify-center font-bold text-xs text-white">
+          <div className="w-7 h-7 rounded-full bg-zinc-900 dark:bg-[#202126] border border-zinc-700 dark:border-[#2d2f36] flex items-center justify-center font-bold text-xs text-white">
             CJ
           </div>
           <div className="overflow-hidden">

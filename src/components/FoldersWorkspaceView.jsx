@@ -27,14 +27,7 @@ export default function FoldersWorkspaceView({
   const filesList = prestamos.map((p, idx) => {
     const isDocx = idx % 2 === 1;
     const fileName = `${p.nombre.replace(/\s+/g, '_')}_Contrato_Notariado.${isDocx ? 'docx' : 'pdf'}`;
-    const addedByEmail = idx === 0 
-      ? 'kevin@mail.com' 
-      : idx === 1 
-        ? 'antonwe@gmail.com' 
-        : p.telefono 
-          ? `+591 ${p.telefono}` 
-          : 'carlosjoelsb@gmail.com';
-
+    const addedByInfo = p.telefono ? `+591 ${p.telefono}` : 'Expediente Registrado';
     const avatarInitial = p.nombre ? p.nombre.charAt(0) : 'U';
 
     return {
@@ -42,7 +35,7 @@ export default function FoldersWorkspaceView({
       prestamo: p,
       fileName,
       clientName: p.nombre,
-      addedBy: addedByEmail,
+      addedBy: addedByInfo,
       avatarInitial,
       capital: p.capital,
       interes: p.interes,
@@ -55,7 +48,7 @@ export default function FoldersWorkspaceView({
   return (
     <div className="flex-1 overflow-y-auto custom-scroll p-6 lg:p-8 space-y-8 bg-[#111214] text-[#f3f4f6] select-none">
       
-      {/* 1. TOP BREADCRUMB DROPDOWN "General Knowledge ˅" (IDÉNTICO A LA FOTO) */}
+      {/* 1. TOP BREADCRUMB DROPDOWN */}
       <div className="relative inline-block">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -71,22 +64,26 @@ export default function FoldersWorkspaceView({
               onClick={() => { setDropdownOpen(false); }}
               className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-white hover:bg-[#25272d] flex items-center justify-between"
             >
-              <span>General Knowledge</span>
+              <span>Todos los Expedientes</span>
               <span className="text-[10px] text-zinc-500 font-mono">{carpetas.length}</span>
             </button>
             <button
               onClick={() => { setDropdownOpen(false); }}
               className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#25272d] flex items-center justify-between"
             >
-              <span>Integrations (Fondeo)</span>
-              <span className="text-[10px] text-zinc-500 font-mono">2</span>
+              <span>Por Cobrar (Cartera)</span>
+              <span className="text-[10px] text-zinc-500 font-mono">
+                {carpetas.filter(c => c.tipo_prestamo !== 'recibido').length}
+              </span>
             </button>
             <button
               onClick={() => { setDropdownOpen(false); }}
               className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-[#25272d] flex items-center justify-between"
             >
-              <span>Onboarding Design</span>
-              <span className="text-[10px] text-zinc-500 font-mono">9</span>
+              <span>Por Pagar (Fondeo)</span>
+              <span className="text-[10px] text-zinc-500 font-mono">
+                {carpetas.filter(c => c.tipo_prestamo === 'recibido').length}
+              </span>
             </button>
           </div>
         )}
