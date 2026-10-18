@@ -138,10 +138,10 @@ export default function TimelineNodesView({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#f7f7f8] dark:bg-[#212121] overflow-hidden select-none text-[#171717] dark:text-[#ececec] transition-colors duration-150">
+    <div className="flex-1 flex flex-col h-full bg-[#f7f7f8] dark:bg-[#111214] overflow-hidden select-none text-[#171717] dark:text-[#f3f4f6] transition-colors duration-150">
       
-      {/* 1. BARRA SUPERIOR DE CONTROL DEL CALENDARIO (ESTILO CHATGPT / KODEX) */}
-      <div className="px-6 py-3 border-b border-zinc-200 dark:border-[#2a2a2a] flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#212121] shrink-0 transition-colors duration-150">
+      {/* 1. BARRA SUPERIOR DE CONTROL DEL CALENDARIO (ESTILO OBSIDIAN) */}
+      <div className="px-6 py-3 border-b border-zinc-200 dark:border-[#1f2025] flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#111214] shrink-0 transition-colors duration-150">
         
         {/* Navegador de Mes y Año */}
         <div className="flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function TimelineNodesView({
       </div>
 
       {/* 2. CHIPS DE FILTRO RÁPIDO & RESUMEN DE COBRANZAS */}
-      <div className="px-6 py-2.5 border-b border-zinc-200 dark:border-[#2a2a2a] flex flex-wrap items-center justify-between gap-3 bg-zinc-50/70 dark:bg-[#1a1a1a] shrink-0 text-xs">
+      <div className="px-6 py-2.5 border-b border-zinc-200 dark:border-[#1f2025] flex flex-wrap items-center justify-between gap-3 bg-zinc-50/70 dark:bg-[#131416] shrink-0 text-xs">
         
         {/* Chips de Urgencia */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
@@ -297,7 +297,7 @@ export default function TimelineNodesView({
         {calendarViewMode === 'columns' && (
           <div 
             ref={containerRef}
-            className="flex-1 overflow-x-auto overflow-y-auto custom-scroll p-6 flex gap-4 items-start bg-[#f7f7f8] dark:bg-[#212121]"
+            className="flex-1 overflow-x-auto overflow-y-auto custom-scroll p-6 flex gap-4 items-start bg-[#f7f7f8] dark:bg-[#111214]"
           >
             {dayColumns.length === 0 ? (
               <div className="m-auto text-center p-12 max-w-md space-y-3">

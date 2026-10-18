@@ -1,137 +1,101 @@
 import React from 'react';
-import { Folder, Clock, ArrowRight, User, TrendingUp } from 'lucide-react';
+import { HardDrive, MessageCircle, Check, ArrowRight, ExternalLink } from 'lucide-react';
+import Folder3DGraphic from './Folder3DGraphic';
 
 export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuickPay }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
-  // Cálculo de progreso visual de amortización
   const totalCapital = folder.totalCapital || 1;
   const totalAdeudado = folder.totalAdeudado || 0;
   const totalPagado = Math.max(0, totalCapital - totalAdeudado);
   const porcentajePagado = Math.min(100, Math.round((totalPagado / totalCapital) * 100));
 
-  // Configuración de badge de estado con colores nítidos
-  const getBadgeInfo = () => {
-    switch (folder.estadoGlobal) {
-      case 'Atrasado':
-        return {
-          label: `Atrasado (${Math.abs(folder.diasParaVencer)}d)`,
-          bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
-          dot: 'bg-rose-500',
-        };
-      case 'Vence Hoy':
-        return {
-          label: 'Vence Hoy',
-          bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-          dot: 'bg-amber-500 animate-pulse',
-        };
-      case 'Vence Pronto':
-        return {
-          label: `Vence en ${folder.diasParaVencer}d`,
-          bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-          dot: 'bg-amber-500',
-        };
-      case 'Saldado':
-        return {
-          label: 'Saldado 100%',
-          bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-          dot: 'bg-emerald-500',
-        };
-      default:
-        return {
-          label: 'Al Día',
-          bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-          dot: 'bg-emerald-500',
-        };
-    }
-  };
+  const contratosCount = folder.contratos?.length || 1;
+  const hasDrive = !!(folder.driveUrl || folder.contratos?.[0]?.drive_url || folder.contratos?.[0]?.drive_contrato);
 
-  const badge = getBadgeInfo();
+  const esAtrasado = folder.estadoGlobal === 'Atrasado';
+  const esVenceHoy = folder.estadoGlobal === 'Vence Hoy';
+  const esSaldado = folder.estadoGlobal === 'Saldado';
 
   return (
     <div
       onClick={onSelect}
-      className="p-4 rounded-2xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] hover:border-zinc-300 dark:hover:border-[#4d4d4d] transition-all cursor-pointer group flex flex-col justify-between shadow-xs select-none"
+      className="p-4 rounded-2xl bg-[#1a1b1e] hover:bg-[#202126] border border-[#26282e] hover:border-[#383a42] transition-all cursor-pointer group flex flex-col justify-between select-none shadow-sm relative overflow-hidden"
     >
-      <div className="space-y-3">
-        {/* Cabecera de la Carpeta */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] flex items-center justify-center font-bold text-xs text-zinc-800 dark:text-white shrink-0">
-              {folder.nombre?.charAt(0) || 'C'}
-            </div>
-            <div className="overflow-hidden">
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-white truncate group-hover:text-black dark:group-hover:text-white">
-                {folder.nombre}
-              </h3>
-              <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block truncate mt-0.5">
-                {folder.contratos?.length || 1} contrato(s) • {folder.telefono || 'Sin tel'}
-              </span>
-            </div>
-          </div>
+      {/* 1. GRÁFICO 3D DEL FOLDER CON HOJAS BLANCAS Y MICRO-ÍCONOS (IDÉNTICO A LA FOTO) */}
+      <div className="pt-1 pb-2">
+        <Folder3DGraphic
+          hasDrive={hasDrive}
+          docType={folder.tipo_prestamo === 'recibido' ? 'CRED' : contratosCount > 1 ? 'DOCS' : 'PDF'}
+          fileCount={contratosCount}
+        />
+      </div>
 
-          <span
-            className={`px-2 py-0.5 text-[10px] font-semibold rounded-md border shrink-0 flex items-center gap-1.5 ${badge.bg}`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}></span>
-            <span>{badge.label}</span>
+      {/* 2. TEXTOS Y CONTENIDO PRINCIPAL (EXACTO A LA IMAGEN) */}
+      <div className="text-center space-y-1 mt-1">
+        <div className="flex items-center justify-center gap-1.5">
+          <h3 className="text-sm font-bold text-white group-hover:text-zinc-100 truncate tracking-tight">
+            {folder.nombre}
+          </h3>
+          {esAtrasado && (
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" title="Cobro Atrasado" />
+          )}
+          {esVenceHoy && (
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" title="Vence Hoy" />
+          )}
+        </div>
+
+        {/* Subtítulo tipo "15 Files" / "1 Contrato • Bs. 15,000" */}
+        <p className="text-xs text-[#8b8f98] font-medium truncate">
+          {contratosCount} {contratosCount === 1 ? 'Contrato' : 'Contratos'} • {symbol} {Number(totalCapital).toLocaleString()}
+        </p>
+      </div>
+
+      {/* 3. MINI BARRA DE PROGRESO DE AMORTIZACIÓN */}
+      <div className="w-full bg-[#111214] h-1 rounded-full overflow-hidden mt-3 mb-2">
+        <div 
+          className={`h-full rounded-full transition-all duration-300 ${
+            esSaldado ? 'bg-emerald-500' : 'bg-[#3b82f6]'
+          }`}
+          style={{ width: `${porcentajePagado}%` }}
+        />
+      </div>
+
+      {/* 4. FOOTER DE ACCIONES RÁPIDAS EN HOVER / NORMAL */}
+      <div className="flex items-center justify-between pt-2 border-t border-[#24252a] text-xs">
+        <div className="text-left">
+          <span className="text-[10px] text-[#5e636e] uppercase block font-semibold leading-tight">
+            Próx. Cuota
+          </span>
+          <span className="text-xs font-mono font-bold text-white">
+            {symbol} {Number(folder.cuotaProxima || 0).toLocaleString()}
           </span>
         </div>
 
-        {/* Barra de progreso visual de amortización */}
-        <div className="space-y-1 pt-1">
-          <div className="flex justify-between text-[11px] font-medium text-zinc-500 dark:text-[#8e8e8e]">
-            <span>Amortizado</span>
-            <span className="font-mono font-bold text-zinc-900 dark:text-white">{porcentajePagado}%</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-[#1a1a1a] overflow-hidden">
-            <div 
-              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-              style={{ width: `${porcentajePagado}%` }}
-            />
-          </div>
-        </div>
+        <div className="flex items-center gap-1">
+          {onQuickPay && !esSaldado && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onQuickPay(folder);
+              }}
+              className="px-2 py-1 rounded-lg bg-[#27282d] hover:bg-[#32343a] text-white text-[11px] font-semibold border border-white/5 active:scale-95 transition-all flex items-center gap-1"
+              title="Abonar cuota inmediata"
+            >
+              <Check className="w-3 h-3 text-emerald-400 stroke-[2.5]" />
+              <span>Abonar</span>
+            </button>
+          )}
 
-        {/* Resumen numérico en grid */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-100 dark:border-[#333333] text-xs">
-          <div>
-            <span className="text-[10px] uppercase font-semibold text-zinc-400 dark:text-[#737373] block">
-              Próxima Cuota
-            </span>
-            <span className="text-sm font-mono font-bold text-zinc-900 dark:text-white">
-              {symbol} {folder.cuotaProxima?.toLocaleString() || 0}
-            </span>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-semibold text-zinc-400 dark:text-[#737373] block">
-              Saldo Restante
-            </span>
-            <span className="text-sm font-mono font-medium text-zinc-600 dark:text-[#a3a3a3]">
-              {symbol} {folder.totalAdeudado?.toLocaleString() || 0}
-            </span>
+          <div 
+            className="w-6 h-6 rounded-lg bg-[#222328] group-hover:bg-[#2b2d33] flex items-center justify-center text-[#8b8f98] group-hover:text-white transition-colors"
+            title="Abrir expediente completo"
+          >
+            <ArrowRight className="w-3 h-3" />
           </div>
         </div>
       </div>
 
-      {/* Botones de acción uniforme */}
-      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-zinc-100 dark:border-[#333333]">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onQuickPay(folder);
-          }}
-          className="h-8 px-3 rounded-lg bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-black font-semibold text-xs transition-all active:scale-95 shadow-xs"
-        >
-          Abonar
-        </button>
-        <button
-          onClick={onSelect}
-          className="h-8 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#1e1e1e] dark:hover:bg-[#303030] text-zinc-800 dark:text-white font-medium text-xs border border-zinc-200 dark:border-[#383838] transition-all flex items-center justify-center gap-1"
-        >
-          <span>Expediente</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
     </div>
   );
 }

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import NavRail from './components/NavRail';
+import ExplorerSidebar from './components/ExplorerSidebar';
+import FoldersWorkspaceView from './components/FoldersWorkspaceView';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import LoanInspectorDrawer from './components/LoanInspectorDrawer';
@@ -26,7 +29,8 @@ export default function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
-  const [viewMode, setViewMode] = useState('timeline'); // 'timeline' (Img 1) | 'folders' | 'stream' (Img 2)
+  const [viewMode, setViewMode] = useState('folders'); // 'folders' (Diseño Obsidian de referencia) | 'timeline' | 'stream'
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [carteraFiltro, setCarteraFiltro] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -413,183 +417,175 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex bg-[#f7f7f8] text-[#171717] dark:bg-[#212121] dark:text-[#ececec] font-sans antialiased transition-colors duration-150">
+    <div className="w-screen h-screen overflow-hidden flex bg-[#1e1f23] p-0 md:p-3 font-sans antialiased select-none transition-colors duration-150">
       
-      {/* ========================================================================= */}
-      {/* VISTA MÓVIL ESPECIALIZADA (DETECCIÓN AUTOMÁTICA EN DISPOSITIVOS MÓVILES)  */}
-      {/* ========================================================================= */}
-      <div className="flex md:hidden w-full h-full flex-col overflow-hidden">
-        <MobileAppView
-          prestamos={prestamos}
-          carpetas={carpetas}
-          alertas={alertasAnticipadas}
-          currency={currency}
-          setCurrency={setCurrency}
-          theme={theme}
-          toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-          onOpenNewLoan={() => setIsNewLoanOpen(true)}
-          onPayCuota={handlePayCuota}
-          onSendWhatsApp={handleSendWhatsApp}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenSimulator={() => setIsSimulatorOpen(true)}
-          onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
-          onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
-          onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
-          onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
-        />
-      </div>
-
-      {/* ========================================================================= */}
-      {/* VISTA ESCRITORIO (100% INTACTA, PANTALLA COMPLETA, ESTILO CHATGPT)         */}
-      {/* ========================================================================= */}
-      <div className="hidden md:flex w-full h-full overflow-hidden">
+      {/* CONTENEDOR PRINCIPAL FLOTANTE ESTILO OBSIDIAN KNOWLEDGE BASE */}
+      <div className="w-full h-full rounded-none md:rounded-3xl border-0 md:border md:border-[#282a30] overflow-hidden flex flex-col bg-[#111214] shadow-2xl relative text-[#f3f4f6]">
         
-        {/* 1. SIDEBAR IZQUIERDO UNIFICADO (PANTALLA COMPLETA, ESTILO CHATGPT) */}
-        <Sidebar
-          viewMode={viewMode}
-          setViewMode={(mode) => {
-            setViewMode(mode);
-            setSelectedFolderKey(null);
-          }}
-          carteraFiltro={carteraFiltro}
-          setCarteraFiltro={setCarteraFiltro}
-          counts={counts}
-          totalCapital={totalCapital}
-          totalRendimiento={totalRendimiento}
-          currency={currency}
-          setCurrency={setCurrency}
-          theme={theme}
-          toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          onOpenAlerts={() => setIsAlertsOpen(true)}
-          alertasCount={alertasAnticipadas.length}
-          onOpenNewLoan={() => setIsNewLoanOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenSimulator={() => setIsSimulatorOpen(true)}
-        />
-
-        {/* 2. ÁREA DE TRABAJO PRINCIPAL (EXTENSIÓN COMPLETA, ESTILO CHATGPT) */}
-        <div className="flex-1 h-screen flex flex-col overflow-hidden bg-[#f7f7f8] dark:bg-[#212121] relative transition-colors duration-150">
-          
-          {/* TOPBAR UNIFICADA (UNA SOLA CABECERA) */}
-          <Topbar
-            viewMode={viewMode}
-            breadcrumb={
-              activeFolder 
-                ? `Expediente › ${activeFolder.nombre}`
-                : viewMode === 'timeline' 
-                  ? 'Cronograma de Vencimientos' 
-                  : viewMode === 'folders' 
-                    ? 'Expedientes por Persona' 
-                    : 'Flujo Diario'
-            }
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
+        {/* ========================================================================= */}
+        {/* VISTA MÓVIL ESPECIALIZADA (DETECCIÓN AUTOMÁTICA EN DISPOSITIVOS MÓVILES)  */}
+        {/* ========================================================================= */}
+        <div className="flex md:hidden w-full h-full flex-col overflow-hidden">
+          <MobileAppView
+            prestamos={prestamos}
+            carpetas={carpetas}
+            alertas={alertasAnticipadas}
+            currency={currency}
+            setCurrency={setCurrency}
+            theme={theme}
+            toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
             onOpenNewLoan={() => setIsNewLoanOpen(true)}
+            onPayCuota={handlePayCuota}
+            onSendWhatsApp={handleSendWhatsApp}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenSimulator={() => setIsSimulatorOpen(true)}
+            onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
+            onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
+            onOpenExpressNotes={(loan) => setSelectedLoanForNotes(loan)}
+            onOpenCapitalPayment={(loan) => setSelectedLoanForCapital(loan)}
+          />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* VISTA ESCRITORIO — EXACTA AL DISEÑO OBSIDIAN KNOWLEDGE BASE               */}
+        {/* ========================================================================= */}
+        <div className="hidden md:flex w-full h-full overflow-hidden">
+          
+          {/* 1. SLIM ICON NAVIGATION RAIL (LEFT-MOST COLUMN IDÉNTICA AL DISEÑO) */}
+          <NavRail
+            viewMode={viewMode}
+            setViewMode={(mode) => {
+              setViewMode(mode);
+              setSelectedFolderKey(null);
+            }}
+            onOpenNewLoan={() => setIsNewLoanOpen(true)}
+            onOpenSimulator={() => setIsSimulatorOpen(true)}
             onOpenAlerts={() => setIsAlertsOpen(true)}
             alertasCount={alertasAnticipadas.length}
             onOpenSettings={() => setIsSettingsOpen(true)}
-            onOpenSimulator={() => setIsSimulatorOpen(true)}
+            theme={theme}
+            toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           />
 
-          {/* 3. LIENZO CENTRAL A PANTALLA COMPLETA */}
-          <div className="flex-1 overflow-hidden relative flex flex-col">
-            {activeFolder ? (
-              /* Vista del Expediente de la Carpeta */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6">
-                <FolderView
-                  folder={activeFolder}
+          {/* 2. EXPLORER SECONDARY SIDEBAR (KNOWLEDGE BASE / CARTERA CON ÁRBOL Y TABS) */}
+          <ExplorerSidebar
+            title="Knowledge Base"
+            carpetas={carpetas}
+            counts={counts}
+            selectedFolderKey={selectedFolderKey}
+            onSelectFolder={(key) => setSelectedFolderKey(key)}
+            onOpenNewLoan={() => setIsNewLoanOpen(true)}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            carteraFiltro={carteraFiltro}
+            setCarteraFiltro={setCarteraFiltro}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          />
+
+          {/* 3. ÁREA DE TRABAJO PRINCIPAL */}
+          <div className="flex-1 h-full flex flex-col overflow-hidden bg-[#111214] relative">
+            
+            {/* TOPBAR UNIFICADA */}
+            <Topbar
+              viewMode={viewMode}
+              breadcrumb={
+                activeFolder 
+                  ? `Expediente › ${activeFolder.nombre}`
+                  : viewMode === 'folders' 
+                    ? 'General Knowledge' 
+                    : viewMode === 'timeline' 
+                      ? 'Cronograma de Vencimientos' 
+                      : 'Flujo Diario'
+              }
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onOpenNewLoan={() => setIsNewLoanOpen(true)}
+              onOpenAlerts={() => setIsAlertsOpen(true)}
+              alertasCount={alertasAnticipadas.length}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onOpenSimulator={() => setIsSimulatorOpen(true)}
+            />
+
+            {/* LIENZO CENTRAL */}
+            <div className="flex-1 overflow-hidden relative flex flex-col bg-[#111214]">
+              {activeFolder ? (
+                /* Vista del Expediente de la Carpeta */
+                <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#111214]">
+                  <FolderView
+                    folder={activeFolder}
+                    currency={currency}
+                    onBack={() => setSelectedFolderKey(null)}
+                    onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
+                    onOpenReceipt={(folder, contrato, cuota) =>
+                      setReceiptData({ folder, contrato, cuota })
+                    }
+                    onSendWhatsApp={handleSendWhatsApp}
+                    onOpenVouchers={(contrato) => setSelectedLoanForVouchers(contrato)}
+                    onOpenExpressNotes={(contrato) => setSelectedLoanForNotes(contrato)}
+                    onOpenCapitalPayment={(contrato) => setSelectedLoanForCapital(contrato)}
+                    defaultDriveUrl={settings.googleDriveUrl}
+                  />
+                </div>
+              ) : viewMode === 'folders' ? (
+                /* VISTA EXACTA AL DISEÑO KNOWLEDGE BASE CON FOLDERS 3D & TABLA FILES */
+                <FoldersWorkspaceView
+                  carpetas={carpetas}
+                  prestamos={prestamosFiltrados}
                   currency={currency}
-                  onBack={() => setSelectedFolderKey(null)}
-                  onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
-                  onOpenReceipt={(folder, contrato, cuota) =>
-                    setReceiptData({ folder, contrato, cuota })
+                  activeCategory={
+                    carteraFiltro === 'recibidos'
+                      ? 'Integrations (Fondeo)'
+                      : carteraFiltro === 'otorgados'
+                        ? 'Onboarding Design'
+                        : 'General Knowledge'
                   }
+                  onSelectFolder={(key) => setSelectedFolderKey(key)}
+                  onQuickPay={(f) => {
+                    const contrato = f.contratos[0];
+                    if (contrato) {
+                      const cuota = { key: f.fechaProxima || 'cuota-rapida', label: 'Cuota Inmediata', total: f.cuotaProxima };
+                      handlePayCuota(contrato, cuota);
+                    }
+                  }}
+                  onPayCuota={handlePayCuota}
                   onSendWhatsApp={handleSendWhatsApp}
-                  onOpenVouchers={(contrato) => setSelectedLoanForVouchers(contrato)}
-                  onOpenExpressNotes={(contrato) => setSelectedLoanForNotes(contrato)}
-                  onOpenCapitalPayment={(contrato) => setSelectedLoanForCapital(contrato)}
-                  defaultDriveUrl={settings.googleDriveUrl}
+                  onOpenReceipt={(folder, contrato, cuota) => setReceiptData({ folder, contrato, cuota })}
+                  onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                  onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+                  loading={loading}
                 />
-              </div>
-            ) : viewMode === 'timeline' ? (
-              /* VISTA CRONOGRAMA CON NODOS (PANTALLA COMPLETA 100% ANCHO) */
-              <TimelineNodesView
-                prestamos={prestamosFiltrados}
-                currency={currency}
-                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-                onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                onPayCuota={handlePayCuota}
-                onSendWhatsApp={handleSendWhatsApp}
-                onOpenReceipt={(folder, contrato, cuota) =>
-                  setReceiptData({ folder, contrato, cuota })
-                }
-                onOpenSimulator={() => setIsSimulatorOpen(true)}
-                onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
-              />
-            ) : viewMode === 'stream' ? (
-              /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center">
-                <MobileStreamView
+              ) : viewMode === 'timeline' ? (
+                /* VISTA CRONOGRAMA CON COLUMNAS POR DÍA Y MATRIZ MENSUAL */
+                <TimelineNodesView
                   prestamos={prestamosFiltrados}
                   currency={currency}
                   onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
                   onOpenNewLoan={() => setIsNewLoanOpen(true)}
                   onPayCuota={handlePayCuota}
                   onSendWhatsApp={handleSendWhatsApp}
+                  onOpenReceipt={(folder, contrato, cuota) =>
+                    setReceiptData({ folder, contrato, cuota })
+                  }
+                  onOpenSimulator={() => setIsSimulatorOpen(true)}
+                  onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
                 />
-              </div>
-            ) : (
-              /* VISTA CUADRÍCULA DE EXPEDIENTES (CARPETAS) */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
-                      {carteraFiltro === 'recibidos' ? 'Carpetas de Prestamistas' : 'Carpetas de Prestatarios'}
-                    </h2>
-                    <p className="text-xs text-zinc-500 dark:text-[#8e909f]">
-                      Selecciona una carpeta para ver contratos, amortizaciones y recibos
-                    </p>
-                  </div>
-                  <span className="text-xs text-zinc-500 dark:text-[#8e909f] font-mono">
-                    {carpetas.length} carpetas activas
-                  </span>
+              ) : (
+                /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
+                <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center bg-[#111214]">
+                  <MobileStreamView
+                    prestamos={prestamosFiltrados}
+                    currency={currency}
+                    onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+                    onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                    onPayCuota={handlePayCuota}
+                    onSendWhatsApp={handleSendWhatsApp}
+                  />
                 </div>
+              )}
+            </div>
 
-                {loading ? (
-                  <div className="p-16 text-center text-xs text-zinc-500 dark:text-[#a3a3a3] flex items-center justify-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-zinc-800 dark:text-white" />
-                    <span>Cargando expedientes...</span>
-                  </div>
-                ) : carpetas.length === 0 ? (
-                  <div className="p-16 text-center space-y-3 border border-zinc-200 dark:border-[#333333] rounded-xl bg-white dark:bg-[#262626]">
-                    <FolderIcon className="w-10 h-10 mx-auto text-zinc-400 dark:text-[#737373]" />
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">No hay expedientes</h3>
-                    <p className="text-xs text-zinc-500 dark:text-[#a3a3a3] max-w-sm mx-auto">
-                      {searchQuery ? 'No hay resultados que coincidan con la búsqueda.' : 'Crea un primer préstamo con el botón superior.'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {carpetas.map((folder) => (
-                      <FolderCard
-                        key={folder.key}
-                        folder={folder}
-                        currency={currency}
-                        onSelect={() => setSelectedFolderKey(folder.key)}
-                        onQuickPay={(f) => {
-                          const contrato = f.contratos[0];
-                          if (contrato) {
-                            const cuota = { key: f.fechaProxima || 'cuota-rapida', label: 'Cuota Inmediata', total: f.cuotaProxima };
-                            handlePayCuota(contrato, cuota);
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
         </div>

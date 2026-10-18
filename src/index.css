@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  /* Modo Claro Minimalista Estilo ChatGPT Light */
-  --bg-canvas: #f7f7f8;
-  --bg-sidebar: #f0f0f2;
+  /* Modo Claro Minimalista */
+  --bg-canvas: #f6f6f8;
+  --bg-sidebar: #ededf1;
   --bg-surface: #ffffff;
-  --bg-subtle: #f0f0f2;
-  --bg-hover: #e5e5ea;
-  --border-fine: #e5e5ea;
-  --border-focus: #b8b8c2;
+  --bg-subtle: #f0f0f3;
+  --bg-hover: #e5e5eb;
+  --border-fine: #e0e0e7;
+  --border-focus: #b5b5c2;
   --text-main: #18181b;
-  --text-muted: #71717a;
+  --text-muted: #6e6e78;
   --btn-solid: #18181b;
   --btn-solid-fg: #ffffff;
   --badge-warn: #d97706;
@@ -21,35 +21,36 @@
 }
 
 .dark {
-  /* Modo Oscuro Gris Neutro Estilo ChatGPT */
-  --bg-canvas: #212121;
-  --bg-sidebar: #171717;
-  --bg-surface: #262626;
-  --bg-subtle: #2a2a2a;
-  --bg-hover: #333333;
-  --border-fine: #333333;
-  --border-focus: #484848;
-  --text-main: #ececec;
-  --text-muted: #8e8e8e;
-  --btn-solid: #f4f4f5;
-  --btn-solid-fg: #18181b;
+  /* Modo Oscuro Charcoal Obsidian — Exacto al Diseño de Referencia */
+  --bg-canvas: #111214;
+  --bg-rail: #0c0d0f;
+  --bg-sidebar: #131416;
+  --bg-surface: #1a1b1e;
+  --bg-subtle: #222328;
+  --bg-hover: #26272d;
+  --border-fine: #24252a;
+  --border-focus: #393b44;
+  --text-main: #f3f4f6;
+  --text-muted: #8b8f98;
+  --btn-solid: #f3f4f6;
+  --btn-solid-fg: #111214;
   --badge-warn: #fbbf24;
   --badge-ok: #34d399;
   --badge-danger: #f87171;
 }
 
 body {
-  background-color: var(--bg-canvas);
+  background-color: #1a1b1e;
   color: var(--text-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.012em;
 }
 
-/* Reglas de uniformidad: esquinas suaves de 8px (rounded-lg) */
+/* Reglas de uniformidad */
 .btn-base {
   height: 36px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
   display: inline-flex;
@@ -66,7 +67,7 @@ body {
 }
 
 .card-base {
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid var(--border-fine);
   background-color: var(--bg-surface);
 }

@@ -13,40 +13,40 @@ export default function Topbar({
   onOpenSimulator,
 }) {
   const getIcon = () => {
-    if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />;
-    if (viewMode === 'folders') return <Folder className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />;
-    return <Clock className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />;
+    if (viewMode === 'timeline') return <Calendar className="w-4 h-4 text-zinc-300" />;
+    if (viewMode === 'folders') return <Folder className="w-4 h-4 text-zinc-300" />;
+    return <Clock className="w-4 h-4 text-zinc-300" />;
   };
 
   return (
-    <header className="h-14 px-6 border-b border-zinc-200 dark:border-[#2a2a2a] flex items-center justify-between gap-4 bg-white dark:bg-[#212121] select-none shrink-0 z-20 text-zinc-800 dark:text-[#ececec] transition-colors duration-150">
+    <header className="h-14 px-6 border-b border-[#1f2025] flex items-center justify-between gap-4 bg-[#111214] select-none shrink-0 z-20 text-[#f3f4f6] transition-colors duration-150">
       
       {/* Título de la vista actual con ícono */}
       <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-[#2a2a2a] flex items-center justify-center">
+        <div className="w-7 h-7 rounded-lg bg-[#1a1b1e] border border-[#26282e] flex items-center justify-center">
           {getIcon()}
         </div>
-        <span className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
+        <span className="text-xs font-bold text-white tracking-tight uppercase">
           {breadcrumb}
         </span>
       </div>
 
-      {/* Buscador y Acciones (Sin atajos de teclado) */}
-      <div className="flex items-center gap-2.5">
+      {/* Buscador y Acciones */}
+      <div className="flex items-center gap-2">
         
-        {/* Buscador suave redondeado tipo ChatGPT */}
-        <div className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200/70 dark:bg-[#2a2a2a] dark:hover:bg-[#303030] px-3.5 py-1.5 rounded-full text-xs border border-zinc-200 dark:border-[#383838] focus-within:border-zinc-400 dark:focus-within:border-[#4d4d4d] focus-within:bg-white dark:focus-within:bg-[#2f2f2f] transition-all w-52 sm:w-72">
-          <Search className="w-4 h-4 text-zinc-400 dark:text-[#8e8e8e] shrink-0" />
+        {/* Buscador suave redondeado tipo Knowledge Base */}
+        <div className="flex items-center gap-2 bg-[#1a1b1e] hover:bg-[#202126] px-3 py-1.5 rounded-lg text-xs border border-[#26282e] focus-within:border-zinc-500 focus-within:bg-[#1f2025] transition-all w-48 sm:w-64">
+          <Search className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar por persona, CI o fecha..."
-            className="bg-transparent outline-none w-full text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-[#737373] text-[13px]"
+            className="bg-transparent outline-none w-full text-white placeholder-zinc-500 text-[12px]"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-zinc-400 hover:text-zinc-700 dark:text-[#8e8e8e] dark:hover:text-white">
-              <X className="w-3.5 h-3.5" />
+            <button onClick={() => setSearchQuery('')} className="text-zinc-500 hover:text-white">
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -54,22 +54,22 @@ export default function Topbar({
         {/* Botón de Simulador de Créditos */}
         <button
           onClick={onOpenSimulator}
-          className="h-8 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333333] text-zinc-700 hover:text-zinc-900 dark:text-[#b4b4b4] dark:hover:text-white flex items-center gap-1.5 text-xs transition-all border border-zinc-200 dark:border-[#333333]"
+          className="h-8 px-2.5 rounded-lg bg-[#1a1b1e] hover:bg-[#25272d] text-zinc-300 hover:text-white flex items-center gap-1.5 text-xs transition-all border border-[#26282e]"
           title="Simulador de Préstamos y Rendimiento"
         >
-          <Calculator className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <Calculator className="w-3.5 h-3.5 text-emerald-400" />
           <span className="hidden xl:inline font-medium">Simulador</span>
         </button>
 
         {/* Campana de Vencimientos */}
         <button
           onClick={onOpenAlerts}
-          className="h-8 px-3 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333333] text-zinc-700 hover:text-zinc-900 dark:text-[#b4b4b4] dark:hover:text-white flex items-center gap-1.5 text-xs transition-all border border-zinc-200 dark:border-[#333333]"
+          className="h-8 px-2.5 rounded-lg bg-[#1a1b1e] hover:bg-[#25272d] text-zinc-300 hover:text-white flex items-center gap-1.5 text-xs transition-all border border-[#26282e]"
           title="Ver alertas y vencimientos"
         >
-          <Bell className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          <Bell className="w-3.5 h-3.5 text-amber-400" />
           {alertasCount > 0 && (
-            <span className="text-[11px] font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold">
               {alertasCount}
             </span>
           )}
@@ -78,16 +78,16 @@ export default function Topbar({
         {/* Botón de Ajustes y Auditoría */}
         <button
           onClick={onOpenSettings}
-          className="h-8 w-8 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333333] text-zinc-700 hover:text-zinc-900 dark:text-[#b4b4b4] dark:hover:text-white flex items-center justify-center text-xs transition-all border border-zinc-200 dark:border-[#333333]"
+          className="h-8 w-8 rounded-lg bg-[#1a1b1e] hover:bg-[#25272d] text-zinc-400 hover:text-white flex items-center justify-center text-xs transition-all border border-[#26282e]"
           title="Ajustes y Auditoría"
         >
-          <Sliders className="w-4 h-4" />
+          <Sliders className="w-3.5 h-3.5" />
         </button>
 
         {/* Botón Nuevo Préstamo */}
         <button
           onClick={onOpenNewLoan}
-          className="h-8 px-3.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-[#f3f3f3] dark:hover:bg-white text-white dark:text-[#171717] font-semibold text-xs flex items-center gap-1.5 transition-all active:scale-[0.98] shadow-xs"
+          className="h-8 px-3 rounded-lg bg-white hover:bg-zinc-200 text-[#111214] font-bold text-xs flex items-center gap-1.5 transition-all active:scale-[0.98] shadow-xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span className="hidden sm:inline">Nuevo Préstamo</span>

@@ -22,37 +22,37 @@ export default function FolderView({
   const driveUrl = folder.driveUrl || defaultDriveUrl;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#f3f4f6]">
       {/* Botón de regreso */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="btn-base h-9 card-base bg-white dark:bg-[#262626] text-zinc-800 dark:text-white hover:bg-zinc-100 dark:hover:bg-[#303030] border border-zinc-200 dark:border-[#333]"
+          className="h-9 px-3.5 rounded-xl bg-[#1a1b1e] hover:bg-[#222328] text-white border border-[#26282e] text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-xs"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Volver a todas las personas</span>
+          <span>Volver a todos los expedientes</span>
         </button>
-        <span className="text-xs text-zinc-500 dark:text-[#8e8e8e] font-mono">
+        <span className="text-xs text-[#8b8f98] font-mono">
           {folder.contratos.length} contrato(s) activos
         </span>
       </div>
 
       {/* Encabezado del Expediente */}
-      <div className="card-base p-6 space-y-4 bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] rounded-2xl shadow-xs">
+      <div className="p-6 space-y-4 bg-[#1a1b1e] border border-[#26282e] rounded-2xl shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#383838] flex items-center justify-center text-zinc-800 dark:text-white">
-              <Folder className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+            <div className="w-12 h-12 rounded-xl bg-[#222328] border border-[#2d2f36] flex items-center justify-center text-white font-bold text-lg">
+              {folder.nombre?.charAt(0) || 'C'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">{folder.nombre}</h2>
-                <span className="text-[11px] px-2 py-0.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#383838] text-zinc-600 dark:text-[#a3a3a3]">
+                <h2 className="text-lg font-bold text-white tracking-tight">{folder.nombre}</h2>
+                <span className="text-[11px] px-2 py-0.5 rounded-lg bg-[#222328] border border-white/5 text-[#8b8f98] font-medium">
                   {folder.tipo_prestamo === 'recibido' ? 'Prestamista' : 'Deudor'}
                 </span>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-[#8e8e8e] mt-0.5">
-                {folder.telefono ? `Teléfono: ${folder.telefono}` : 'Sin teléfono registrado'}
+              <p className="text-xs text-[#8b8f98] mt-0.5 font-mono">
+                {folder.telefono ? `Teléfono: ${folder.telefono}` : 'Sin teléfono'}
                 {folder.ci ? ` • CI: ${folder.ci}` : ''}
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function FolderView({
               href={driveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-base h-9 px-3 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#2d2d2d] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-[#383838] text-xs flex items-center gap-1.5"
+              className="h-9 px-3 rounded-xl bg-[#222328] hover:bg-[#2a2c33] text-sky-400 border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
               title="Abrir carpeta en Google Drive"
             >
               <HardDrive className="w-4 h-4" />
@@ -73,7 +73,7 @@ export default function FolderView({
 
             <button
               onClick={() => onSendWhatsApp(folder)}
-              className="btn-base h-9 px-3.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#2d2d2d] text-emerald-600 dark:text-emerald-400 border border-zinc-200 dark:border-[#383838] text-xs flex items-center gap-1.5"
+              className="h-9 px-3.5 rounded-xl bg-[#222328] hover:bg-[#2a2c33] text-emerald-400 border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
               <MessageCircle className="w-4 h-4" />
               <span>WhatsApp</span>
@@ -82,28 +82,28 @@ export default function FolderView({
         </div>
 
         {/* Resumen Numérico */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-zinc-200 dark:border-[#333333]">
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-            <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Total Capital</span>
-            <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#24252a]">
+          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+            <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Total Capital</span>
+            <span className="text-base font-mono font-bold text-white">
               {symbol}{folder.totalCapital.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-            <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Monto ya Pagado</span>
-            <span className="text-base font-mono font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+            <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Monto ya Pagado</span>
+            <span className="text-base font-mono font-bold text-emerald-400">
               {symbol}{totalPagado.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-            <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Saldo Pendiente</span>
-            <span className="text-base font-mono font-bold text-zinc-900 dark:text-white">
+          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+            <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Saldo Pendiente</span>
+            <span className="text-base font-mono font-bold text-white">
               {symbol}{folder.totalAdeudado.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-            <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Próxima Cuota</span>
-            <span className="text-base font-mono font-bold text-amber-600 dark:text-amber-300">
+          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+            <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Próxima Cuota</span>
+            <span className="text-base font-mono font-bold text-amber-400">
               {symbol}{folder.cuotaProxima.toLocaleString()}
             </span>
           </div>
@@ -116,13 +116,13 @@ export default function FolderView({
         const cuotasPagadas = cuotas.filter(c => c.pagado).length;
 
         return (
-          <div key={contrato.id || cIdx} className="p-6 rounded-2xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-4 shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-[#333333]">
+          <div key={contrato.id || cIdx} className="p-6 rounded-2xl bg-[#1a1b1e] border border-[#26282e] space-y-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#24252a]">
               <div>
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+                <h3 className="text-sm font-bold text-white">
                   Contrato #{contrato.id?.slice(0, 6) || cIdx + 1} — {symbol}{parseFloat(contrato.capital || 0).toLocaleString()}
                 </h3>
-                <span className="text-xs text-zinc-500 dark:text-[#8e8e8e]">
+                <span className="text-xs text-[#8b8f98]">
                   Interés: {contrato.interes}% • Plazo: {contrato.plazo_meses || 6} meses • Inicio: {contrato.inicio}
                 </span>
               </div>
@@ -131,7 +131,7 @@ export default function FolderView({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => onOpenCapitalPayment && onOpenCapitalPayment(contrato)}
-                  className="px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#303030] text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-zinc-200 dark:border-[#383838] flex items-center gap-1.5 transition-all"
+                  className="px-2.5 py-1.5 rounded-lg bg-[#222328] hover:bg-[#2b2d33] text-emerald-400 text-xs font-semibold border border-white/5 flex items-center gap-1.5 transition-all"
                 >
                   <TrendingDown className="w-3.5 h-3.5" />
                   <span>Abono Capital</span>
@@ -139,21 +139,21 @@ export default function FolderView({
 
                 <button
                   onClick={() => onOpenVouchers && onOpenVouchers(contrato)}
-                  className="px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#303030] text-zinc-800 dark:text-white text-xs font-medium border border-zinc-200 dark:border-[#383838] flex items-center gap-1.5 transition-all"
+                  className="px-2.5 py-1.5 rounded-lg bg-[#222328] hover:bg-[#2b2d33] text-white text-xs font-semibold border border-white/5 flex items-center gap-1.5 transition-all"
                 >
-                  <Receipt className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <Receipt className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Bauchers QR</span>
                 </button>
 
                 <button
                   onClick={() => onOpenExpressNotes && onOpenExpressNotes(contrato)}
-                  className="px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#303030] text-zinc-800 dark:text-white text-xs font-medium border border-zinc-200 dark:border-[#383838] flex items-center gap-1.5 transition-all"
+                  className="px-2.5 py-1.5 rounded-lg bg-[#222328] hover:bg-[#2b2d33] text-white text-xs font-semibold border border-white/5 flex items-center gap-1.5 transition-all"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                  <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
                   <span>Notas</span>
                 </button>
 
-                <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#383838] text-zinc-800 dark:text-white">
+                <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-[#141517] border border-[#202126] text-zinc-300">
                   {cuotasPagadas} / {cuotas.length}
                 </span>
               </div>
@@ -166,23 +166,23 @@ export default function FolderView({
                   key={cuota.key}
                   className={`flex items-center justify-between p-3 rounded-xl border text-xs transition-all ${
                     cuota.pagado
-                      ? 'bg-zinc-100 dark:bg-[#202020] border-zinc-200 dark:border-[#2d2d2d] text-zinc-400 dark:text-[#737373]'
+                      ? 'bg-[#141517] border-[#1e1f24] text-zinc-500 opacity-75'
                       : cuota.estado === 'hoy'
-                      ? 'border-amber-500/50 bg-amber-50 dark:bg-[#292929] ring-1 ring-amber-500/30'
+                      ? 'border-amber-500/50 bg-[#241f17] ring-1 ring-amber-500/30 text-white'
                       : cuota.estado === 'vencido'
-                      ? 'border-rose-400 bg-rose-50 dark:border-rose-500/40 dark:bg-[#292323]'
-                      : 'bg-zinc-50 dark:bg-[#222222] border-zinc-200 dark:border-[#333333] text-zinc-900 dark:text-white'
+                      ? 'border-rose-500/40 bg-[#251818] text-white'
+                      : 'bg-[#16171a] border-[#22242a] text-white'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-6 text-center font-mono font-bold text-zinc-400 dark:text-[#8e8e8e]">
+                    <span className="w-6 text-center font-mono font-bold text-zinc-500">
                       #{cuota.numero}
                     </span>
                     <div>
-                      <span className={`font-medium block ${cuota.pagado ? 'line-through text-zinc-400 dark:text-[#737373]' : 'text-zinc-900 dark:text-white'}`}>
+                      <span className={`font-semibold block ${cuota.pagado ? 'line-through text-zinc-500' : 'text-white'}`}>
                         {cuota.label} — Vence: {cuota.fechaVencimiento}
                       </span>
-                      <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e]">
+                      <span className="text-[11px] text-[#8b8f98]">
                         Capital: {symbol}{cuota.capital} + Interés: {symbol}{cuota.interes}
                         {cuota.mora > 0 && ` • Mora: +${symbol}${cuota.mora}`}
                       </span>
@@ -190,12 +190,12 @@ export default function FolderView({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-zinc-900 dark:text-white">
+                    <span className="font-mono font-bold text-white">
                       {symbol}{cuota.total + (cuota.mora || 0)}
                     </span>
 
                     {cuota.pagado ? (
-                      <span className="px-2.5 py-1 rounded-lg border border-emerald-300 dark:border-[#383838] text-emerald-600 dark:text-emerald-400 font-mono font-medium flex items-center gap-1 bg-emerald-50 dark:bg-[#1e1e1e]">
+                      <span className="px-2.5 py-1 rounded-lg border border-emerald-500/20 text-emerald-400 font-mono font-medium flex items-center gap-1 bg-emerald-500/10">
                         <Check className="w-3 h-3" />
                         <span>PAGADO</span>
                       </span>
@@ -203,13 +203,13 @@ export default function FolderView({
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => onPayCuota(contrato, cuota)}
-                          className="h-8 px-3 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-black font-semibold text-xs transition-all active:scale-95 shadow-xs"
+                          className="h-8 px-3 rounded-lg bg-white hover:bg-zinc-200 text-black font-bold text-xs transition-all active:scale-95 shadow-xs"
                         >
                           Abonar
                         </button>
                         <button
                           onClick={() => onOpenReceipt(folder, contrato, cuota)}
-                          className="h-8 px-2.5 rounded-lg bg-zinc-100 dark:bg-[#1e1e1e] hover:bg-zinc-200 dark:hover:bg-[#303030] text-zinc-800 dark:text-white border border-zinc-200 dark:border-[#383838] transition-all"
+                          className="h-8 px-2.5 rounded-lg bg-[#222328] hover:bg-[#2b2d33] text-zinc-300 hover:text-white border border-white/5 transition-all"
                           title="Recibo"
                         >
                           <FileText className="w-3.5 h-3.5" />
