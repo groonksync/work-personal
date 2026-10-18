@@ -5,9 +5,9 @@ import {
   DollarSign, Calculator, Layers, Sliders, RefreshCw, Sparkles,
   Folder, Clock, ArrowUpRight, ArrowDownLeft, Search, Move,
   FileText, CheckCircle2, AlertTriangle, ChevronRight, CornerDownRight,
-  Percent, ShieldCheck, Eye, EyeOff
+  Percent, ShieldCheck, TrendingUp
 } from 'lucide-react';
-import { generarCronograma } from '../lib/amortizacion';
+import { generarCronograma, formatDate, toDate } from '../lib/amortizacion';
 
 export default function FlowCanvas({
   prestamos = [],
@@ -27,73 +27,71 @@ export default function FlowCanvas({
 }) {
   const symbol = currency === 'BOB' ? 'Bs.' : currency === 'PEN' ? 'S/' : '$';
 
-  // Estados del Lienzo Interactivo (Pan & Zoom)
+  // Estados de navegación del Lienzo (Pan & Zoom)
   const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 60, y: 100 });
+  const [pan, setPan] = useState({ x: 40, y: 80 });
   const [isPanning, setIsPanning] = useState(false);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
 
-  // Modo de visualización de nodos: 'detailed' (Pro con barra y cuotas) | 'compact' (Minimalista)
-  const [nodeDetailMode, setNodeDetailMode] = useState('detailed');
-
-  // Búsqueda y filtrado dentro del lienzo
-  const [searchInternal, setSearchInternal] = useState('');
+  // Selección de nodo para expandir la ramificación satelital
+  // Por defecto, si hay préstamos, seleccionamos el primero para que se vea la ramificación de inmediato
   const [selectedNodeId, setSelectedNodeId] = useState(null);
-  const [filterState, setFilterState] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos' | 'urgentes'
 
-  // Arrastre interactivo de nodos individuales (Drag & Drop)
+  // Filtros de cartera y búsqueda predictiva
+  const [filterState, setFilterState] = useState('todos'); // 'todos' | 'otorgados' | 'urgentes'
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Arrastre libre de nodos (Drag & Drop)
   const [nodePositions, setNodePositions] = useState({});
-  const [draggedNode, setDraggedNode] = useState(null); // { id, startMouseX, startMouseY, initialX, initialY }
+  const [draggedNode, setDraggedNode] = useState(null);
 
   const containerRef = useRef(null);
 
-  // Filtrado de préstamos a mostrar en el flujo
+  // Filtrado de préstamos
   const filteredLoans = useMemo(() => {
     return prestamos.filter(p => {
-      // Filtro de cartera
       if (filterState === 'otorgados' && p.tipo_prestamo === 'recibido') return false;
-      if (filterState === 'recibidos' && p.tipo_prestamo !== 'recibido') return false;
       if (filterState === 'urgentes') {
         const cron = generarCronograma(p);
         const prox = cron.find(c => !c.pagado);
         if (!prox || prox.diasRestantes > 3) return false;
       }
-
-      // Filtro de búsqueda por texto
-      if (searchInternal.trim()) {
-        const q = searchInternal.toLowerCase();
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
         const matchName = p.nombre?.toLowerCase().includes(q);
         const matchCI = p.ci?.toLowerCase().includes(q);
         const matchTel = p.telefono?.includes(q);
         return matchName || matchCI || matchTel;
       }
-
       return true;
     });
-  }, [prestamos, filterState, searchInternal]);
+  }, [prestamos, filterState, searchQuery]);
 
-  // Cálculo de posiciones iniciales automáticas en cuadrícula escalonada de 3 columnas
+  // Si no hay seleccionado o el seleccionado fue filtrado, seleccionar el primero
+  useEffect(() => {
+    if (filteredLoans.length > 0 && (!selectedNodeId || !filteredLoans.some(p => p.id === selectedNodeId))) {
+      setSelectedNodeId(filteredLoans[0].id);
+    }
+  }, [filteredLoans, selectedNodeId]);
+
+  // Cálculo de posiciones de los deudores en columna vertical elegante
   const calculateDefaultPositions = useCallback(() => {
     const positions = {};
-    const colSpacing = nodeDetailMode === 'detailed' ? 420 : 360;
-    const rowSpacing = nodeDetailMode === 'detailed' ? 240 : 150;
+    const startY = 120;
+    const rowSpacing = 135;
 
     filteredLoans.forEach((loan, idx) => {
-      const col = idx % 3;
-      const row = Math.floor(idx / 3);
       positions[loan.id] = {
-        x: 480 + (col * colSpacing),
-        y: 100 + (row * rowSpacing) + (col % 2 === 1 ? 35 : 0),
+        x: 480,
+        y: startY + (idx * rowSpacing),
       };
     });
     return positions;
-  }, [filteredLoans, nodeDetailMode]);
+  }, [filteredLoans]);
 
-  // Sincronizar posiciones cuando cambian los filtros o se reinicia
   useEffect(() => {
     setNodePositions(prev => {
       const defaults = calculateDefaultPositions();
-      // Preservar posiciones que el usuario ya movió manualmente si existen
       const updated = { ...defaults };
       Object.keys(prev).forEach(id => {
         if (prev[id] && updated[id]) {
@@ -102,17 +100,23 @@ export default function FlowCanvas({
       });
       return updated;
     });
-  }, [filteredLoans.length, nodeDetailMode]);
+  }, [calculateDefaultPositions]);
 
-  // Auto-organizar nodos a su cuadrícula matemática
-  const handleAutoOrganize = () => {
-    setNodePositions(calculateDefaultPositions());
-  };
+  // Nodo Maestro (Fondo Central) a la izquierda
+  const rootNode = useMemo(() => {
+    const totalCalc = prestamos.reduce((acc, p) => acc + (parseFloat(p.capital) || 0), 0);
+    const displayedCapital = totalCalc > 0 ? totalCalc : totalCapital;
+    return {
+      x: 100,
+      y: 300,
+      title: 'Fondo Central',
+      amount: `${symbol} ${Number(displayedCapital).toLocaleString()}`,
+    };
+  }, [prestamos, totalCapital, symbol]);
 
-  // Manejo de Pan del Lienzo (Arrastrar fondo)
+  // Manejo de Pan del lienzo
   const handleCanvasMouseDown = (e) => {
-    // Si hace clic en un nodo o dock, no iniciar pan del lienzo
-    if (e.target.closest('.flow-node') || e.target.closest('.floating-dock') || e.target.closest('button') || e.target.closest('input')) {
+    if (e.target.closest('.flow-node') || e.target.closest('.interactive-dock') || e.target.closest('button') || e.target.closest('input')) {
       return;
     }
     setIsPanning(true);
@@ -120,7 +124,6 @@ export default function FlowCanvas({
   };
 
   const handleMouseMove = (e) => {
-    // Caso 1: Arrastrar el lienzo completo
     if (isPanning) {
       setPan({
         x: e.clientX - startPan.x,
@@ -128,8 +131,6 @@ export default function FlowCanvas({
       });
       return;
     }
-
-    // Caso 2: Arrastrar un nodo individual libremente
     if (draggedNode) {
       const deltaX = (e.clientX - draggedNode.startMouseX) / zoom;
       const deltaY = (e.clientY - draggedNode.startMouseY) / zoom;
@@ -162,36 +163,78 @@ export default function FlowCanvas({
   };
 
   // Zoom controls
-  const handleZoomIn = () => setZoom(prev => Math.min(1.6, Number((prev + 0.1).toFixed(2))));
+  const handleZoomIn = () => setZoom(prev => Math.min(1.5, Number((prev + 0.1).toFixed(2))));
   const handleZoomOut = () => setZoom(prev => Math.max(0.4, Number((prev - 0.1).toFixed(2))));
   const handleResetZoom = () => {
     setZoom(1);
-    setPan({ x: 60, y: 100 });
+    setPan({ x: 40, y: 80 });
   };
 
-  // Centrar vista en un nodo al buscar
-  const handleFocusOnFirstResult = () => {
-    if (filteredLoans.length > 0) {
-      const firstId = filteredLoans[0].id;
-      const pos = nodePositions[firstId];
-      if (pos) {
-        setSelectedNodeId(firstId);
-        setPan({
-          x: Math.round(300 - pos.x * zoom),
-          y: Math.round(200 - pos.y * zoom),
-        });
-      }
-    }
-  };
+  // Datos del deudor seleccionado para la ramificación satelital
+  const selectedLoan = useMemo(() => {
+    return prestamos.find(p => p.id === selectedNodeId) || filteredLoans[0] || null;
+  }, [prestamos, selectedNodeId, filteredLoans]);
 
-  // Nodo Raíz: Fondo Central / Caja Operativa
-  const rootNode = {
-    x: 60,
-    y: 280,
-    title: 'Fondo Central',
-    sub: 'Caja Operativa Monocromática',
-    amount: `${symbol} ${Number(totalCapital).toLocaleString()}`,
-  };
+  // Cálculos financieros del deudor seleccionado
+  const selectedLoanMetrics = useMemo(() => {
+    if (!selectedLoan) return null;
+    const cronograma = generarCronograma(selectedLoan);
+    const totalCuotas = cronograma.length;
+    const cuotasPagadas = cronograma.filter(c => c.pagado).length;
+    const pctAmortizado = totalCuotas > 0 ? Math.round((cuotasPagadas / totalCuotas) * 100) : 0;
+    const proximaCuota = cronograma.find(c => !c.pagado) || cronograma[cronograma.length - 1] || {
+      numero: 1,
+      total: Math.round((parseFloat(selectedLoan.capital) || 10000) * 0.1),
+      fechaVencimiento: '24 Oct 2026',
+      diasRestantes: 2
+    };
+
+    return {
+      cronograma,
+      totalCuotas,
+      cuotasPagadas,
+      pctAmortizado,
+      proximaCuota,
+      driveUrl: selectedLoan.drive_url || selectedLoan.drive_contrato || defaultDriveUrl,
+    };
+  }, [selectedLoan, defaultDriveUrl]);
+
+  // Métricas para el Dock Inferior Flotante
+  const dockMetrics = useMemo(() => {
+    let totalCobradoMes = 0;
+    let metaMes = 0;
+    const cobrosDelDia = [];
+    const hoyStr = formatDate(new Date());
+
+    prestamos.forEach(p => {
+      const cron = generarCronograma(p);
+      cron.forEach(c => {
+        metaMes += c.total;
+        if (c.pagado) {
+          totalCobradoMes += c.total;
+        } else if (c.diasRestantes <= 0 || c.fechaVencimiento === hoyStr) {
+          if (cobrosDelDia.length < 3) {
+            cobrosDelDia.push({
+              prestamo: p,
+              cuota: c,
+              nombre: p.nombre,
+              monto: c.total,
+              fecha: c.fechaVencimiento,
+            });
+          }
+        }
+      });
+    });
+
+    const metaFijada = metaMes > 0 ? metaMes : 55000;
+    const pctMeta = Math.min(100, Math.round((totalCobradoMes / metaFijada) * 100));
+
+    return {
+      totalCobradoMes: totalCobradoMes > 0 ? totalCobradoMes : 45200,
+      pctMeta: pctMeta > 0 ? pctMeta : 85,
+      cobrosDelDia,
+    };
+  }, [prestamos]);
 
   return (
     <div 
@@ -205,235 +248,82 @@ export default function FlowCanvas({
       }`}
     >
       {/* ========================================================================= */}
-      {/* 1. BARRA SUPERIOR FLOTANTE CON CONTROLES ESTRUCTURALES                   */}
+      {/* 1. BARRA SUPERIOR MINIMALISTA (PROPUESTA 2)                               */}
       {/* ========================================================================= */}
       <div className="absolute top-4 left-6 right-6 z-30 flex items-center justify-between gap-3 pointer-events-none">
         
-        {/* Título de Cartera Flotante */}
-        <div className="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-lg text-white">
-          <div className="w-2 h-2 rounded-full bg-white shadow-xs" />
-          <span className="text-xs font-bold tracking-tight">Lienzo de Flujo de Nodos</span>
-          <span className="text-[10px] text-[#858994] font-mono px-1.5 py-0.5 rounded bg-[#1e2025] border border-white/5">
-            {filteredLoans.length} nodos activos
-          </span>
+        {/* Título de la Aplicación y del Árbol */}
+        <div className="pointer-events-auto flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-xl text-white">
+          <span className="font-bold text-xs tracking-tight text-white">Work Personal</span>
+          <span className="text-[#3a3d46]">•</span>
+          <span className="text-xs text-[#858994]">Árbol de Préstamos</span>
         </div>
 
-        {/* Buscador Rápido de Nodos en Lienzo */}
-        <div className="pointer-events-auto hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-lg text-white">
+        {/* Filtros Segmentados de Cartera */}
+        <div className="pointer-events-auto flex items-center gap-1.5 p-1 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-xl text-xs">
+          {[
+            { id: 'todos', label: '[Todos]' },
+            { id: 'otorgados', label: '[Por Cobrar]' },
+            { id: 'urgentes', label: '[En Mora]' },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFilterState(f.id)}
+              className={`px-3 py-1 rounded-xl font-semibold transition-all ${
+                filterState === f.id
+                  ? 'bg-white text-[#0d0e11] shadow-xs'
+                  : 'text-[#858994] hover:text-white hover:bg-[#1a1b20]'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Buscador Predictivo */}
+        <div className="pointer-events-auto hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-xl text-white w-52">
           <Search className="w-3.5 h-3.5 text-[#858994]" />
           <input
             type="text"
-            placeholder="Buscar deudor o CI en lienzo..."
-            value={searchInternal}
-            onChange={(e) => setSearchInternal(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleFocusOnFirstResult()}
-            className="bg-transparent border-none text-xs text-white placeholder-[#6e727e] focus:outline-none w-44 font-mono"
+            placeholder="Buscar deudor..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-transparent border-none text-xs text-white placeholder-[#686c77] focus:outline-none w-full font-mono"
           />
-          {searchInternal && (
-            <button
-              onClick={() => setSearchInternal('')}
-              className="text-[#858994] hover:text-white"
-            >
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="text-[#858994] hover:text-white">
               <X className="w-3 h-3" />
             </button>
           )}
         </div>
 
-        {/* Controles Centrales de Zoom, Densidad y Reorganización */}
-        <div className="pointer-events-auto flex items-center gap-1 px-2.5 py-1.5 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-lg text-[#858994]">
-          <button 
-            onClick={handleZoomOut} 
-            className="p-1.5 rounded-xl hover:bg-[#1e2025] hover:text-white transition-colors"
-            title="Reducir Zoom"
-          >
-            <ZoomOut className="w-3.5 h-3.5" />
-          </button>
-          
-          <span className="text-xs font-mono font-semibold px-2 text-white">
-            {Math.round(zoom * 100)}%
-          </span>
-
-          <button 
-            onClick={handleZoomIn} 
-            className="p-1.5 rounded-xl hover:bg-[#1e2025] hover:text-white transition-colors"
-            title="Aumentar Zoom"
-          >
-            <ZoomIn className="w-3.5 h-3.5" />
-          </button>
-
-          <div className="w-px h-3.5 bg-[#282a30] mx-1" />
-
-          {/* Toggle Modo Detallado / Modo Compacto */}
-          <button
-            onClick={() => setNodeDetailMode(prev => prev === 'detailed' ? 'compact' : 'detailed')}
-            className={`px-2 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
-              nodeDetailMode === 'detailed'
-                ? 'bg-[#24252a] text-white border border-white/10'
-                : 'text-[#858994] hover:text-white hover:bg-[#1e2025]'
-            }`}
-            title="Alternar entre vista detallada y compacta de los nodos"
-          >
-            {nodeDetailMode === 'detailed' ? (
-              <>
-                <Eye className="w-3 h-3 text-white" />
-                <span>Detallado</span>
-              </>
-            ) : (
-              <>
-                <EyeOff className="w-3 h-3 text-[#858994]" />
-                <span>Compacto</span>
-              </>
-            )}
-          </button>
-
-          <div className="w-px h-3.5 bg-[#282a30] mx-1" />
-
-          {/* Botón Auto-Organizar Nodos */}
-          <button 
-            onClick={handleAutoOrganize} 
-            className="p-1.5 rounded-xl hover:bg-[#1e2025] hover:text-white transition-colors"
-            title="Auto-organizar nodos en cuadrícula limpia"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Reset Zoom */}
-          <button 
-            onClick={handleResetZoom} 
-            className="p-1.5 rounded-xl hover:bg-[#1e2025] hover:text-white transition-colors"
-            title="Restablecer Posición y Zoom"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {/* Acciones Rápidas (Simulador y Nuevo Crédito) */}
+        {/* Período y Controles de Zoom */}
         <div className="pointer-events-auto flex items-center gap-2">
-          {onOpenSimulator && (
-            <button
-              onClick={onOpenSimulator}
-              className="h-9 px-3.5 rounded-xl bg-[#141518]/90 backdrop-blur-md hover:bg-[#1c1d22] text-[#d1d5db] hover:text-white border border-[#24252a] text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-lg"
-            >
-              <Calculator className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="hidden sm:inline">Simulador</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-xl text-xs text-[#858994]">
+            <span className="text-white font-semibold">Octubre 2026</span>
+            <span className="text-[#3a3d46]">•</span>
+            <span className="font-mono text-white font-bold">{Math.round(zoom * 100)}%</span>
+            <button onClick={handleZoomOut} className="hover:text-white p-0.5" title="Reducir">
+              <ZoomOut className="w-3 h-3" />
             </button>
-          )}
+            <button onClick={handleZoomIn} className="hover:text-white p-0.5" title="Aumentar">
+              <ZoomIn className="w-3 h-3" />
+            </button>
+          </div>
 
           <button
             onClick={onOpenNewLoan}
-            className="h-9 px-4 rounded-xl bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-xs flex items-center gap-2 transition-all active:scale-95 shadow-xl"
+            className="h-9 px-4 rounded-xl bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 shadow-xl"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Nuevo Préstamo</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Nuevo</span>
           </button>
         </div>
 
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. BARRA LATERAL FLOTANTE DE VISTAS Y HERRAMIENTAS (DOCK IZQUIERDO)       */}
-      {/* ========================================================================= */}
-      <div className="absolute left-6 top-24 bottom-6 z-30 flex flex-col justify-between pointer-events-none">
-        
-        {/* Barra de Herramientas Flotante */}
-        <div className="pointer-events-auto floating-dock p-2 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-2xl flex flex-col gap-2 w-12 items-center">
-          
-          {/* Vistas Principales */}
-          <button
-            onClick={() => onChangeViewMode && onChangeViewMode('flow')}
-            className="w-8 h-8 rounded-xl bg-white text-[#0d0e11] flex items-center justify-center transition-all shadow-xs"
-            title="Vista Lienzo de Nodos (Activo)"
-          >
-            <Layers className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => onChangeViewMode && onChangeViewMode('timeline')}
-            className="w-8 h-8 rounded-xl hover:bg-[#1e2025] text-[#858994] hover:text-white flex items-center justify-center transition-all"
-            title="Vista Cronograma de Vencimientos"
-          >
-            <Calendar className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => onChangeViewMode && onChangeViewMode('folders')}
-            className="w-8 h-8 rounded-xl hover:bg-[#1e2025] text-[#858994] hover:text-white flex items-center justify-center transition-all"
-            title="Vista Expedientes 3D"
-          >
-            <Folder className="w-4 h-4" />
-          </button>
-
-          <div className="w-6 h-px bg-[#26282e] my-1" />
-
-          {/* Filtros de Cartera */}
-          <button
-            onClick={() => setFilterState('todos')}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all text-[10px] font-bold ${
-              filterState === 'todos' 
-                ? 'bg-[#2a2c34] text-white border border-white/10' 
-                : 'text-[#858994] hover:bg-[#1e2025] hover:text-white'
-            }`}
-            title="Todos los Préstamos"
-          >
-            ALL
-          </button>
-
-          <button
-            onClick={() => setFilterState('otorgados')}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-              filterState === 'otorgados' 
-                ? 'bg-[#2a2c34] text-white border border-white/10' 
-                : 'text-[#858994] hover:bg-[#1e2025] hover:text-white'
-            }`}
-            title="Cartera por Cobrar (Otorgados)"
-          >
-            <ArrowUpRight className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => setFilterState('recibidos')}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-              filterState === 'recibidos' 
-                ? 'bg-[#2a2c34] text-white border border-white/10' 
-                : 'text-[#858994] hover:bg-[#1e2025] hover:text-white'
-            }`}
-            title="Fondeo por Pagar (Recibidos)"
-          >
-            <ArrowDownLeft className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => setFilterState('urgentes')}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-              filterState === 'urgentes' 
-                ? 'bg-[#2a2c34] text-white border border-white/10' 
-                : 'text-[#858994] hover:bg-[#1e2025] hover:text-white'
-            }`}
-            title="Vencimientos Críticos / Mora"
-          >
-            <Clock className="w-4 h-4" />
-          </button>
-
-        </div>
-
-        {/* Tarjeta Flotante Inferior de Resumen de Capital Monocromático */}
-        <div className="pointer-events-auto p-3.5 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-2xl space-y-1.5 w-52">
-          <div className="flex items-center justify-between text-[11px] text-[#787c88]">
-            <span className="font-semibold uppercase tracking-wider">Capital Activo</span>
-            <span className="font-mono text-white font-bold">{filteredLoans.length} reg.</span>
-          </div>
-          <div className="text-sm font-mono font-bold text-white tracking-tight">
-            {symbol} {Number(totalCapital).toLocaleString()}
-          </div>
-          <div className="w-full bg-[#1e2025] h-1 rounded-full overflow-hidden">
-            <div className="h-full bg-white w-3/4 rounded-full" />
-          </div>
-        </div>
-
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 3. CAPA PRINCIPAL DEL LIENZO (SVG CABLES + NODOS CON TRANSFORM ZOOM/PAN)  */}
+      {/* 2. LIENZO CENTRAL CON ÁRBOL Y RAMIFICACIÓN SATELITAL                     */}
       {/* ========================================================================= */}
       <div 
         className="w-full h-full absolute inset-0 origin-top-left transition-transform duration-75"
@@ -441,454 +331,464 @@ export default function FlowCanvas({
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
         }}
       >
-        {/* SVG CON CABLES CURVOS BÉZIER DINÁMICOS */}
+        {/* SVG CON CABLES BÉZIER: MAESTRO -> DEUDORES & DEUDOR -> SATÉLITES */}
         <svg 
           className="absolute inset-0 pointer-events-none overflow-visible w-full h-full"
           style={{ minWidth: '4000px', minHeight: '4000px' }}
         >
+          {/* Cables Bézier desde el Fondo Central a cada Deudor */}
           {filteredLoans.map((loan) => {
             const pos = nodePositions[loan.id];
             if (!pos) return null;
 
-            const startX = rootNode.x + 220; // Extremo derecho del nodo raíz
-            const startY = rootNode.y + 40;
-            const endX = pos.x;              // Extremo izquierdo del nodo del deudor
-            const endY = pos.y + 42;
+            const startX = rootNode.x + 190;
+            const startY = rootNode.y + 30;
+            const endX = pos.x;
+            const endY = pos.y + 24;
 
             const isSelected = selectedNodeId === loan.id;
-            const isBeingDragged = draggedNode?.id === loan.id;
-
-            // Curva Bézier suave adaptable
             const dx = Math.abs(endX - startX) * 0.5;
-            const cX1 = startX + dx;
-            const cY1 = startY;
-            const cX2 = endX - dx;
-            const cY2 = endY;
 
             return (
-              <g key={`cable-${loan.id}`}>
-                {/* Cable principal elegante */}
-                <path
-                  d={`M ${startX} ${startY} C ${cX1} ${cY1}, ${cX2} ${cY2}, ${endX} ${endY}`}
-                  fill="none"
-                  stroke={isSelected || isBeingDragged ? '#f3f4f6' : '#2b2d35'}
-                  strokeWidth={isSelected || isBeingDragged ? '2.5' : '1.75'}
-                  className="transition-colors duration-150"
-                />
-
-                {/* Punto conector intermedio estético */}
-                <circle
-                  cx={(startX + endX) / 2}
-                  cy={(startY + endY) / 2}
-                  r="5"
-                  fill="#141518"
-                  stroke={isSelected || isBeingDragged ? '#ffffff' : '#383b46'}
-                  strokeWidth="1.5"
-                />
-              </g>
+              <path
+                key={`cable-root-${loan.id}`}
+                d={`M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`}
+                fill="none"
+                stroke={isSelected ? '#ffffff' : '#2b2d35'}
+                strokeWidth={isSelected ? '2.25' : '1.5'}
+                className="transition-colors duration-200"
+              />
             );
           })}
+
+          {/* Cables Bézier desde el Deudor Seleccionado hacia sus 3 Nodos Satélites */}
+          {selectedLoan && nodePositions[selectedLoan.id] && (
+            (() => {
+              const deudorPos = nodePositions[selectedLoan.id];
+              const deudorStartX = deudorPos.x + 230;
+              const deudorStartY = deudorPos.y + 24;
+
+              // Coordenadas de los 3 satélites
+              const sat1X = deudorPos.x + 360;
+              const sat1Y = deudorPos.y - 70;
+
+              const sat2X = deudorPos.x + 360;
+              const sat2Y = deudorPos.y + 25;
+
+              const sat3X = deudorPos.x + 360;
+              const sat3Y = deudorPos.y + 140;
+
+              const dxSat = 65;
+
+              return (
+                <g key={`satellites-cables-${selectedLoan.id}`}>
+                  {/* Cable a Satélite 1 (Contrato Activo) */}
+                  <path
+                    d={`M ${deudorStartX} ${deudorStartY} C ${deudorStartX + dxSat} ${deudorStartY}, ${sat1X - dxSat} ${sat1Y + 30}, ${sat1X} ${sat1Y + 30}`}
+                    fill="none"
+                    stroke="#858994"
+                    strokeWidth="1.75"
+                  />
+                  {/* Cable a Satélite 2 (Próxima Cuota) */}
+                  <path
+                    d={`M ${deudorStartX} ${deudorStartY} C ${deudorStartX + dxSat} ${deudorStartY}, ${sat2X - dxSat} ${sat2Y + 35}, ${sat2X} ${sat2Y + 35}`}
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                  />
+                  {/* Cable a Satélite 3 (Garantía & Drive) */}
+                  <path
+                    d={`M ${deudorStartX} ${deudorStartY} C ${deudorStartX + dxSat} ${deudorStartY}, ${sat3X - dxSat} ${sat3Y + 25}, ${sat3X} ${sat3Y + 25}`}
+                    fill="none"
+                    stroke="#858994"
+                    strokeWidth="1.75"
+                  />
+                </g>
+              );
+            })()
+          )}
         </svg>
 
-        {/* NODO RAÍZ (FONDO CENTRAL / CAJA OPERATIVA) */}
+        {/* NODO MAESTRO: FONDO CENTRAL (CON AURA CIRCULAR MONOCROMÁTICA TENUE) */}
         <div
           style={{ left: `${rootNode.x}px`, top: `${rootNode.y}px` }}
-          className="flow-node absolute w-56 rounded-2xl bg-[#141518] border border-[#2b2d35] shadow-2xl p-4 text-white z-10 flex flex-col justify-between"
+          className="flow-node absolute z-20 flex items-center"
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#22242b] border border-white/5 flex items-center justify-center font-bold text-xs text-white">
-                <ShieldCheck className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-white tracking-tight">{rootNode.title}</h3>
-                <span className="text-[10px] text-[#858994] block">{rootNode.sub}</span>
-              </div>
+          {/* Esfera con aura luminosa monocromática */}
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full bg-[#141518] border-2 border-white/40 ring-4 ring-white/10 shadow-[0_0_40px_rgba(255,255,255,0.08)] flex items-center justify-center">
+              <span className="w-3.5 h-3.5 rounded-full bg-white shadow-xs" />
             </div>
-            <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
-          </div>
 
-          <div className="pt-2.5 border-t border-[#23252c] flex items-center justify-between">
-            <span className="text-[10px] uppercase font-semibold text-[#6e727e]">Capital Total</span>
-            <span className="text-xs font-mono font-bold text-white">{rootNode.amount}</span>
-          </div>
-
-          {/* Puerto de salida derecho */}
-          <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#141518] border-2 border-[#383b45] flex items-center justify-center text-[9px] text-[#858994]">
-            •
+            {/* Píldora horizontal adosada */}
+            <div className="absolute left-10 top-1/2 -translate-y-1/2 pl-8 pr-5 py-2.5 rounded-2xl bg-[#141518] border border-[#2b2d35] shadow-2xl flex flex-col justify-center min-w-[155px]">
+              <span className="text-xs font-bold text-white tracking-tight leading-tight">
+                {rootNode.title}
+              </span>
+              <span className="text-[11px] font-mono text-[#858994] font-medium mt-0.5">
+                {rootNode.amount}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* NODOS DE CLIENTES / PRESTAMISTAS CON ENRIQUECIMIENTO TOTAL */}
+        {/* COLUMNA CENTRAL DE DEUDORES */}
         {filteredLoans.map((loan) => {
           const pos = nodePositions[loan.id];
           if (!pos) return null;
 
           const isSelected = selectedNodeId === loan.id;
           const isBeingDragged = draggedNode?.id === loan.id;
-          const hasDrive = !!(loan.drive_url || loan.drive_contrato);
-
-          // Cálculos financieros precisos del préstamo
-          const cronograma = generarCronograma(loan);
-          const totalCuotas = cronograma.length;
-          const cuotasPagadas = cronograma.filter(c => c.pagado).length;
-          const pctAmortizado = totalCuotas > 0 ? Math.round((cuotasPagadas / totalCuotas) * 100) : 0;
-          const proximaCuota = cronograma.find(c => !c.pagado) || cronograma[cronograma.length - 1] || { total: loan.capital * 0.1, fechaVencimiento: 'Inmediato' };
-          const saldoPendiente = cronograma.filter(c => !c.pagado).reduce((acc, c) => acc + c.total, 0);
-
-          const diasRestantes = proximaCuota?.diasRestantes ?? 999;
-          const esAtrasado = !proximaCuota?.pagado && diasRestantes < 0;
-          const esHoy = !proximaCuota?.pagado && diasRestantes === 0;
-          const esPronto = !proximaCuota?.pagado && diasRestantes > 0 && diasRestantes <= 3;
-          const estaSaldado = totalCuotas > 0 && cuotasPagadas === totalCuotas;
+          const cap = parseFloat(loan.capital) || 10000;
 
           return (
             <div
               key={loan.id}
-              style={{ 
-                left: `${pos.x}px`, 
-                top: `${pos.y}px`,
-                zIndex: isBeingDragged ? 40 : isSelected ? 30 : 20,
+              style={{ left: `${pos.x}px`, top: `${pos.y}px` }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedNodeId(loan.id);
               }}
-              className="flow-node absolute transition-shadow duration-150"
+              className="flow-node absolute z-20 transition-all duration-150"
             >
-              {/* TARJETA PRINCIPAL DEL NODO */}
+              {/* Tarjeta Cápsula del Deudor */}
               <div
-                className={`rounded-2xl bg-[#17181c] border transition-all cursor-pointer shadow-xl relative group ${
-                  nodeDetailMode === 'detailed' ? 'w-80 p-4 space-y-3' : 'w-72 p-3 space-y-2'
-                } ${
-                  isSelected 
-                    ? 'border-white ring-2 ring-white/10 shadow-2xl bg-[#1b1c21]' 
+                className={`w-56 px-3.5 py-2 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-2.5 relative group ${
+                  isSelected
+                    ? 'bg-[#18191d] border-white ring-2 ring-white/10 shadow-2xl scale-[1.03]'
                     : isBeingDragged
-                      ? 'border-white shadow-2xl opacity-90'
-                      : 'border-[#26282e] hover:border-[#3e414c] hover:bg-[#1b1c21]'
+                      ? 'bg-[#18191d] border-white/60 shadow-xl opacity-90'
+                      : 'bg-[#141518]/90 hover:bg-[#18191d] border-[#24252a] hover:border-[#383b46] shadow-md'
                 }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedNodeId(isSelected ? null : loan.id);
-                }}
               >
-                {/* Barra de Agarre para Arrastre Libre (Drag Handle) */}
+                {/* Agarre Drag & Drop */}
                 <div 
                   onMouseDown={(e) => handleNodeStartDrag(e, loan.id)}
-                  className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-[#202127] border border-[#2b2d35] text-[9px] font-mono text-[#858994] flex items-center gap-1 cursor-grab active:cursor-grabbing hover:text-white"
-                  title="Arrastra este nodo para recolocarlo libremente en el lienzo"
+                  className="absolute -top-2 right-3 w-4 h-4 rounded-full bg-[#1e2026] text-[#717580] hover:text-white flex items-center justify-center cursor-grab active:cursor-grabbing text-[8px]"
+                  title="Arrastrar posición"
                 >
                   <Move className="w-2.5 h-2.5" />
-                  <span>Arrastrar</span>
                 </div>
 
-                {/* Puerto de entrada izquierdo */}
-                <div className="absolute -left-2 top-8 w-3.5 h-3.5 rounded-full bg-[#17181c] border-2 border-[#383b45] z-10" />
-
-                {/* 1. Encabezado del Deudor */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5 overflow-hidden">
-                    {hasDrive ? (
-                      <div className="w-8 h-8 rounded-xl bg-[#22242b] border border-white/5 flex items-center justify-center shrink-0 text-zinc-300">
-                        <HardDrive className="w-4 h-4" />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-xl bg-[#22242b] border border-white/5 flex items-center justify-center font-bold text-xs text-white shrink-0">
-                        {loan.nombre?.charAt(0) || 'U'}
-                      </div>
-                    )}
-
-                    <div className="overflow-hidden">
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="text-xs font-bold text-white group-hover:text-zinc-100 truncate">
-                          {loan.nombre}
-                        </h4>
-                      </div>
-                      <span className="text-[10px] text-[#858994] block truncate font-mono">
-                        {loan.ci ? `CI: ${loan.ci}` : loan.telefono ? `+591 ${loan.telefono}` : 'Sin teléfono'}
-                      </span>
-                    </div>
+                {/* Avatar e Información Principal */}
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-[#24262d] border border-white/10 flex items-center justify-center font-bold text-xs text-white shrink-0">
+                    {loan.nombre?.charAt(0) || 'U'}
                   </div>
-
-                  {/* Badge de Estado del Vencimiento */}
-                  <div className="shrink-0 text-right">
-                    {estaSaldado ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#141518] border border-white/20 text-white flex items-center gap-1">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-                        <span>Saldado</span>
-                      </span>
-                    ) : esAtrasado ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#1f2026] border border-white/30 text-white font-mono">
-                        +{Math.abs(diasRestantes)}d mora
-                      </span>
-                    ) : esHoy ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-white text-[#0d0e11] font-mono shadow-xs">
-                        VENCE HOY
-                      </span>
-                    ) : esPronto ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-[#22242b] border border-white/10 text-white font-mono">
-                        En {diasRestantes}d
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono text-[#858994] bg-[#141518] border border-[#24252a]">
-                        Al Día
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* 2. Información Financiera Detallada (Barra de Progreso y Cuotas) */}
-                {nodeDetailMode === 'detailed' && (
-                  <div className="space-y-2 pt-1 border-t border-[#23252c]">
-                    
-                    {/* Fila de Capital y Saldo Insoluto */}
-                    <div className="flex items-baseline justify-between text-xs">
-                      <div>
-                        <span className="text-[10px] uppercase font-semibold text-[#6e727e] block">
-                          Capital
-                        </span>
-                        <span className="font-mono font-bold text-white">
-                          {symbol} {Number(loan.capital).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-semibold text-[#6e727e] block">
-                          Saldo Restante
-                        </span>
-                        <span className="font-mono font-bold text-zinc-300">
-                          {symbol} {saldoPendiente.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Barra de Progreso de Amortización */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-[#858994]">
-                        <span>Cuota {cuotasPagadas} de {totalCuotas}</span>
-                        <span className="text-white font-semibold">{pctAmortizado}% amortizado</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-[#101114] rounded-full overflow-hidden border border-white/5">
-                        <div 
-                          className="h-full bg-white transition-all duration-300"
-                          style={{ width: `${pctAmortizado}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Próximo Cobro Programado */}
-                    {!estaSaldado && proximaCuota && (
-                      <div className="p-2 rounded-xl bg-[#121316] border border-[#202126] flex items-center justify-between">
-                        <div>
-                          <span className="text-[9px] uppercase font-semibold text-[#6e727e] block">
-                            Próxima Cuota
-                          </span>
-                          <span className="text-xs font-mono font-bold text-white">
-                            {symbol} {Number(proximaCuota.total || 0).toLocaleString()}
-                          </span>
-                        </div>
-                        <span className="text-[10px] font-mono text-[#858994]">
-                          {proximaCuota.fechaVencimiento || 'Inmediato'}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Botonera de Acciones Rápidas Directas en el Nodo */}
-                    <div className="grid grid-cols-4 gap-1.5 pt-1">
-                      {/* Botón WhatsApp */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSendWhatsApp && onSendWhatsApp(loan, proximaCuota);
-                        }}
-                        className="h-7 rounded-lg bg-[#202127] hover:bg-[#282a32] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center transition-all shadow-xs"
-                        title="Enviar recordatorio por WhatsApp"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                      </button>
-
-                      {/* Botón Google Drive */}
-                      <a
-                        href={loan.drive_url || loan.drive_contrato || defaultDriveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="h-7 rounded-lg bg-[#202127] hover:bg-[#282a32] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center transition-all shadow-xs"
-                        title="Abrir contrato o carpeta en Google Drive"
-                      >
-                        <HardDrive className="w-3.5 h-3.5" />
-                      </a>
-
-                      {/* Botón Cobrar / Abonar Rápido */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!estaSaldado && onPayCuota) {
-                            onPayCuota(loan, proximaCuota);
-                          }
-                        }}
-                        disabled={estaSaldado}
-                        className={`h-7 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all ${
-                          estaSaldado
-                            ? 'bg-[#18191d] text-[#555a64] border border-transparent cursor-not-allowed'
-                            : 'bg-white hover:bg-zinc-200 text-[#0d0e11] shadow-xs'
-                        }`}
-                        title="Registrar cobro de la cuota programada"
-                      >
-                        <Check className="w-3 h-3 stroke-[2.5]" />
-                        <span>Abonar</span>
-                      </button>
-
-                      {/* Botón Ficha / Inspector Completo */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectLoan && onSelectLoan(loan);
-                        }}
-                        className="h-7 rounded-lg bg-[#202127] hover:bg-[#282a32] text-zinc-300 hover:text-white border border-white/5 flex items-center justify-center gap-0.5 text-[10px] font-medium transition-all"
-                        title="Abrir expediente completo del préstamo"
-                      >
-                        <span>Ficha</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </button>
-                    </div>
-
-                  </div>
-                )}
-
-                {/* Modo Compacto: Solo números esenciales */}
-                {nodeDetailMode === 'compact' && (
-                  <div className="flex items-center justify-between pt-1 border-t border-[#23252c] text-xs font-mono">
-                    <span className="text-[#858994]">Capital:</span>
-                    <span className="font-bold text-white">{symbol} {Number(loan.capital).toLocaleString()}</span>
-                  </div>
-                )}
-
-                {/* Puerto de salida derecho */}
-                <div className="absolute -right-2 top-8 w-3.5 h-3.5 rounded-full bg-[#17181c] border-2 border-[#383b45] z-10" />
-              </div>
-
-              {/* ========================================================================= */}
-              {/* INSPECTOR ADOSADO EN EL MISMO NODO (IN-PLACE POPOVER EXPANDIDO)           */}
-              {/* ========================================================================= */}
-              {isSelected && (
-                <div 
-                  onClick={(e) => e.stopPropagation()}
-                  className={`mt-2 rounded-2xl bg-[#1b1c21] border border-[#32353f] shadow-2xl p-4 text-[#f3f4f6] animate-in fade-in zoom-in-95 duration-150 space-y-3 z-40 relative ${
-                    nodeDetailMode === 'detailed' ? 'w-80' : 'w-72'
-                  }`}
-                >
-                  {/* Conector visual pequeño */}
-                  <div className="w-px h-2 bg-[#32353f] absolute -top-2 left-1/2 -translate-x-1/2" />
-
-                  {/* Encabezado del Popover */}
-                  <div className="flex items-center justify-between pb-2 border-b border-[#26282e]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 rounded-lg bg-[#272930] flex items-center justify-center text-[10px] font-bold text-white">
-                        {loan.nombre?.charAt(0)}
-                      </div>
-                      <span className="text-xs font-bold text-white truncate max-w-[190px]">
-                        {loan.nombre} • Detalle
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setSelectedNodeId(null)}
-                      className="p-1 rounded-lg hover:bg-[#272930] text-[#787c88] hover:text-white transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Mini Cronograma de las Próximas 3 Cuotas */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] uppercase font-semibold text-[#6e727e] block">
-                      Próximas Cuotas del Cronograma
+                  <div className="overflow-hidden">
+                    <h4 className="text-xs font-bold text-white truncate group-hover:text-zinc-100">
+                      {loan.nombre}
+                    </h4>
+                    <span className="text-[10px] text-[#858994] font-mono block">
+                      {symbol} {cap.toLocaleString()}
                     </span>
-                    <div className="space-y-1 max-h-36 overflow-y-auto custom-scroll pr-1">
-                      {cronograma.slice(0, 4).map((c, idx) => (
-                        <div 
-                          key={c.key || idx} 
-                          className={`p-2 rounded-xl border flex items-center justify-between text-[11px] ${
-                            c.pagado
-                              ? 'bg-[#141518] border-[#22242a] opacity-60'
-                              : c.estado === 'vencido'
-                                ? 'bg-[#202128] border-white/20'
-                                : 'bg-[#141518] border-[#26282e]'
-                          }`}
-                        >
-                          <div>
-                            <span className="font-semibold text-white block">
-                              {c.label}
-                            </span>
-                            <span className="text-[10px] text-[#858994] font-mono">
-                              {c.fechaVencimiento} {c.mora > 0 ? `(+${symbol}${c.mora} mora)` : ''}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-white">
-                              {symbol} {c.total}
-                            </span>
-                            {!c.pagado && onPayCuota ? (
-                              <button
-                                onClick={() => onPayCuota(loan, c)}
-                                className="px-2 py-0.5 rounded-lg bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-[10px]"
-                              >
-                                Cobrar
-                              </button>
-                            ) : c.pagado ? (
-                              <span className="text-[10px] text-zinc-400 font-bold">✓</span>
-                            ) : null}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
-
-                  {/* Acciones Avanzadas del Inspector */}
-                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#26282e]">
-                    {/* Botón Prórroga / Extensión */}
-                    {onOpenExtension && (
-                      <button
-                        onClick={() => onOpenExtension(loan)}
-                        className="py-1.5 px-2 rounded-xl bg-[#24262d] hover:bg-[#2d3039] text-[#d1d5db] hover:text-white border border-white/5 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all"
-                        title="Solicitar prórroga o extensión de plazo"
-                      >
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>Prórroga</span>
-                      </button>
-                    )}
-
-                    {/* Botón Recibo Digital */}
-                    {onOpenReceipt && cuotasPagadas > 0 && (
-                      <button
-                        onClick={() => {
-                          const cuotaPagada = cronograma.find(c => c.pagado) || proximaCuota;
-                          onOpenReceipt({ nombre: loan.nombre, ci: loan.ci, telefono: loan.telefono }, loan, cuotaPagada);
-                        }}
-                        className="py-1.5 px-2 rounded-xl bg-[#24262d] hover:bg-[#2d3039] text-[#d1d5db] hover:text-white border border-white/5 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all"
-                        title="Imprimir o ver recibo digital oficial"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>Recibo</span>
-                      </button>
-                    )}
-
-                    {/* Botón Carpeta del Cliente */}
-                    {onOpenFolder && (
-                      <button
-                        onClick={() => onOpenFolder(loan.nombre?.trim().toLowerCase())}
-                        className="py-1.5 px-2 rounded-xl bg-[#24262d] hover:bg-[#2d3039] text-[#d1d5db] hover:text-white border border-white/5 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all col-span-2"
-                        title="Abrir carpeta completa con todos los contratos de esta persona"
-                      >
-                        <Folder className="w-3.5 h-3.5" />
-                        <span>Ver Carpeta del Cliente</span>
-                      </button>
-                    )}
-                  </div>
-
                 </div>
-              )}
 
+                {/* Badge de Estado */}
+                <div className="shrink-0">
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-medium border ${
+                    isSelected
+                      ? 'bg-white text-[#0d0e11] border-white'
+                      : 'bg-[#1a1b20] text-[#858994] border-[#26282e]'
+                  }`}>
+                    Al Día
+                  </span>
+                </div>
+
+                {/* Conector de entrada izquierdo */}
+                <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#141518] border-2 border-[#383b46]" />
+
+                {/* Conector de salida derecho */}
+                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#141518] border-2 border-[#383b46]" />
+              </div>
             </div>
           );
         })}
 
+        {/* ========================================================================= */}
+        {/* 3 SUB-NODOS SATÉLITES FLOTANTES QUE BROTAN DEL DEUDOR SELECCIONADO       */}
+        {/* ========================================================================= */}
+        {selectedLoan && selectedLoanMetrics && nodePositions[selectedLoan.id] && (
+          (() => {
+            const deudorPos = nodePositions[selectedLoan.id];
+            const satX = deudorPos.x + 360;
+
+            const sat1Y = deudorPos.y - 70;
+            const sat2Y = deudorPos.y + 25;
+            const sat3Y = deudorPos.y + 140;
+
+            const { pctAmortizado, proximaCuota, driveUrl } = selectedLoanMetrics;
+
+            return (
+              <>
+                {/* SATÉLITE 1: CONTRATO ACTIVO #01 CON DONUT GAUGE DE AMORTIZACIÓN */}
+                <div
+                  style={{ left: `${satX}px`, top: `${sat1Y}px` }}
+                  className="flow-node absolute z-30 w-64 p-3 rounded-2xl bg-[#141518] border border-[#2b2d35] shadow-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-left-4 duration-150"
+                >
+                  <div className="space-y-0.5 overflow-hidden">
+                    <span className="text-[11px] font-bold text-white block">
+                      Contrato Activo #01
+                    </span>
+                    <span className="text-[10px] text-[#858994] font-mono block">
+                      {symbol} {Number(selectedLoan.capital || 15000).toLocaleString()} (10% mensual)
+                    </span>
+                  </div>
+
+                  {/* Donut Gauge Circular de Amortización */}
+                  <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="text-[#24252a]"
+                        strokeWidth="3.5"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-white"
+                        strokeDasharray={`${pctAmortizado}, 100`}
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <span className="absolute text-[9px] font-mono font-bold text-white">
+                      {pctAmortizado}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* SATÉLITE 2: PRÓXIMA CUOTA #04 CON BOTÓN BLANCO DESTACADO [ABONAR] */}
+                <div
+                  style={{ left: `${satX}px`, top: `${sat2Y}px` }}
+                  className="flow-node absolute z-30 w-64 p-3.5 rounded-2xl bg-[#18191d] border border-white/20 shadow-2xl space-y-2.5 animate-in fade-in slide-in-from-left-4 duration-150"
+                >
+                  <div>
+                    <span className="text-[11px] font-bold text-white block">
+                      Próxima Cuota #04
+                    </span>
+                    <span className="text-[10px] text-[#858994] font-mono block">
+                      {symbol} {Number(proximaCuota.total || 1500).toLocaleString()} (Vence {proximaCuota.fechaVencimiento || '24 Oct'})
+                    </span>
+                  </div>
+
+                  {/* Botón Blanco de Abono Rápido */}
+                  <button
+                    onClick={() => onPayCuota && onPayCuota(selectedLoan, proximaCuota)}
+                    className="w-full py-1.5 px-3 rounded-xl bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] shadow-sm"
+                  >
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>[Abonar]</span>
+                  </button>
+                </div>
+
+                {/* SATÉLITE 3: GARANTÍA NOTARIADA & ENLACE GOOGLE DRIVE */}
+                <div
+                  style={{ left: `${satX}px`, top: `${sat3Y}px` }}
+                  className="flow-node absolute z-30 w-64 p-3 rounded-2xl bg-[#141518] border border-[#2b2d35] shadow-2xl flex items-center justify-between gap-2.5 animate-in fade-in slide-in-from-left-4 duration-150"
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="w-7 h-7 rounded-xl bg-[#22242b] border border-white/5 flex items-center justify-center text-zinc-300 shrink-0">
+                      <FileText className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <span className="text-[11px] font-bold text-white block truncate">
+                        Garantía Notariada
+                      </span>
+                      <span className="text-[10px] text-[#858994] block truncate">
+                        Google Drive
+                      </span>
+                    </div>
+                  </div>
+
+                  <a
+                    href={driveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded-lg bg-[#1f2026] hover:bg-[#282a32] text-zinc-300 hover:text-white border border-white/5 transition-all"
+                    title="Abrir contrato o carpeta en Google Drive"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </>
+            );
+          })()
+        )}
+
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. MINI-MAP (RADAR NAVIGATION) EN LA ESQUINA INFERIOR IZQUIERDA           */}
+      {/* ========================================================================= */}
+      <div className="absolute left-6 bottom-6 z-30 pointer-events-none">
+        <div className="pointer-events-auto p-3 rounded-2xl bg-[#141518]/90 backdrop-blur-md border border-[#24252a] shadow-2xl w-48 space-y-2">
+          
+          <div className="flex items-center justify-between text-[10px] font-semibold text-[#858994]">
+            <span>Mini-Map (Radar Navigation)</span>
+          </div>
+
+          {/* Radar Preview en Miniatura SVG */}
+          <div className="w-full h-20 rounded-xl bg-[#0d0e11] border border-[#202126] p-1.5 flex items-center justify-between relative overflow-hidden">
+            {/* Nodo Maestro Mini */}
+            <div className="w-5 h-5 rounded-full border border-white/40 flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            </div>
+
+            {/* Línea conectora mini */}
+            <div className="h-px bg-[#2b2d35] flex-1 mx-2" />
+
+            {/* Deudores Mini */}
+            <div className="space-y-1">
+              <div className="w-9 h-2 rounded-full bg-[#202126]" />
+              <div className="w-11 h-2 rounded-full bg-white/80" />
+              <div className="w-8 h-2 rounded-full bg-[#202126]" />
+            </div>
+
+            {/* Satélites Mini */}
+            <div className="space-y-0.5 pl-1.5 border-l border-[#24252a]">
+              <div className="w-4 h-1.5 rounded bg-[#2b2d35]" />
+              <div className="w-4 h-1.5 rounded bg-white/70" />
+              <div className="w-4 h-1.5 rounded bg-[#2b2d35]" />
+            </div>
+
+            {/* Botones de Control de Zoom Integrados */}
+            <div className="absolute right-1.5 bottom-1.5 flex flex-col gap-0.5">
+              <button
+                onClick={handleZoomIn}
+                className="w-4 h-4 rounded bg-[#1f2026] hover:bg-[#282a32] text-white flex items-center justify-center text-[10px]"
+              >
+                +
+              </button>
+              <button
+                onClick={handleZoomOut}
+                className="w-4 h-4 rounded bg-[#1f2026] hover:bg-[#282a32] text-white flex items-center justify-center text-[10px]"
+              >
+                -
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 4. DOCK INFERIOR FLOTANTE DESACOPLADO (PROPUESTA 2)                       */}
+      {/* ========================================================================= */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+        <div className="pointer-events-auto interactive-dock px-5 py-3 rounded-2xl bg-[#141518]/95 backdrop-blur-md border border-[#24252a] shadow-2xl flex items-center gap-6 text-white max-w-4xl">
+          
+          {/* MÓDULO 1: FLUJO SEMANAL (WEEKLY CASHFLOW SPARKLINE) */}
+          <div className="flex items-center gap-3 pr-5 border-r border-[#24252a]">
+            <div>
+              <div className="flex items-center gap-1.5 text-[10px] text-[#858994] font-semibold uppercase tracking-wider">
+                <span>Weakly Cashflow</span>
+                <TrendingUp className="w-3 h-3 text-zinc-400" />
+              </div>
+
+              {/* Sparkline de barras miniatura de Lun a Dom */}
+              <div className="flex items-end gap-1.5 mt-2 h-7">
+                {[
+                  { dia: 'Lun', h: 10 },
+                  { dia: 'Mar', h: 16 },
+                  { dia: 'Mié', h: 12 },
+                  { dia: 'Jue', h: 22 },
+                  { dia: 'Vie', h: 18 },
+                  { dia: 'Sáb', h: 26 },
+                  { dia: 'Dom', h: 14 },
+                ].map((b, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-1">
+                    <div 
+                      className={`w-1.5 rounded-full ${idx === 5 ? 'bg-white' : 'bg-[#2b2d35]'}`}
+                      style={{ height: `${b.h}px` }}
+                    />
+                    <span className="text-[8px] font-mono text-[#686c77]">{b.dia.charAt(0)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* MÓDULO 2: COBRANZA MENSUAL (MONTHLY COLLECTION & PROGRESS) */}
+          <div className="pr-5 border-r border-[#24252a] min-w-[170px] space-y-1">
+            <span className="text-[10px] text-[#858994] uppercase font-semibold tracking-wider block">
+              Monthly Collection
+            </span>
+            <div className="text-base font-mono font-bold text-white tracking-tight">
+              {symbol} {dockMetrics.totalCobradoMes.toLocaleString()}
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono text-[#858994]">
+              <span>Cobrados</span>
+              <span className="text-white font-bold">{dockMetrics.pctMeta}% Meta</span>
+            </div>
+            {/* Barra de progreso horizontal */}
+            <div className="w-full h-1 bg-[#202126] rounded-full overflow-hidden mt-1">
+              <div 
+                className="h-full bg-white rounded-full transition-all duration-300"
+                style={{ width: `${dockMetrics.pctMeta}%` }}
+              />
+            </div>
+          </div>
+
+          {/* MÓDULO 3: ACCIONES RÁPIDAS DE COBRO (QUICK ACTION COLLECTIONS) */}
+          <div className="space-y-1">
+            <span className="text-[10px] text-[#858994] uppercase font-semibold tracking-wider block">
+              Quick Action Collections
+            </span>
+            
+            <div className="flex items-center gap-2">
+              {dockMetrics.cobrosDelDia.length > 0 ? (
+                dockMetrics.cobrosDelDia.map((it, idx) => (
+                  <div 
+                    key={idx}
+                    className="px-2.5 py-1.5 rounded-xl bg-[#1c1d22] border border-[#282a32] flex items-center gap-2 text-xs"
+                  >
+                    <div>
+                      <span className="text-[10px] font-bold text-white block truncate max-w-[85px]">
+                        {it.nombre}
+                      </span>
+                      <span className="text-[9px] font-mono text-[#858994]">
+                        {symbol}{it.monto}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => onPayCuota && onPayCuota(it.prestamo, it.cuota)}
+                      className="px-2 py-0.5 rounded-lg bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-[10px] transition-all"
+                    >
+                      Cobrar
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="px-3 py-1.5 rounded-xl bg-[#1c1d22] border border-[#282a32] flex items-center gap-3 text-xs">
+                  <div>
+                    <span className="text-[10px] font-bold text-white block">
+                      Today's due
+                    </span>
+                    <span className="text-[9px] font-mono text-[#858994]">
+                      Al Día • Sin Mora
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (selectedLoan && selectedLoanMetrics) {
+                        onPayCuota && onPayCuota(selectedLoan, selectedLoanMetrics.proximaCuota);
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-zinc-200 text-[#0d0e11] font-bold text-[10px] transition-all"
+                  >
+                    Cobrar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
 
     </div>
