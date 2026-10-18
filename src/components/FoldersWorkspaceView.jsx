@@ -46,7 +46,7 @@ export default function FoldersWorkspaceView({
   });
 
   return (
-    <div className="flex-1 overflow-y-auto custom-scroll p-6 lg:p-8 space-y-8 bg-[#111214] text-[#f3f4f6] select-none">
+    <div className="flex-1 overflow-y-auto custom-scroll p-6 lg:p-8 space-y-8 bg-[#08090a] text-[#f3f4f6] select-none">
       
       {/* 1. TOP BREADCRUMB DROPDOWN */}
       <div className="relative inline-block">

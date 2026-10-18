@@ -27,7 +27,7 @@ export default function FolderView({
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="h-9 px-3.5 rounded-xl bg-[#1a1b1e] hover:bg-[#222328] text-white border border-[#26282e] text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-xs"
+          className="h-9 px-3.5 rounded-xl bg-[#141518] hover:bg-[#1a1b20] text-white border border-[#24252a] text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-xs"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a todos los expedientes</span>
@@ -38,16 +38,16 @@ export default function FolderView({
       </div>
 
       {/* Encabezado del Expediente */}
-      <div className="p-6 space-y-4 bg-[#1a1b1e] border border-[#26282e] rounded-2xl shadow-sm">
+      <div className="p-6 space-y-4 bg-[#141518] border border-[#24252a] rounded-2xl shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#222328] border border-[#2d2f36] flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-12 h-12 rounded-xl bg-[#1b1c21] border border-[#2b2d35] flex items-center justify-center text-white font-bold text-lg">
               {folder.nombre?.charAt(0) || 'C'}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-white tracking-tight">{folder.nombre}</h2>
-                <span className="text-[11px] px-2 py-0.5 rounded-lg bg-[#222328] border border-white/5 text-[#8b8f98] font-medium">
+                <span className="text-[11px] px-2 py-0.5 rounded-lg bg-[#1b1c21] border border-white/5 text-[#8b8f98] font-medium">
                   {folder.tipo_prestamo === 'recibido' ? 'Prestamista' : 'Deudor'}
                 </span>
               </div>
@@ -64,7 +64,7 @@ export default function FolderView({
               href={driveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="h-9 px-3 rounded-xl bg-[#222328] hover:bg-[#2a2c33] text-sky-400 border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
+              className="h-9 px-3 rounded-xl bg-[#1b1c21] hover:bg-[#22242b] text-zinc-300 hover:text-white border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
               title="Abrir carpeta en Google Drive"
             >
               <HardDrive className="w-4 h-4" />
@@ -73,7 +73,7 @@ export default function FolderView({
 
             <button
               onClick={() => onSendWhatsApp(folder)}
-              className="h-9 px-3.5 rounded-xl bg-[#222328] hover:bg-[#2a2c33] text-emerald-400 border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
+              className="h-9 px-3.5 rounded-xl bg-[#1b1c21] hover:bg-[#22242b] text-zinc-300 hover:text-white border border-white/5 text-xs font-semibold flex items-center gap-1.5 transition-all"
             >
               <MessageCircle className="w-4 h-4" />
               <span>WhatsApp</span>
@@ -82,28 +82,28 @@ export default function FolderView({
         </div>
 
         {/* Resumen Numérico */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#24252a]">
-          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#202126]">
+          <div className="p-3 rounded-xl bg-[#0d0e11] border border-[#202126]">
             <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Total Capital</span>
             <span className="text-base font-mono font-bold text-white">
               {symbol}{folder.totalCapital.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+          <div className="p-3 rounded-xl bg-[#0d0e11] border border-[#202126]">
             <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Monto ya Pagado</span>
-            <span className="text-base font-mono font-bold text-emerald-400">
+            <span className="text-base font-mono font-bold text-white">
               {symbol}{totalPagado.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+          <div className="p-3 rounded-xl bg-[#0d0e11] border border-[#202126]">
             <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Saldo Pendiente</span>
             <span className="text-base font-mono font-bold text-white">
               {symbol}{folder.totalAdeudado.toLocaleString()}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#141517] border border-[#202126]">
+          <div className="p-3 rounded-xl bg-[#0d0e11] border border-[#202126]">
             <span className="text-[10px] uppercase font-semibold text-[#6e737e] block">Próxima Cuota</span>
-            <span className="text-base font-mono font-bold text-amber-400">
+            <span className="text-base font-mono font-bold text-white">
               {symbol}{folder.cuotaProxima.toLocaleString()}
             </span>
           </div>

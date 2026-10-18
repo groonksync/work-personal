@@ -86,25 +86,25 @@ export default function NewLoanModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-lg bg-white dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#2e2e2e] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-[#ececec] max-h-[92vh]"
+        className="w-full max-w-lg bg-[#141518] border border-[#24252a] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-[#f3f4f6] max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera */}
-        <div className="p-4 px-5 border-b border-zinc-200 dark:border-[#2e2e2e] flex items-center justify-between bg-zinc-50 dark:bg-[#181818]">
+        <div className="p-4 px-5 border-b border-[#202126] flex items-center justify-between bg-[#0d0e11]">
           <div>
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
+            <h3 className="text-sm font-bold text-white tracking-tight leading-none">
               Anotar Nuevo Préstamo
             </h3>
-            <p className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] mt-1">
+            <p className="text-[11px] text-[#8b8f98] mt-1">
               Crea un nuevo expediente con plan de cuotas automático y enlace de Drive
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-zinc-200/70 hover:bg-zinc-200 dark:bg-[#262626] dark:hover:bg-[#333] text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-lg bg-[#1c1d22] hover:bg-[#25272e] text-[#8b8f98] hover:text-white flex items-center justify-center transition-all"
           >
             <X className="w-4 h-4" />
           </button>
@@ -114,14 +114,14 @@ export default function NewLoanModal({
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scroll text-xs">
           
           {/* Segmento: Otorgado vs Recibido */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl">
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0d0e11] border border-[#202126] rounded-xl">
             <button
               type="button"
               onClick={() => setTipo('otorgado')}
               className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                 tipo === 'otorgado'
-                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e]'
+                  ? 'bg-[#22242b] text-white shadow-xs border border-white/10'
+                  : 'text-[#8b8f98] hover:text-white'
               }`}
             >
               Yo presto (Cobro)
@@ -131,8 +131,8 @@ export default function NewLoanModal({
               onClick={() => setTipo('recibido')}
               className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                 tipo === 'recibido'
-                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e]'
+                  ? 'bg-[#22242b] text-white shadow-xs border border-white/10'
+                  : 'text-[#8b8f98] hover:text-white'
               }`}
             >
               Me prestan (Pago Acreedor)
@@ -140,7 +140,7 @@ export default function NewLoanModal({
           </div>
 
           {/* Modalidad de pago: Mensual vs Diario */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl">
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0d0e11] border border-[#202126] rounded-xl">
             <button
               type="button"
               onClick={() => setTipoPago('mensual')}

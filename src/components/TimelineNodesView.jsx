@@ -138,17 +138,17 @@ export default function TimelineNodesView({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#f7f7f8] dark:bg-[#111214] overflow-hidden select-none text-[#171717] dark:text-[#f3f4f6] transition-colors duration-150">
+    <div className="flex-1 flex flex-col h-full bg-[#08090a] overflow-hidden select-none text-[#f3f4f6] transition-colors duration-150">
       
       {/* 1. BARRA SUPERIOR DE CONTROL DEL CALENDARIO (ESTILO OBSIDIAN) */}
-      <div className="px-6 py-3 border-b border-zinc-200 dark:border-[#1f2025] flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#111214] shrink-0 transition-colors duration-150">
+      <div className="px-6 py-3 border-b border-[#202126] flex flex-wrap items-center justify-between gap-3 bg-[#0d0e11] shrink-0 transition-colors duration-150">
         
         {/* Navegador de Mes y Año */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-[#1a1a1a] border border-zinc-200 dark:border-[#2f2f2f] rounded-xl p-1 text-xs">
+          <div className="flex items-center gap-1 bg-[#141518] border border-[#24252a] rounded-xl p-1 text-xs">
             <button
               onClick={handlePrevMonth}
-              className="p-1 rounded-lg text-zinc-600 dark:text-[#a3a3a3] hover:text-zinc-900 dark:hover:text-white hover:bg-white dark:hover:bg-[#282828] transition-all"
+              className="p-1 rounded-lg text-[#8b8f98] hover:text-white hover:bg-[#1f2127] transition-all"
               title="Mes Anterior"
             >
               <ChevronLeft className="w-4 h-4" />

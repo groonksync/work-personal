@@ -20,7 +20,7 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
   return (
     <div
       onClick={onSelect}
-      className="p-4 rounded-2xl bg-[#1a1b1e] hover:bg-[#202126] border border-[#26282e] hover:border-[#383a42] transition-all cursor-pointer group flex flex-col justify-between select-none shadow-sm relative overflow-hidden"
+      className="p-4 rounded-2xl bg-[#141518] hover:bg-[#18191e] border border-[#24252a] hover:border-[#353842] transition-all cursor-pointer group flex flex-col justify-between select-none shadow-sm relative overflow-hidden"
     >
       {/* 1. GRÁFICO 3D DEL FOLDER CON HOJAS BLANCAS Y MICRO-ÍCONOS (IDÉNTICO A LA FOTO) */}
       <div className="pt-1 pb-2">
@@ -41,7 +41,7 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" title="Cobro Atrasado" />
           )}
           {esVenceHoy && (
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" title="Vence Hoy" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse shrink-0" title="Vence Hoy" />
           )}
         </div>
 
@@ -52,17 +52,17 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
       </div>
 
       {/* 3. MINI BARRA DE PROGRESO DE AMORTIZACIÓN */}
-      <div className="w-full bg-[#111214] h-1 rounded-full overflow-hidden mt-3 mb-2">
+      <div className="w-full bg-[#0d0e11] h-1 rounded-full overflow-hidden mt-3 mb-2">
         <div 
           className={`h-full rounded-full transition-all duration-300 ${
-            esSaldado ? 'bg-emerald-500' : 'bg-[#3b82f6]'
+            esSaldado ? 'bg-white' : 'bg-zinc-400'
           }`}
           style={{ width: `${porcentajePagado}%` }}
         />
       </div>
 
       {/* 4. FOOTER DE ACCIONES RÁPIDAS EN HOVER / NORMAL */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#24252a] text-xs">
+      <div className="flex items-center justify-between pt-2 border-t border-[#202126] text-xs">
         <div className="text-left">
           <span className="text-[10px] text-[#5e636e] uppercase block font-semibold leading-tight">
             Próx. Cuota
@@ -79,16 +79,16 @@ export default function FolderCard({ folder, currency = 'BOB', onSelect, onQuick
                 e.stopPropagation();
                 onQuickPay(folder);
               }}
-              className="px-2 py-1 rounded-lg bg-[#27282d] hover:bg-[#32343a] text-white text-[11px] font-semibold border border-white/5 active:scale-95 transition-all flex items-center gap-1"
+              className="px-2 py-1 rounded-lg bg-[#22242b] hover:bg-[#2b2d35] text-white text-[11px] font-semibold border border-white/10 active:scale-95 transition-all flex items-center gap-1"
               title="Abonar cuota inmediata"
             >
-              <Check className="w-3 h-3 text-emerald-400 stroke-[2.5]" />
+              <Check className="w-3 h-3 text-white stroke-[2.5]" />
               <span>Abonar</span>
             </button>
           )}
 
           <div 
-            className="w-6 h-6 rounded-lg bg-[#222328] group-hover:bg-[#2b2d33] flex items-center justify-center text-[#8b8f98] group-hover:text-white transition-colors"
+            className="w-6 h-6 rounded-lg bg-[#1a1b20] group-hover:bg-[#24262d] flex items-center justify-center text-[#8b8f98] group-hover:text-white transition-colors"
             title="Abrir expediente completo"
           >
             <ArrowRight className="w-3 h-3" />

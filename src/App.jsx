@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
+import FlowCanvas from './components/FlowCanvas';
 import LoanInspectorDrawer from './components/LoanInspectorDrawer';
 import TimelineNodesView from './components/TimelineNodesView';
 import MobileStreamView from './components/MobileStreamView';
@@ -21,13 +22,13 @@ import { supabase } from './lib/supabaseClient';
 import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
 import { loadSettings, saveSettings, defaultTemplates } from './lib/settings';
 import { allOriginalLoans } from './data/initialLoans';
-import { Search, Plus, RefreshCw, Folder as FolderIcon } from 'lucide-react';
+import { Search, Plus, RefreshCw, Folder as FolderIcon, Layers } from 'lucide-react';
 
 export default function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
-  const [viewMode, setViewMode] = useState('timeline'); // 'timeline' (Cronograma Principal) | 'folders' (Carpetas) | 'stream' (Flujo Diario)
+  const [viewMode, setViewMode] = useState('flow'); // 'flow' (Lienzo de Nodos) | 'timeline' (Cronograma) | 'folders' (Carpetas) | 'stream' (Flujo Diario)
   const [carteraFiltro, setCarteraFiltro] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -414,7 +415,7 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex bg-[#111214] text-[#f3f4f6] font-sans antialiased select-none">
+    <div className="w-screen h-screen overflow-hidden flex bg-[#08090a] text-[#f3f4f6] font-sans antialiased select-none">
       
       {/* ========================================================================= */}
       {/* VISTA MÓVIL ESPECIALIZADA (DETECCIÓN AUTOMÁTICA EN DISPOSITIVOS MÓVILES)  */}
@@ -442,11 +443,11 @@ export default function App() {
       </div>
 
       {/* ========================================================================= */}
-      {/* VISTA ESCRITORIO — ESTRUCTURA LIMPIA CON SIDEBAR ÚNICO Y CRONOGRAMA       */}
+      {/* VISTA ESCRITORIO — LIENZO DE NODOS & GESTOR MONOCROMÁTICO                 */}
       {/* ========================================================================= */}
       <div className="hidden md:flex w-full h-full overflow-hidden">
         
-        {/* BARRA LATERAL ÚNICA DE CONTROL Y NAVEGACIÓN */}
+        {/* BARRA LATERAL DE NAVEGACIÓN */}
         <Sidebar
           viewMode={viewMode}
           setViewMode={(mode) => {
@@ -470,7 +471,7 @@ export default function App() {
         />
 
         {/* ÁREA DE CONTENIDO PRINCIPAL */}
-        <div className="flex-1 h-full flex flex-col overflow-hidden bg-[#111214] relative">
+        <div className="flex-1 h-full flex flex-col overflow-hidden bg-[#08090a] relative">
           
           {/* TOPBAR UNIFICADA */}
           <Topbar
@@ -478,11 +479,13 @@ export default function App() {
             breadcrumb={
               activeFolder 
                 ? `Expediente › ${activeFolder.nombre}`
-                : viewMode === 'folders' 
-                  ? 'Carpetas de Expedientes' 
-                  : viewMode === 'timeline' 
-                    ? 'Cronograma de Vencimientos' 
-                    : 'Flujo Diario'
+                : viewMode === 'flow'
+                  ? 'Lienzo de Nodos'
+                  : viewMode === 'folders' 
+                    ? 'Carpetas de Expedientes' 
+                    : viewMode === 'timeline' 
+                      ? 'Cronograma de Vencimientos' 
+                      : 'Flujo Diario'
             }
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -494,10 +497,10 @@ export default function App() {
           />
 
           {/* LIENZO CENTRAL */}
-          <div className="flex-1 overflow-hidden relative flex flex-col bg-[#111214]">
+          <div className="flex-1 overflow-hidden relative flex flex-col bg-[#08090a]">
             {activeFolder ? (
               /* Vista del Expediente de la Carpeta */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#111214]">
+              <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#08090a]">
                 <FolderView
                   folder={activeFolder}
                   currency={currency}
@@ -513,8 +516,27 @@ export default function App() {
                   defaultDriveUrl={settings.googleDriveUrl}
                 />
               </div>
+            ) : viewMode === 'flow' ? (
+              /* VISTA ESTRELLA: LIENZO INTERACTIVO DE NODOS (INSPIRADO EN EL WORKFLOW CANVAS) */
+              <FlowCanvas
+                prestamos={prestamosFiltrados}
+                currency={currency}
+                counts={counts}
+                totalCapital={totalCapital}
+                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+                onOpenNewLoan={() => setIsNewLoanOpen(true)}
+                onPayCuota={handlePayCuota}
+                onSendWhatsApp={handleSendWhatsApp}
+                onOpenSimulator={() => setIsSimulatorOpen(true)}
+                onOpenReceipt={(folder, contrato, cuota) =>
+                  setReceiptData({ folder, contrato, cuota })
+                }
+                onOpenFolder={(folderKey) => setSelectedFolderKey(folderKey)}
+                onChangeViewMode={(mode) => setViewMode(mode)}
+                defaultDriveUrl={settings.googleDriveUrl}
+              />
             ) : viewMode === 'folders' ? (
-              /* VISTA DE CARPETAS CON LAS TARJETAS 3D (media_1792334706104_4e7dec7a.png) */
+              /* VISTA DE CARPETAS CON LAS TARJETAS 3D */
               <FoldersWorkspaceView
                 carpetas={carpetas}
                 prestamos={prestamosFiltrados}
@@ -558,7 +580,7 @@ export default function App() {
               />
             ) : (
               /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center bg-[#111214]">
+              <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center bg-[#08090a]">
                 <MobileStreamView
                   prestamos={prestamosFiltrados}
                   currency={currency}

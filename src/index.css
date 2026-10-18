@@ -21,30 +21,40 @@
 }
 
 .dark {
-  /* Modo Oscuro Charcoal Obsidian — Exacto al Diseño de Referencia */
-  --bg-canvas: #111214;
-  --bg-rail: #0c0d0f;
-  --bg-sidebar: #131416;
-  --bg-surface: #1a1b1e;
-  --bg-subtle: #222328;
-  --bg-hover: #26272d;
+  /* Modo Oscuro Monocromático Negro Profundo y Gris Obsidian */
+  --bg-canvas: #08090a;
+  --bg-canvas-subtle: #0d0e11;
+  --bg-rail: #121316;
+  --bg-sidebar: #141518;
+  --bg-surface: #18191d;
+  --bg-card: #1b1c21;
+  --bg-subtle: #222329;
+  --bg-hover: #26272e;
   --border-fine: #24252a;
-  --border-focus: #393b44;
+  --border-hover: #32353f;
+  --border-focus: #3e414c;
   --text-main: #f3f4f6;
-  --text-muted: #8b8f98;
+  --text-muted: #858994;
   --btn-solid: #f3f4f6;
-  --btn-solid-fg: #111214;
+  --btn-solid-fg: #0d0e11;
   --badge-warn: #fbbf24;
   --badge-ok: #34d399;
   --badge-danger: #f87171;
 }
 
 body {
-  background-color: #1a1b1e;
+  background-color: #08090a;
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.012em;
+}
+
+/* Patrón de micropuntos para el lienzo de nodos */
+.dots-grid {
+  background-color: #08090a;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Reglas de uniformidad */
