@@ -479,7 +479,7 @@ export default function App() {
             onSendWhatsApp={handleSendWhatsApp}
             onOpenReceipt={(data) => setReceiptData(data)}
             onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
-            onOpenNotes={(loan) => setSelectedLoanForNotes(loan)}
+            onOpenNotes={(loan, newNotes) => newNotes ? handleSaveNotes(loan.id, newNotes) : setSelectedLoanForNotes(loan)}
             onOpenCapital={(loan) => setSelectedLoanForCapital(loan)}
             onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
             onRefreshData={fetchPrestamos}

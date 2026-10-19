@@ -110,6 +110,116 @@ export function generarCronograma(prestamo) {
     return cuotas;
   }
 
+  // Soporte para pagos SEMANALES (cada 7 días)
+  if (tipo_pago === 'semanal') {
+    const totalSemanas = cuotasCount * 4;
+    const interesTotal = Math.round(capitalInicial * (tasaInteres / 100) * cuotasCount * 100) / 100;
+    const capitalSemanal = capitalInicial / totalSemanas;
+    const interesSemanal = interesTotal / totalSemanas;
+    const cuotaSemanal = Math.round((capitalSemanal + interesSemanal) * 100) / 100;
+    const startDate = toDate(inicio);
+    const cuotas = [];
+
+    for (let sem = 0; sem < totalSemanas; sem++) {
+      const fechaActual = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + ((sem + 1) * 7));
+      if (isNaN(fechaActual.getTime())) continue;
+      const key = formatDate(fechaActual);
+      const pagada = isCuotaPaid(pagos, key);
+      const diffDays = diasEntre(hoyStr, key);
+
+      let estado = 'pendiente';
+      let diasAtraso = 0;
+      let mora = 0;
+
+      if (pagada) {
+        estado = 'pagado';
+      } else if (diffDays < 0) {
+        estado = 'vencido';
+        diasAtraso = Math.abs(diffDays);
+        mora = Math.round(cuotaSemanal * TASA_MORA_DIARIA * diasAtraso * 100) / 100;
+      } else if (diffDays === 0) {
+        estado = 'hoy';
+      } else if (diffDays <= 3) {
+        estado = 'proximo';
+      } else {
+        estado = 'futuro';
+      }
+
+      cuotas.push({
+        numero: sem + 1,
+        key,
+        label: `Semana ${sem + 1} (${fechaActual.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })})`,
+        fechaVencimiento: key,
+        capital: Math.round(capitalSemanal),
+        interes: Math.round(interesSemanal),
+        total: Math.round(cuotaSemanal),
+        pagado: pagada,
+        mora,
+        diasAtraso,
+        diasRestantes: diffDays,
+        estado,
+        tipo_pago: 'semanal'
+      });
+    }
+
+    return cuotas;
+  }
+
+  // Soporte para pagos QUINCENALES (cada 15 días)
+  if (tipo_pago === 'quincenal') {
+    const totalQuincenas = cuotasCount * 2;
+    const interesTotal = Math.round(capitalInicial * (tasaInteres / 100) * cuotasCount * 100) / 100;
+    const capitalQuincenal = capitalInicial / totalQuincenas;
+    const interesQuincenal = interesTotal / totalQuincenas;
+    const cuotaQuincenal = Math.round((capitalQuincenal + interesQuincenal) * 100) / 100;
+    const startDate = toDate(inicio);
+    const cuotas = [];
+
+    for (let q = 0; q < totalQuincenas; q++) {
+      const fechaActual = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + ((q + 1) * 15));
+      if (isNaN(fechaActual.getTime())) continue;
+      const key = formatDate(fechaActual);
+      const pagada = isCuotaPaid(pagos, key);
+      const diffDays = diasEntre(hoyStr, key);
+
+      let estado = 'pendiente';
+      let diasAtraso = 0;
+      let mora = 0;
+
+      if (pagada) {
+        estado = 'pagado';
+      } else if (diffDays < 0) {
+        estado = 'vencido';
+        diasAtraso = Math.abs(diffDays);
+        mora = Math.round(cuotaQuincenal * TASA_MORA_DIARIA * diasAtraso * 100) / 100;
+      } else if (diffDays === 0) {
+        estado = 'hoy';
+      } else if (diffDays <= 3) {
+        estado = 'proximo';
+      } else {
+        estado = 'futuro';
+      }
+
+      cuotas.push({
+        numero: q + 1,
+        key,
+        label: `Quincena ${q + 1} (${fechaActual.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })})`,
+        fechaVencimiento: key,
+        capital: Math.round(capitalQuincenal),
+        interes: Math.round(interesQuincenal),
+        total: Math.round(cuotaQuincenal),
+        pagado: pagada,
+        mora,
+        diasAtraso,
+        diasRestantes: diffDays,
+        estado,
+        tipo_pago: 'quincenal'
+      });
+    }
+
+    return cuotas;
+  }
+
   // Soporte para pagos MENSUALES (con recálculo por abonos extraordinarios a capital)
   const totalAbonadoCapital = abonos_capital.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
   const saldoCapitalActual = Math.max(0, capitalInicial - totalAbonadoCapital);

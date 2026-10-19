@@ -42,10 +42,14 @@
   --badge-danger: #f87171;
 }
 
+* {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
 body {
-  background-color: #0a0b0d;
-  color: var(--text-main);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #08090b;
+  color: #f8fafc;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.012em;
 }
@@ -55,15 +59,36 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0b0d;
+  background: #08090b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #232731;
+  background: #1c2027;
   border-radius: 9999px;
+}
+
+/* Estilos de Paneles Cockpit sin trazos / Zero-Border */
+.cockpit-panel {
+  background-color: #111317;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.45);
+  border: none !important;
+}
+
+.cockpit-card {
+  background-color: #16181f;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.5);
+  border: none !important;
+}
+
+.cockpit-inner {
+  background-color: #1a1d25;
+  border-radius: 10px;
+  border: none !important;
 }
 
 /* Reglas de uniformidad */

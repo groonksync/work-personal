@@ -139,30 +139,32 @@ export default function NewLoanModal({
             </button>
           </div>
 
-          {/* Modalidad de pago: Mensual vs Diario */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0d0e11] border border-[#202126] rounded-xl">
-            <button
-              type="button"
-              onClick={() => setTipoPago('mensual')}
-              className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                tipoPago === 'mensual'
-                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e]'
-              }`}
-            >
-              Cobro Mensual
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoPago('diario')}
-              className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                tipoPago === 'diario'
-                  ? 'bg-white dark:bg-[#333333] text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-500 dark:text-[#8e8e8e]'
-              }`}
-            >
-              Cobro Diario
-            </button>
+          {/* Modalidad de pago: Mensual, Quincenal, Semanal, Diario */}
+          <div>
+            <label className="text-[11px] font-semibold text-zinc-400 block mb-1.5">
+              Modalidad de Cobro / Retorno
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-[#0d0e11] rounded-xl">
+              {[
+                { id: 'mensual', label: 'Mensual' },
+                { id: 'quincenal', label: 'Quincenal' },
+                { id: 'semanal', label: 'Semanal' },
+                { id: 'diario', label: 'Diario' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setTipoPago(m.id)}
+                  className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                    tipoPago === m.id
+                      ? 'bg-white text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Datos Personales */}
