@@ -7,8 +7,19 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
       colors: {
+        carbon: '#101216',
+        surface: {
+          card: '#14161b',
+          elevated: '#1a1d24',
+          highlight: '#232731',
+          subtle: '#2d323e',
+        },
         obsidian: {
+          DEFAULT: '#0a0b0d',
           950: '#0c0d0f', // Left slim rail
           900: '#111214', // Main canvas background
           850: '#131416', // Secondary sidebar explorer

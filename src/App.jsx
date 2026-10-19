@@ -1,14 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Sidebar from './components/Sidebar';
-import Topbar from './components/Topbar';
-import FlowCanvas from './components/FlowCanvas';
+import StitchDashboardView from './components/StitchDashboardView';
 import LoanInspectorDrawer from './components/LoanInspectorDrawer';
-import TimelineNodesView from './components/TimelineNodesView';
-import MobileStreamView from './components/MobileStreamView';
 import MobileAppView from './components/MobileAppView';
-import FolderCard from './components/FolderCard';
 import FolderView from './components/FolderView';
-import FoldersWorkspaceView from './components/FoldersWorkspaceView';
 import AlertsDrawer from './components/AlertsDrawer';
 import NewLoanModal from './components/NewLoanModal';
 import ReceiptModal from './components/ReceiptModal';
@@ -22,13 +16,10 @@ import { supabase } from './lib/supabaseClient';
 import { agruparPorPersona, extraerAlertasAnticipadas } from './lib/amortizacion';
 import { loadSettings, saveSettings, defaultTemplates } from './lib/settings';
 import { allOriginalLoans } from './data/initialLoans';
-import { Search, Plus, RefreshCw, Folder as FolderIcon, Layers } from 'lucide-react';
-
 export default function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [theme, setTheme] = useState(settings.theme || 'dark');
   const [currency, setCurrency] = useState(settings.currency || 'BOB');
-  const [viewMode, setViewMode] = useState('flow'); // 'flow' (Lienzo de Nodos) | 'timeline' (Cronograma) | 'folders' (Carpetas) | 'stream' (Flujo Diario)
   const [carteraFiltro, setCarteraFiltro] = useState('todos'); // 'todos' | 'otorgados' | 'recibidos'
   const [prestamos, setPrestamos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -443,159 +434,58 @@ export default function App() {
       </div>
 
       {/* ========================================================================= */}
-      {/* VISTA ESCRITORIO — LIENZO DE NODOS & GESTOR MONOCROMÁTICO                 */}
+      {/* VISTA ESCRITORIO — STITCH LIQUID GLASS LOAN & EXPEDIENTES DASHBOARD       */}
       {/* ========================================================================= */}
-      <div className="hidden md:flex w-full h-full overflow-hidden">
-        
-        {/* BARRA LATERAL DE NAVEGACIÓN */}
-        <Sidebar
-          viewMode={viewMode}
-          setViewMode={(mode) => {
-            setViewMode(mode);
-            setSelectedFolderKey(null);
-          }}
-          carteraFiltro={carteraFiltro}
-          setCarteraFiltro={setCarteraFiltro}
-          counts={counts}
-          totalCapital={totalCapital}
-          totalRendimiento={totalRendimiento}
-          currency={currency}
-          setCurrency={setCurrency}
-          theme={theme}
-          toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          onOpenAlerts={() => setIsAlertsOpen(true)}
-          alertasCount={alertasAnticipadas.length}
-          onOpenNewLoan={() => setIsNewLoanOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenSimulator={() => setIsSimulatorOpen(true)}
-        />
-
-        {/* ÁREA DE CONTENIDO PRINCIPAL */}
-        <div className="flex-1 h-full flex flex-col overflow-hidden bg-[#08090a] relative">
-          
-          {/* TOPBAR UNIFICADA */}
-          <Topbar
-            viewMode={viewMode}
-            breadcrumb={
-              activeFolder 
-                ? `Expediente › ${activeFolder.nombre}`
-                : viewMode === 'flow'
-                  ? 'Lienzo de Nodos'
-                  : viewMode === 'folders' 
-                    ? 'Carpetas de Expedientes' 
-                    : viewMode === 'timeline' 
-                      ? 'Cronograma de Vencimientos' 
-                      : 'Flujo Diario'
-            }
+      <div className="hidden md:flex w-full h-full flex-col overflow-y-auto custom-scroll bg-[#0a0b0d]">
+        {activeFolder ? (
+          <div className="max-w-[1440px] w-full mx-auto p-6">
+            <FolderView
+              folder={activeFolder}
+              currency={currency}
+              onBack={() => setSelectedFolderKey(null)}
+              onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
+              onOpenReceipt={(folder, contrato, cuota) =>
+                setReceiptData({ folder, contrato, cuota })
+              }
+              onSendWhatsApp={handleSendWhatsApp}
+              onOpenVouchers={(contrato) => setSelectedLoanForVouchers(contrato)}
+              onOpenExpressNotes={(contrato) => setSelectedLoanForNotes(contrato)}
+              onOpenCapitalPayment={(contrato) => setSelectedLoanForCapital(contrato)}
+              defaultDriveUrl={settings.googleDriveUrl}
+            />
+          </div>
+        ) : (
+          <StitchDashboardView
+            prestamos={prestamosFiltrados}
+            allPrestamos={prestamos}
+            carpetas={carpetas}
+            currency={currency}
+            setCurrency={setCurrency}
+            carteraFiltro={carteraFiltro}
+            setCarteraFiltro={setCarteraFiltro}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            onOpenNewLoan={() => setIsNewLoanOpen(true)}
+            counts={counts}
+            totalCapital={totalCapital}
+            totalRendimiento={totalRendimiento}
+            alertas={alertasAnticipadas}
             onOpenAlerts={() => setIsAlertsOpen(true)}
-            alertasCount={alertasAnticipadas.length}
+            onOpenNewLoan={() => setIsNewLoanOpen(true)}
             onOpenSettings={() => setIsSettingsOpen(true)}
             onOpenSimulator={() => setIsSimulatorOpen(true)}
+            onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
+            onSelectFolder={(folderKey) => setSelectedFolderKey(folderKey)}
+            onPayCuota={handlePayCuota}
+            onSendWhatsApp={handleSendWhatsApp}
+            onOpenReceipt={(data) => setReceiptData(data)}
+            onOpenVouchers={(loan) => setSelectedLoanForVouchers(loan)}
+            onOpenNotes={(loan) => setSelectedLoanForNotes(loan)}
+            onOpenCapital={(loan) => setSelectedLoanForCapital(loan)}
+            onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
+            onRefreshData={fetchPrestamos}
+            settings={settings}
           />
-
-          {/* LIENZO CENTRAL */}
-          <div className="flex-1 overflow-hidden relative flex flex-col bg-[#08090a]">
-            {activeFolder ? (
-              /* Vista del Expediente de la Carpeta */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 bg-[#08090a]">
-                <FolderView
-                  folder={activeFolder}
-                  currency={currency}
-                  onBack={() => setSelectedFolderKey(null)}
-                  onPayCuota={(contrato, cuota) => handlePayCuota(contrato, cuota)}
-                  onOpenReceipt={(folder, contrato, cuota) =>
-                    setReceiptData({ folder, contrato, cuota })
-                  }
-                  onSendWhatsApp={handleSendWhatsApp}
-                  onOpenVouchers={(contrato) => setSelectedLoanForVouchers(contrato)}
-                  onOpenExpressNotes={(contrato) => setSelectedLoanForNotes(contrato)}
-                  onOpenCapitalPayment={(contrato) => setSelectedLoanForCapital(contrato)}
-                  defaultDriveUrl={settings.googleDriveUrl}
-                />
-              </div>
-            ) : viewMode === 'flow' ? (
-              /* VISTA ESTRELLA: LIENZO INTERACTIVO DE NODOS (INSPIRADO EN EL WORKFLOW CANVAS) */
-              <FlowCanvas
-                prestamos={prestamosFiltrados}
-                currency={currency}
-                counts={counts}
-                totalCapital={totalCapital}
-                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-                onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                onPayCuota={handlePayCuota}
-                onSendWhatsApp={handleSendWhatsApp}
-                onOpenSimulator={() => setIsSimulatorOpen(true)}
-                onOpenReceipt={(folder, contrato, cuota) =>
-                  setReceiptData({ folder, contrato, cuota })
-                }
-                onOpenFolder={(folderKey) => setSelectedFolderKey(folderKey)}
-                onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
-                onChangeViewMode={(mode) => setViewMode(mode)}
-                defaultDriveUrl={settings.googleDriveUrl}
-              />
-            ) : viewMode === 'folders' ? (
-              /* VISTA DE CARPETAS CON LAS TARJETAS 3D */
-              <FoldersWorkspaceView
-                carpetas={carpetas}
-                prestamos={prestamosFiltrados}
-                currency={currency}
-                activeCategory={
-                  carteraFiltro === 'recibidos'
-                    ? 'Por Pagar (Fondeo)'
-                    : carteraFiltro === 'otorgados'
-                      ? 'Por Cobrar (Cartera)'
-                      : 'Todos los Expedientes'
-                }
-                onSelectFolder={(key) => setSelectedFolderKey(key)}
-                onQuickPay={(f) => {
-                  const contrato = f.contratos[0];
-                  if (contrato) {
-                    const cuota = { key: f.fechaProxima || 'cuota-rapida', label: 'Cuota Inmediata', total: f.cuotaProxima };
-                    handlePayCuota(contrato, cuota);
-                  }
-                }}
-                onPayCuota={handlePayCuota}
-                onSendWhatsApp={handleSendWhatsApp}
-                onOpenReceipt={(folder, contrato, cuota) => setReceiptData({ folder, contrato, cuota })}
-                onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-                loading={loading}
-              />
-            ) : viewMode === 'timeline' ? (
-              /* VISTA CRONOGRAMA CON COLUMNAS POR DÍA Y MATRIZ MENSUAL */
-              <TimelineNodesView
-                prestamos={prestamosFiltrados}
-                currency={currency}
-                onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-                onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                onPayCuota={handlePayCuota}
-                onSendWhatsApp={handleSendWhatsApp}
-                onOpenReceipt={(folder, contrato, cuota) =>
-                  setReceiptData({ folder, contrato, cuota })
-                }
-                onOpenSimulator={() => setIsSimulatorOpen(true)}
-                onOpenExtension={(loan) => setSelectedLoanForExtension(loan)}
-              />
-            ) : (
-              /* VISTA STREAM MÓVIL VERTICAL CON NODOS */
-              <div className="flex-1 overflow-y-auto custom-scroll p-6 flex justify-center bg-[#08090a]">
-                <MobileStreamView
-                  prestamos={prestamosFiltrados}
-                  currency={currency}
-                  onSelectLoan={(loan) => setSelectedLoanForInspector(loan)}
-                  onOpenNewLoan={() => setIsNewLoanOpen(true)}
-                  onPayCuota={handlePayCuota}
-                  onSendWhatsApp={handleSendWhatsApp}
-                />
-              </div>
-            )}
-          </div>
-
-        </div>
-
+        )}
       </div>
 
       {/* 4. DRAWER / BOTTOM SHEET INSPECTOR (PARA MÓVIL Y ESCRITORIO) */}

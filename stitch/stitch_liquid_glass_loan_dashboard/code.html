@@ -1,0 +1,615 @@
+<!DOCTYPE html><html class="dark" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<title>Gestión de Liquidez &amp; Expedientes</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            obsidian: '#0a0b0d',
+            carbon: '#101216',
+            surface: {
+              card: '#14161b',
+              elevated: '#1a1d24',
+              highlight: '#232731',
+              subtle: '#2d323e'
+            }
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overscroll-behavior: none;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0b0d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232731;
+      border-radius: 9999px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0b0d] text-slate-100 min-h-screen antialiased selection:bg-slate-700 selection:text-white flex flex-col justify-between">
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-50 bg-[#0a0b0d]/90 backdrop-blur-md border-b border-white/[0.06]">
+<div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+<!-- Brand & Section Tabs -->
+<div class="flex items-center gap-8">
+
+<nav class="hidden md:flex items-center gap-1.5 p-1 rounded-xl bg-[#14161b] border border-white/[0.04]">
+<a class="px-3.5 py-1.5 rounded-lg bg-[#232731] text-white text-xs font-medium transition-all shadow-sm" href="#">Resumen</a>
+<a class="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-[#1a1d24] text-xs font-medium transition-colors" href="#">Cartera</a>
+<a class="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-[#1a1d24] text-xs font-medium transition-colors flex items-center gap-1.5" href="#">
+<span class="">Expedientes Drive</span>
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+</a>
+<a class="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-[#1a1d24] text-xs font-medium transition-colors" href="#">Métricas</a>
+</nav>
+</div>
+<!-- Right Controls & Lender ID -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<button class="w-9 h-9 rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.05] text-zinc-400 hover:text-zinc-200 flex items-center justify-center transition-colors" title="Notificaciones" type="button">
+<span class="material-symbols-outlined text-[18px]">notifications</span>
+</button>
+<button class="w-9 h-9 rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.05] text-zinc-400 hover:text-zinc-200 flex items-center justify-center transition-colors" title="Ajustes de terminal" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+
+
+</div>
+</div>
+</header>
+<!-- MAIN WRAPPER -->
+<main class="w-full max-w-[1440px] mx-auto px-6 py-8 flex-1">
+<!-- SUB-HEADER / ACTIONS BAR -->
+<div class="flex flex-col md:flex-row md:items-center gap-4 mb-8 justify-between"><div class="flex items-center gap-3 flex-wrap"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#14161b] border border-white/[0.05]"><span class="w-1.5 h-1.5 rounded-full bg-zinc-300"></span><span class="text-[11px] font-mono uppercase tracking-wider text-zinc-300 font-semibold">Nodo Operativo • En Línea</span></div><span class="text-zinc-600 text-xs">/</span><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[17px] text-zinc-400">monitoring</span><span class="text-xs text-zinc-300 font-medium">Gestión de Liquidez &amp; Cartera Activa</span></div></div>
+
+<div class="flex items-center gap-2.5 flex-wrap">
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.07] text-zinc-300 text-xs font-medium transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[17px] text-zinc-400">filter_list</span>
+<span class="">Filtrar Cartera</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.07] text-zinc-300 text-xs font-medium transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[17px] text-zinc-400">file_download</span>
+<span class="">Estado Financiero</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 active:scale-[0.98] text-xs font-semibold transition-all shadow-md" type="button">
+<span class="material-symbols-outlined text-[17px] font-bold">add</span>
+<span class="">Nuevo Desembolso</span>
+</button>
+</div>
+</div>
+<!-- 4 KPIS GRID -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<!-- KPI 1 -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-5 relative overflow-hidden transition-all hover:border-white/[0.12] hover:bg-[#171920]">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Capital Bajo Gestión</span>
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] flex items-center justify-center text-zinc-300 border border-white/[0.04]">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+</div>
+</div>
+<div class="text-2xl font-bold tracking-tight text-white mb-2.5">$1,250,000</div>
+<div class="flex items-center gap-1.5 text-zinc-400 text-xs">
+<span class="material-symbols-outlined text-[15px] text-zinc-400">lock</span>
+<span class="">Reserva nodal 100% garantizada</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-5 relative overflow-hidden transition-all hover:border-white/[0.12] hover:bg-[#171920]">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Capital Colocado Activo</span>
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] flex items-center justify-center text-zinc-300 border border-white/[0.04]">
+<span class="material-symbols-outlined text-[18px]">currency_exchange</span>
+</div>
+</div>
+<div class="text-2xl font-bold tracking-tight text-white mb-2.5">$942,650</div>
+<div class="w-full bg-[#232731] h-1.5 rounded-full overflow-hidden mb-2">
+<div class="bg-gradient-to-r from-zinc-300 to-white h-full rounded-full" style="width: 75.4%"></div>
+</div>
+<div class="flex items-center justify-between text-xs text-zinc-400">
+<span class="">75.4% Utilización</span>
+<span class="font-medium text-zinc-300">12 posiciones</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-5 relative overflow-hidden transition-all hover:border-white/[0.12] hover:bg-[#171920]">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Amortización Recup. YTD</span>
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] flex items-center justify-center text-zinc-300 border border-white/[0.04]">
+<span class="material-symbols-outlined text-[18px]">history</span>
+</div>
+</div>
+<div class="text-2xl font-bold tracking-tight text-white mb-2.5">$418,200</div>
+<div class="flex items-center gap-1.5 text-zinc-400 text-xs">
+<span class="material-symbols-outlined text-[15px] text-zinc-300">verified</span>
+<span class="">0 incumplimientos graves</span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-5 relative overflow-hidden transition-all hover:border-white/[0.12] hover:bg-[#171920]">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Intereses Devengados</span>
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] flex items-center justify-center text-zinc-300 border border-white/[0.04]">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+</div>
+</div>
+<div class="text-2xl font-bold tracking-tight text-white mb-2.5">$110,850</div>
+<div class="flex items-center gap-1.5 text-zinc-400 text-xs">
+<span class="material-symbols-outlined text-[15px] text-zinc-400">calendar_today</span>
+<span class="">Rendimiento efectivo 14.2% TEA</span>
+</div>
+</div>
+</section>
+<!-- TWO-COLUMN WORKSPACE -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- LEFT COLUMN: LENDER PROFILE & SPECS (4 Cols) -->
+<aside class="lg:col-span-4 flex flex-col gap-5">
+<!-- Profile Card -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-6 shadow-sm">
+<div class="flex items-start justify-between pb-5 border-b border-white/[0.06]">
+<div class="flex items-center gap-3.5">
+<div class="relative w-13 h-13 rounded-xl overflow-hidden border border-white/[0.1] bg-[#1d2027] shrink-0">
+<img alt="Marcus Van Der Bilt" class="w-12 h-12 rounded-lg object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyCYEK8NyIs5ePFvCsr2KstRSQevzZO46zf_NqIlzVi-NUymDf5inOHl1Z7MPZ_DgN-sH1i67PrsdXJ6cSSnKhYgVSDn5yfv18uOwpF624tOzuZe0hb2V_n91IjIGKGi3D2sQE_9uRvnf2y7EH9W85F3XHWZpug67T8ODRAqhJ1I7ioA60uzjSanuDvrAvABU4dxyqwaYKX94gwTnreqsOlBVAJOjP05tEf0CK9lNOQVIbX865_fJbbg">
+</div>
+<div>
+<h3 class="text-base font-semibold text-white tracking-tight">Marcus Van Der Bilt</h3>
+<div class="text-[11px] font-mono text-zinc-400 tracking-wider">CREDENCIAL INSTITUCIONAL</div>
+<div class="text-[11px] font-mono text-zinc-500">#LND-8842-SOV</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1e222a] border border-white/[0.08] text-[11px] font-medium text-zinc-300">
+<span class="material-symbols-outlined text-[13px] text-zinc-300">verified_user</span>
+              Auditado
+            </span>
+</div>
+<!-- Liquid Balance Highlight -->
+<div class="mt-5 p-4 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<div class="flex items-center justify-between text-xs text-zinc-400 mb-1">
+<span class="uppercase tracking-wider font-medium text-[10px]">Líquido Disponible Inmediato</span>
+<span class="material-symbols-outlined text-[16px] text-zinc-400">account_balance_wallet</span>
+</div>
+<div class="text-2xl font-bold text-white tracking-tight">$307,350</div>
+<p class="text-[11px] text-zinc-400 mt-1">Disponible para colocación sintética directa</p>
+</div>
+<!-- Technical Specs -->
+<div class="mt-5 space-y-3 divide-y divide-white/[0.04] text-xs">
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2 text-zinc-400">
+<span class="material-symbols-outlined text-[16px]">percent</span>
+<span class="">Tasa Media Ponderada</span>
+</div>
+<span class="font-semibold text-zinc-200">14.20% TEA</span>
+</div>
+<div class="flex items-center justify-between pt-3">
+<div class="flex items-center gap-2 text-zinc-400">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span class="">Límites de Colocación</span>
+</div>
+<span class="font-semibold text-zinc-200">$5,000 / $150,000</span>
+</div>
+<div class="flex items-center justify-between pt-3">
+<div class="flex items-center gap-2 text-zinc-400">
+<span class="material-symbols-outlined text-[16px]">credit_card</span>
+<span class="">Cuenta Desembolso</span>
+</div>
+<span class="font-mono text-zinc-300">•••• 4920 (JPM Chase)</span>
+</div>
+<div class="flex items-center justify-between pt-3">
+<div class="flex items-center gap-2 text-zinc-400">
+<span class="material-symbols-outlined text-[16px]">gavel</span>
+<span class="">Marco Jurídico</span>
+</div>
+<span class="font-medium text-zinc-200">Mutuo con Garantía</span>
+</div>
+<div class="flex items-center justify-between pt-3">
+<div class="flex items-center gap-2 text-zinc-400">
+<span class="material-symbols-outlined text-[16px]">key</span>
+<span class="">Firma Criptográfica</span>
+</div>
+<span class="inline-flex items-center gap-1.5 text-zinc-300 font-mono text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-300"></span>
+                Activa v3.2
+              </span>
+</div>
+</div>
+<!-- Protocol Links -->
+<div class="mt-6 pt-5 border-t border-white/[0.06] space-y-1.5">
+<span class="block text-[10px] font-mono tracking-widest text-zinc-400 uppercase mb-2">Administración y Protocolos</span>
+<a class="flex items-center justify-between p-2.5 rounded-lg bg-[#1a1d24]/60 hover:bg-[#1a1d24] border border-white/[0.04] transition-all group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-zinc-400 group-hover:text-white transition-colors">description</span>
+<span class="text-xs text-zinc-300 group-hover:text-white transition-colors">Configuración de Contratos</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-zinc-500 group-hover:text-zinc-300 transition-colors">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-2.5 rounded-lg bg-[#1a1d24]/60 hover:bg-[#1a1d24] border border-white/[0.04] transition-all group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-zinc-400 group-hover:text-white transition-colors">receipt_long</span>
+<span class="text-xs text-zinc-300 group-hover:text-white transition-colors">Balance Fiscal &amp; Retenciones</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-zinc-500 group-hover:text-zinc-300 transition-colors">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-2.5 rounded-lg bg-[#1a1d24]/60 hover:bg-[#1a1d24] border border-white/[0.04] transition-all group" href="#">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[16px] text-zinc-400 group-hover:text-white transition-colors">vpn_key</span>
+<span class="text-xs text-zinc-300 group-hover:text-white transition-colors">Llaves API &amp; Webhooks Drive</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-zinc-500 group-hover:text-zinc-300 transition-colors">chevron_right</span>
+</a>
+</div>
+</div>
+<!-- Google Workspace Real-Time Sync Status -->
+<div class="rounded-xl bg-[#14161b] border border-white/[0.06] p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] border border-white/[0.04] flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">cloud_sync</span>
+</div>
+<div>
+<div class="text-xs font-semibold text-white">Google Workspace Sync</div>
+<div class="text-[11px] text-zinc-400 font-mono">Latencia 12ms • Conexión Cifrada</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-white/[0.05]">AUTOSYNC</span>
+</div>
+</aside>
+<!-- RIGHT COLUMN: CLIENTS PORTFOLIO & GOOGLE DRIVE INDEX (8 Cols) -->
+<section class="lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-[20px]">folder_open</span>
+<h2 class="text-base font-semibold text-white tracking-tight">Expedientes en la Nube &amp; Cartera Activa</h2>
+</div>
+<span class="text-xs font-mono text-zinc-400">3 Posiciones Indexadas</span>
+</div>
+<!-- CLIENT 1: AGROINDUSTRIAS DEL MAULE (EXPANDED DRIVE EXPLORER) -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.08] p-6 shadow-sm">
+<!-- Client Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/[0.06]">
+<div class="flex items-center gap-3.5">
+<div class="w-11 h-11 rounded-xl bg-[#1e222a] border border-white/[0.06] flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-[22px]">agriculture</span>
+</div>
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="text-base font-semibold text-white">Agroindustrias del Maule S.A.</h3>
+<span class="px-2 py-0.5 rounded-md bg-[#1e222a] border border-white/[0.06] text-[11px] font-medium text-zinc-300">Expediente Aprobado</span>
+</div>
+<div class="text-xs text-zinc-400 mt-0.5">RUT: 76.940.112-K • Mutuo Comercial Hipotecario</div>
+</div>
+</div>
+<div class="self-start sm:self-center">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1d24] border border-white/[0.06] text-xs font-medium text-zinc-200">
+<span class="material-symbols-outlined text-[14px] text-zinc-400">schedule</span>
+                Próximo Cobro: 28 Oct
+              </span>
+</div>
+</div>
+<!-- Financial Stats Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Deuda Insoluta</span>
+<span class="text-lg font-bold text-white">$84,300</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Cuota Mensual</span>
+<span class="text-lg font-bold text-white">$6,450</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Plazo Restante</span>
+<span class="text-lg font-bold text-white">14 Cuotas</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Garantía / Cobertura</span>
+<span class="text-lg font-bold text-white">2.4x LTV</span>
+</div>
+</div>
+<!-- EMBEDDED GOOGLE DRIVE EXPLORER -->
+<div class="rounded-xl bg-[#0e1014] border border-white/[0.06] p-4.5">
+<!-- Drive Path & Action Toolbar -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 mb-3 border-b border-white/[0.04] rounded-lg bg-[#14161b]/60">
+<div class="flex items-center gap-2 text-xs font-mono min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] border border-white/[0.04] flex items-center justify-center text-zinc-300 shrink-0">
+<span class="material-symbols-outlined text-[17px]">add_to_drive</span>
+</div>
+<div class="flex items-center gap-2 truncate">
+<span class="text-zinc-400">Drive</span>
+<span class="text-zinc-600">/</span>
+<span class="text-zinc-400">Expedientes_2024</span>
+<span class="text-zinc-600">/</span>
+<span class="text-white font-semibold">Agroindustrias_Maule</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+<a class="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[15px]">open_in_new</span>
+<span class="">Abrir en Google Drive</span>
+</a>
+<button class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">upload_file</span>
+<span class="">Subir</span>
+</button>
+</div>
+</div>
+<!-- Interactive File List -->
+<div class="space-y-2">
+<!-- File 1: Contrato Mutuo -->
+<div class="flex items-center justify-between rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.03] transition-colors group cursor-pointer px-4 py-3.5">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#21242d] flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<div class="text-xs font-medium text-white truncate group-hover:underline">Contrato_Mutuo_Firmado.pdf</div>
+<div class="flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
+<span class="">2.4 MB</span>
+<span class="">•</span>
+<span class="">Firmado Digitalmente (DocuSign Protocol)</span>
+<span class="">•</span>
+<span class="">Act. 14 Oct</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-[#1e222a] text-zinc-300 border border-white/[0.05]">Inmutable</span>
+<span class="material-symbols-outlined text-[18px] text-zinc-400 group-hover:text-white transition-colors">download</span>
+</div>
+</div>
+<!-- File 2: Pagaré Notariado -->
+<div class="flex items-center justify-between rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.03] transition-colors group cursor-pointer px-4 py-3.5">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#21242d] flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<div class="text-xs font-medium text-white truncate group-hover:underline">Pagare_Notariado_2024.pdf</div>
+<div class="flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
+<span class="">1.1 MB</span>
+<span class="">•</span>
+<span class="">Protocolizado 38ª Notaría</span>
+<span class="">•</span>
+<span class="">Act. 12 Oct</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-[#1e222a] text-zinc-300 border border-white/[0.05]">Ejecutivo</span>
+<span class="material-symbols-outlined text-[18px] text-zinc-400 group-hover:text-white transition-colors">download</span>
+</div>
+</div>
+<!-- File 3: Garantía Hipotecaria Escritura -->
+<div class="flex items-center justify-between rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.03] transition-colors group cursor-pointer px-4 py-3.5">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#21242d] flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<div class="text-xs font-medium text-white truncate group-hover:underline">Garantia_Hipotecaria_Escritura.pdf</div>
+<div class="flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
+<span class="">5.8 MB</span>
+<span class="">•</span>
+<span class="">CBR Inscripción Fs. 1204</span>
+<span class="">•</span>
+<span class="">Act. 09 Oct</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-[#1e222a] text-zinc-300 border border-white/[0.05]">Dominio Vigente</span>
+<span class="material-symbols-outlined text-[18px] text-zinc-400 group-hover:text-white transition-colors">download</span>
+</div>
+</div>
+<!-- File 4: Excel Auditado -->
+<div class="flex items-center justify-between rounded-lg bg-[#14161b] hover:bg-[#1a1d24] border border-white/[0.03] transition-colors group cursor-pointer px-4 py-3.5">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#21242d] flex items-center justify-center text-zinc-300 group-hover:text-white shrink-0">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+</div>
+<div class="min-w-0">
+<div class="text-xs font-medium text-white truncate group-hover:underline">Estados_Financieros_Auditados.xlsx</div>
+<div class="flex items-center gap-2 text-[10px] text-zinc-400 font-mono">
+<span class="">840 KB</span>
+<span class="">•</span>
+<span class="">Hojas de Cálculo Google Integradas</span>
+<span class="">•</span>
+<span class="">Act. 01 Oct</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-[#1e222a] text-zinc-300 border border-white/[0.05]">Auditoría KPMG</span>
+<span class="material-symbols-outlined text-[18px] text-zinc-400 group-hover:text-white transition-colors">download</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CLIENT 2: VORTEX QUANTUM LABS -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-6 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/[0.06]">
+<div class="flex items-center gap-3.5">
+<div class="w-11 h-11 rounded-xl bg-[#1e222a] border border-white/[0.06] flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-[22px]">science</span>
+</div>
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="text-base font-semibold text-white">Vortex Quantum Labs Inc.</h3>
+<span class="px-2 py-0.5 rounded-md bg-[#1e222a] border border-white/[0.06] text-[11px] font-medium text-zinc-300">Línea Tecnológica</span>
+</div>
+<div class="text-xs text-zinc-400 mt-0.5">RUT: 96.331.849-2 • Pagaré con Warrant de Activos</div>
+</div>
+</div>
+<div class="self-start sm:self-center">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-zinc-950 font-semibold text-xs shadow-sm">
+<span class="material-symbols-outlined text-[15px] font-bold">notification_important</span>
+                Cobro Hoy (25 Oct)
+              </span>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Deuda Insoluta</span>
+<span class="text-lg font-bold text-white">$192,000</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Cuota de Hoy</span>
+<span class="text-lg font-bold text-white">$11,800</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Plazo Restante</span>
+<span class="text-lg font-bold text-white">18 Cuotas</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Estado Conciliación</span>
+<span class="text-lg font-bold text-white">Pendiente</span>
+</div>
+</div>
+<!-- Drive Directory Direct Link Pill -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-[#0e1014] border border-white/[0.05] gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 mb-3 border-b border-white/[0.04] rounded-lg bg-[#14161b]/60">
+<div class="flex items-center gap-2 text-xs font-mono min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] border border-white/[0.04] flex items-center justify-center text-zinc-300 shrink-0">
+<span class="material-symbols-outlined text-[17px]">add_to_drive</span>
+</div>
+<div class="flex items-center gap-2 truncate">
+<span class="text-zinc-400">Drive</span>
+<span class="text-zinc-600">/</span>
+<span class="text-zinc-400">Expedientes_2024</span>
+<span class="text-zinc-600">/</span>
+<span class="text-white font-semibold">Agroindustrias_Maule</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+<a class="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[15px]">open_in_new</span>
+<span class="">Abrir en Google Drive</span>
+</a>
+<button class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">upload_file</span>
+<span class="">Subir</span>
+</button>
+</div>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.06] text-xs font-medium text-white transition-colors self-start sm:self-center shrink-0" type="button">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span class="">Ver Expediente</span>
+</button>
+</div>
+</div>
+<!-- CLIENT 3: TRANSPORTES TRANSOCEÁNICA -->
+<div class="rounded-2xl bg-[#14161b] border border-white/[0.06] p-6 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/[0.06]">
+<div class="flex items-center gap-3.5">
+<div class="w-11 h-11 rounded-xl bg-[#1e222a] border border-white/[0.06] flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="text-base font-semibold text-white">Transportes Transoceánica Ltda.</h3>
+<span class="px-2 py-0.5 rounded-md bg-[#1e222a] border border-white/[0.06] text-[11px] font-medium text-zinc-300">Garantía Prendaria</span>
+</div>
+<div class="text-xs text-zinc-400 mt-0.5">RUT: 82.519.400-8 • Arrendamiento Financiero</div>
+</div>
+</div>
+<div class="self-start sm:self-center">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1d24] border border-white/[0.06] text-xs font-medium text-zinc-200">
+<span class="material-symbols-outlined text-[14px] text-zinc-400">event</span>
+                Próximo Cobro: 02 Nov
+              </span>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Deuda Insoluta</span>
+<span class="text-lg font-bold text-white">$46,250</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Cuota Mensual</span>
+<span class="text-lg font-bold text-white">$8,900</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Plazo Restante</span>
+<span class="text-lg font-bold text-white">6 Cuotas</span>
+</div>
+<div class="p-3.5 rounded-xl bg-[#1a1d24] border border-white/[0.04]">
+<span class="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block mb-1">Activos en Garantía</span>
+<span class="text-lg font-bold text-white">4 Camiones</span>
+</div>
+</div>
+<!-- Drive Directory Direct Link Pill -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-[#0e1014] border border-white/[0.05] gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 mb-3 border-b border-white/[0.04] rounded-lg bg-[#14161b]/60">
+<div class="flex items-center gap-2 text-xs font-mono min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#1e222a] border border-white/[0.04] flex items-center justify-center text-zinc-300 shrink-0">
+<span class="material-symbols-outlined text-[17px]">add_to_drive</span>
+</div>
+<div class="flex items-center gap-2 truncate">
+<span class="text-zinc-400">Drive</span>
+<span class="text-zinc-600">/</span>
+<span class="text-zinc-400">Expedientes_2024</span>
+<span class="text-zinc-600">/</span>
+<span class="text-white font-semibold">Agroindustrias_Maule</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+<a class="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[15px]">open_in_new</span>
+<span class="">Abrir en Google Drive</span>
+</a>
+<button class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.08] text-xs font-medium text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">upload_file</span>
+<span class="">Subir</span>
+</button>
+</div>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#232731] border border-white/[0.06] text-xs font-medium text-white transition-colors self-start sm:self-center shrink-0" type="button">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span class="">Ver Expediente</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-[#0a0b0d] border-t border-white/[0.06] mt-12">
+<div class="max-w-[1440px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3 text-xs text-zinc-400">
+<span class="font-mono uppercase tracking-wider text-zinc-300">Vault Institutional Node</span>
+<span class="">•</span>
+<span class="">Enlace Seguro v4.8</span>
+</div>
+<div class="flex items-center gap-6 text-xs text-zinc-400">
+<a class="hover:text-white transition-colors" href="#">Auditoría Criptográfica</a>
+<a class="hover:text-white transition-colors" href="#">Términos de Liquidez</a>
+<a class="hover:text-white transition-colors" href="#">Soporte Clave Privada</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>
