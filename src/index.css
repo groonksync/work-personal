@@ -70,23 +70,23 @@ body {
   border-radius: 9999px;
 }
 
-/* Estilos de Paneles Cockpit sin trazos / Zero-Border */
+/* Estilos de Paneles Cockpit sin trazos / Zero-Border en Gris Oscuro Elegante */
 .cockpit-panel {
-  background-color: #111317;
+  background-color: #131417;
   border-radius: 18px;
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.45);
   border: none !important;
 }
 
 .cockpit-card {
-  background-color: #16181f;
+  background-color: #18191e;
   border-radius: 14px;
   box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.5);
   border: none !important;
 }
 
 .cockpit-inner {
-  background-color: #1a1d25;
+  background-color: #1f2026;
   border-radius: 10px;
   border: none !important;
 }
