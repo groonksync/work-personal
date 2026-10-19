@@ -2,41 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Modo Claro Minimalista */
-  --bg-canvas: #f6f6f8;
-  --bg-sidebar: #ededf1;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f0f0f3;
-  --bg-hover: #e5e5eb;
-  --border-fine: #e0e0e7;
-  --border-focus: #b5b5c2;
-  --text-main: #18181b;
-  --text-muted: #6e6e78;
-  --btn-solid: #18181b;
-  --btn-solid-fg: #ffffff;
-  --badge-warn: #d97706;
-  --badge-ok: #16a34a;
-  --badge-danger: #dc2626;
-}
-
-.dark {
-  /* Modo Oscuro Monocromático Negro Profundo y Gris Obsidian */
-  --bg-canvas: #08090a;
-  --bg-canvas-subtle: #0d0e11;
-  --bg-rail: #121316;
-  --bg-sidebar: #141518;
-  --bg-surface: #18191d;
-  --bg-card: #1b1c21;
-  --bg-subtle: #222329;
+:root, .dark {
+  /* Paleta Unificada de Referencia UI: Negro Carbón, Grafito #151619 y Acentos Azul Cobalto */
+  --bg-canvas: #0c0d10;
+  --bg-canvas-subtle: #0f1013;
+  --bg-rail: #111215;
+  --bg-sidebar: #151619;
+  --bg-surface: #151619;
+  --bg-card: #1b1c20;
+  --bg-subtle: #1f2025;
   --bg-hover: #26272e;
-  --border-fine: #24252a;
-  --border-hover: #32353f;
-  --border-focus: #3e414c;
-  --text-main: #f3f4f6;
-  --text-muted: #858994;
-  --btn-solid: #f3f4f6;
-  --btn-solid-fg: #0d0e11;
+  --border-fine: #222327;
+  --border-hover: #2d2e35;
+  --border-focus: #2563eb;
+  --text-main: #ffffff;
+  --text-muted: #8b8f98;
+  --btn-solid: #2563eb;
+  --btn-solid-fg: #ffffff;
   --badge-warn: #fbbf24;
   --badge-ok: #34d399;
   --badge-danger: #f87171;
@@ -47,8 +29,8 @@
 }
 
 body {
-  background-color: #08090b;
-  color: #f8fafc;
+  background-color: #0c0d10;
+  color: #ffffff;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.012em;
@@ -63,32 +45,32 @@ body {
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090b;
+  background: #0c0d10;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1c2027;
+  background: #222327;
   border-radius: 9999px;
 }
 
-/* Estilos de Paneles Cockpit sin trazos / Zero-Border en Gris Oscuro Elegante */
+/* Estilos de Paneles Cockpit en Grafito #151619 y Tarjetas #1b1c20 */
 .cockpit-panel {
-  background-color: #131417;
+  background-color: #151619;
   border-radius: 18px;
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.45);
-  border: none !important;
+  border: 1px solid #222327 !important;
 }
 
 .cockpit-card {
-  background-color: #18191e;
+  background-color: #1b1c20;
   border-radius: 14px;
   box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.5);
-  border: none !important;
+  border: 1px solid #222327 !important;
 }
 
 .cockpit-inner {
-  background-color: #1f2026;
+  background-color: #1f2025;
   border-radius: 10px;
-  border: none !important;
+  border: 1px solid #222327 !important;
 }
 
 /* Reglas de uniformidad */

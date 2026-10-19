@@ -436,7 +436,7 @@ export default function App() {
       {/* ========================================================================= */}
       {/* VISTA ESCRITORIO — STITCH LIQUID GLASS LOAN & EXPEDIENTES DASHBOARD       */}
       {/* ========================================================================= */}
-      <div className="hidden md:flex w-full h-full flex-col overflow-y-auto custom-scroll bg-[#0a0b0d]">
+      <div className="hidden md:flex w-full h-full flex-col overflow-y-auto custom-scroll bg-[#0c0d10]">
         {activeFolder ? (
           <div className="max-w-[1440px] w-full mx-auto p-6">
             <FolderView
@@ -617,7 +617,7 @@ export default function App() {
 
       {/* Toast Flotante */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-white text-black px-4 py-2.5 rounded-lg text-xs font-semibold shadow-2xl animate-in fade-in duration-200">
+        <div className="fixed bottom-5 right-5 z-50 bg-[#151619] border border-[#222327] text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl animate-in fade-in duration-200">
           {toastMessage}
         </div>
       )}

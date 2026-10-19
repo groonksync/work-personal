@@ -88,11 +88,11 @@ export default function NewLoanModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-lg bg-[#141518] border border-[#24252a] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-[#f3f4f6] max-h-[92vh]"
+        className="w-full max-w-lg bg-[#151619] border border-[#222327] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-white max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera */}
-        <div className="p-4 px-5 border-b border-[#202126] flex items-center justify-between bg-[#0d0e11]">
+        <div className="p-4 px-5 border-b border-[#222327] flex items-center justify-between bg-[#111215]">
           <div>
             <h3 className="text-sm font-bold text-white tracking-tight leading-none">
               Anotar Nuevo Préstamo
@@ -104,7 +104,7 @@ export default function NewLoanModal({
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-[#1c1d22] hover:bg-[#25272e] text-[#8b8f98] hover:text-white flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-lg bg-[#1b1c20] hover:bg-[#222329] border border-[#26282e] text-[#8b8f98] hover:text-white flex items-center justify-center transition-all"
           >
             <X className="w-4 h-4" />
           </button>
@@ -114,13 +114,13 @@ export default function NewLoanModal({
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scroll text-xs">
           
           {/* Segmento: Otorgado vs Recibido */}
-          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0d0e11] border border-[#202126] rounded-xl">
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#111215] border border-[#222327] rounded-xl">
             <button
               type="button"
               onClick={() => setTipo('otorgado')}
               className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                 tipo === 'otorgado'
-                  ? 'bg-[#22242b] text-white shadow-xs border border-white/10'
+                  ? 'bg-[#2563eb] text-white shadow-xs'
                   : 'text-[#8b8f98] hover:text-white'
               }`}
             >
@@ -131,7 +131,7 @@ export default function NewLoanModal({
               onClick={() => setTipo('recibido')}
               className={`py-2 rounded-lg text-xs font-semibold transition-all ${
                 tipo === 'recibido'
-                  ? 'bg-[#22242b] text-white shadow-xs border border-white/10'
+                  ? 'bg-[#2563eb] text-white shadow-xs'
                   : 'text-[#8b8f98] hover:text-white'
               }`}
             >
@@ -144,7 +144,7 @@ export default function NewLoanModal({
             <label className="text-[11px] font-semibold text-zinc-400 block mb-1.5">
               Modalidad de Cobro / Retorno
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-[#0d0e11] rounded-xl">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 bg-[#111215] border border-[#222327] rounded-xl">
               {[
                 { id: 'mensual', label: 'Mensual' },
                 { id: 'quincenal', label: 'Quincenal' },
@@ -157,8 +157,8 @@ export default function NewLoanModal({
                   onClick={() => setTipoPago(m.id)}
                   className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
                     tipoPago === m.id
-                      ? 'bg-white text-zinc-950 shadow-sm'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-[#2563eb] text-white shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   {m.label}
@@ -170,7 +170,7 @@ export default function NewLoanModal({
           {/* Datos Personales */}
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+              <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                 Nombre de la Persona *
               </label>
               <input
@@ -179,13 +179,13 @@ export default function NewLoanModal({
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Ej. Magali Molina, Roberto Villazón..."
-                className="w-full bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white text-xs outline-none focus:border-zinc-400"
+                className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#2563eb] transition-colors"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Cédula de Identidad (CI)
                 </label>
                 <input
@@ -193,12 +193,12 @@ export default function NewLoanModal({
                   value={ci}
                   onChange={(e) => setCi(e.target.value)}
                   placeholder="Ej. 6259284-SC"
-                  className="w-full bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Teléfono / WhatsApp
                 </label>
                 <input
@@ -206,20 +206,20 @@ export default function NewLoanModal({
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
                   placeholder="Ej. 76653981"
-                  className="w-full bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
             </div>
           </div>
 
           {/* Términos Financieros */}
-          <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] space-y-3">
+          <div className="p-3.5 rounded-xl bg-[#111215] border border-[#222327] space-y-3">
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4]">
+                <label className="text-[11px] font-semibold text-zinc-400">
                   Monto del Capital ({symbol})
                 </label>
-                <span className="font-mono text-xs font-bold text-zinc-900 dark:text-white">
+                <span className="font-mono text-xs font-bold text-white">
                   {symbol} {capitalNum.toLocaleString()}
                 </span>
               </div>
@@ -229,7 +229,7 @@ export default function NewLoanModal({
                 required
                 value={capital}
                 onChange={(e) => setCapital(e.target.value)}
-                className="w-full bg-white dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white font-mono text-xs outline-none focus:border-zinc-400"
+                className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white font-mono text-xs outline-none focus:border-[#2563eb] transition-colors"
               />
 
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -238,7 +238,7 @@ export default function NewLoanModal({
                     key={amt}
                     type="button"
                     onClick={() => addAmount(amt)}
-                    className="px-2 py-0.5 rounded-lg bg-zinc-200/70 hover:bg-zinc-200 dark:bg-[#333] dark:hover:bg-[#3e3e3e] text-[10px] font-mono text-zinc-700 dark:text-[#ccc]"
+                    className="px-2 py-0.5 rounded-lg bg-[#1b1c20] hover:bg-[#2563eb] hover:text-white border border-[#26282e] text-[10px] font-mono text-zinc-300 transition-colors"
                   >
                     +{amt.toLocaleString()}
                   </button>
@@ -248,7 +248,7 @@ export default function NewLoanModal({
 
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Tasa Mensual (%)
                 </label>
                 <input
@@ -257,12 +257,12 @@ export default function NewLoanModal({
                   required
                   value={interes}
                   onChange={(e) => setInteres(e.target.value)}
-                  className="w-full bg-white dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white font-mono text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white font-mono text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Plazo ({tipoPago === 'diario' ? 'Meses (x30d)' : 'Meses'})
                 </label>
                 <input
@@ -272,26 +272,26 @@ export default function NewLoanModal({
                   required
                   value={plazoMeses}
                   onChange={(e) => setPlazoMeses(e.target.value)}
-                  className="w-full bg-white dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white font-mono text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white font-mono text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Fecha de Inicio
                 </label>
                 <input
                   type="date"
                   value={fechaInicio}
                   onChange={(e) => setFechaInicio(e.target.value)}
-                  className="w-full bg-white dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white font-mono text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white font-mono text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block mb-1">
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
                   Garantía (Opcional)
                 </label>
                 <input
@@ -299,24 +299,24 @@ export default function NewLoanModal({
                   value={garantia}
                   onChange={(e) => setGarantia(e.target.value)}
                   placeholder="Ej. Vehículo, Documento..."
-                  className="w-full bg-white dark:bg-[#1f1f1f] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white text-xs outline-none focus:border-zinc-400"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#2563eb] transition-colors"
                 />
               </div>
             </div>
 
             {/* Resumen Calculado */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-200 dark:border-[#333] text-xs">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#222327] text-xs">
               <div>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">
+                <span className="text-[10px] text-[#8b8f98] block">
                   Cuota {tipoPago === 'diario' ? 'Diaria' : 'Mensual'}:
                 </span>
-                <strong className="text-zinc-900 dark:text-white font-mono">
+                <strong className="text-white font-mono">
                   {symbol} {cuotaEstimada.toLocaleString()}
                 </strong>
               </div>
               <div>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">Ganancia Total:</span>
-                <strong className="text-emerald-600 dark:text-emerald-400 font-mono">
+                <span className="text-[10px] text-[#8b8f98] block">Ganancia Total:</span>
+                <strong className="text-emerald-400 font-mono">
                   +{symbol} {totalRendimientoEstimado.toLocaleString()}
                 </strong>
               </div>
@@ -325,7 +325,7 @@ export default function NewLoanModal({
 
           {/* Enlace de Google Drive */}
           <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+            <label className="text-[11px] font-semibold text-[#3b82f6] flex items-center gap-1.5">
               <HardDrive className="w-3.5 h-3.5" />
               <span>Enlace a Carpeta o Contrato en Google Drive (Opcional)</span>
             </label>
@@ -334,13 +334,13 @@ export default function NewLoanModal({
               value={driveUrl}
               onChange={(e) => setDriveUrl(e.target.value)}
               placeholder="https://drive.google.com/drive/folders/..."
-              className="w-full bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl px-3 py-2 text-zinc-900 dark:text-white font-mono text-xs outline-none focus:border-zinc-400"
+              className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl px-3 py-2 text-white font-mono text-xs outline-none focus:border-[#2563eb] transition-colors"
             />
           </div>
 
           {/* Notas y Observaciones */}
           <div className="space-y-1">
-            <label className="text-[11px] font-semibold text-zinc-700 dark:text-[#d4d4d4] block">
+            <label className="text-[11px] font-semibold text-zinc-400 block">
               Notas u Observaciones del Contrato
             </label>
             <textarea
@@ -348,23 +348,23 @@ export default function NewLoanModal({
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
               placeholder="Observaciones de fondeo, acuerdos o cláusulas..."
-              className="w-full bg-zinc-100 dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] rounded-xl p-3 text-zinc-900 dark:text-white text-xs outline-none focus:border-zinc-400 custom-scroll"
+              className="w-full bg-[#1b1c20] border border-[#26282e] rounded-xl p-3 text-white text-xs outline-none focus:border-[#2563eb] custom-scroll transition-colors"
             />
           </div>
 
           {/* Footer de Acciones */}
-          <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-zinc-200 dark:border-[#2e2e2e]">
+          <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-[#222327]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-600 dark:text-[#a3a3a3] hover:bg-zinc-100 dark:hover:bg-[#262626] transition-all"
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-[#1b1c20] transition-all"
             >
               Cancelar
             </button>
 
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
+              className="px-4 py-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all active:scale-[0.98]"
             >
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Guardar Préstamo</span>

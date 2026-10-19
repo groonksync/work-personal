@@ -56,32 +56,32 @@ export default function LoanInspectorDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-stretch md:justify-end bg-black/60 md:bg-transparent backdrop-blur-xs md:backdrop-blur-none animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-end md:items-stretch md:justify-end bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
       
       {/* Fondo clickeable para cerrar en móvil */}
       <div className="absolute inset-0 md:hidden" onClick={onClose}></div>
 
       {/* CONTENEDOR: BOTTOM SHEET EN MÓVIL / SIDE DRAWER EN DESKTOP */}
-      <div className="relative w-full md:w-[460px] max-h-[92vh] md:max-h-full h-auto md:h-full bg-white dark:bg-[#1e1e1e] rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-zinc-200 dark:border-[#2e2e2e] shadow-2xl flex flex-col text-zinc-900 dark:text-[#ececec] animate-in slide-in-from-bottom md:slide-in-from-right duration-200 pb-[env(safe-area-inset-bottom,16px)] md:pb-0 z-10 transition-colors duration-150">
+      <div className="relative w-full md:w-[460px] max-h-[92vh] md:max-h-full h-auto md:h-full bg-[#151619] rounded-t-3xl md:rounded-none border-t md:border-t-0 md:border-l border-[#222327] shadow-2xl flex flex-col text-white animate-in slide-in-from-bottom md:slide-in-from-right duration-200 pb-[env(safe-area-inset-bottom,16px)] md:pb-0 z-10 transition-colors duration-150">
         
         {/* Tirador para deslizar en móvil */}
-        <div className="w-12 h-1 rounded-full bg-zinc-300 dark:bg-[#444444] mx-auto mt-2.5 md:hidden shrink-0"></div>
+        <div className="w-12 h-1 rounded-full bg-[#26282e] mx-auto mt-2.5 md:hidden shrink-0"></div>
 
         {/* HEADER DEL INSPECTOR */}
-        <div className="p-4 border-b border-zinc-200 dark:border-[#2e2e2e] flex items-center justify-between bg-zinc-50 dark:bg-[#191919] shrink-0 transition-colors duration-150">
+        <div className="p-4 border-b border-[#222327] flex items-center justify-between bg-[#111215] shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-lg bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] flex items-center justify-center text-zinc-800 dark:text-white shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-[#1b1c20] border border-[#26282e] flex items-center justify-center text-white shrink-0">
               {esAcreedor ? (
-                <Landmark className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <Landmark className="w-4 h-4 text-purple-400" />
               ) : (
-                <User className="w-4 h-4 text-zinc-600 dark:text-[#d4d4d4]" />
+                <User className="w-4 h-4 text-zinc-300" />
               )}
             </div>
             <div className="overflow-hidden">
-              <h3 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight leading-none truncate">
+              <h3 className="text-base font-bold text-white tracking-tight leading-none truncate">
                 {loan.nombre}
               </h3>
-              <span className="text-xs text-zinc-500 dark:text-[#a3a3a3] font-medium block mt-1 truncate">
+              <span className="text-xs text-zinc-400 font-medium block mt-1 truncate">
                 {esAcreedor ? 'Acreedor de Capital' : `Prestatario • CI: ${loan.ci || 'Sin registro'}`}
               </span>
             </div>
@@ -93,7 +93,7 @@ export default function LoanInspectorDrawer({
               href={currentDriveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-lg bg-white dark:bg-[#262626] hover:bg-zinc-100 dark:hover:bg-[#333333] text-sky-600 dark:text-sky-400 border border-zinc-200 dark:border-transparent flex items-center justify-center transition-all shadow-2xs"
+              className="w-8 h-8 rounded-lg bg-[#1b1c20] hover:bg-[#222329] text-[#3b82f6] border border-[#26282e] flex items-center justify-center transition-all shadow-xs"
               title="Abrir carpeta en Google Drive"
             >
               <HardDrive className="w-4 h-4" />
@@ -101,7 +101,7 @@ export default function LoanInspectorDrawer({
 
             <button 
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white dark:bg-[#262626] hover:bg-zinc-100 dark:hover:bg-[#333333] text-zinc-500 hover:text-zinc-900 dark:text-[#a3a3a3] dark:hover:text-white border border-zinc-200 dark:border-transparent flex items-center justify-center transition-all shadow-2xs"
+              className="w-8 h-8 rounded-lg bg-[#1b1c20] hover:bg-[#222329] text-zinc-400 hover:text-white border border-[#26282e] flex items-center justify-center transition-all shadow-xs"
             >
               <X className="w-4 h-4" />
             </button>
@@ -109,37 +109,37 @@ export default function LoanInspectorDrawer({
         </div>
 
         {/* CUERPO DEL EXPEDIENTE DETALLADO */}
-        <div className="flex-1 overflow-y-auto custom-scroll p-4 space-y-4 bg-[#f7f7f8] dark:bg-[#1e1e1e] transition-colors duration-150">
+        <div className="flex-1 overflow-y-auto custom-scroll p-4 space-y-4 bg-[#0c0d10] transition-colors duration-150">
           
           {/* ESTRUCTURA DE FONDEO (SI APLICA) */}
           {esFondeoRodo && (
-            <div className="p-4 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] space-y-2.5 shadow-xs">
+            <div className="p-4 rounded-xl bg-[#151619] border border-[#222327] space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
                   <span>Estructura de Fondeo</span>
                 </span>
-                <span className="text-[11px] bg-zinc-100 dark:bg-[#333333] text-zinc-800 dark:text-[#d4d4d4] px-2 py-0.5 rounded font-mono font-medium">
+                <span className="text-[11px] bg-[#1b1c20] text-zinc-300 border border-[#26282e] px-2 py-0.5 rounded font-mono font-medium">
                   3% Tasa Pasiva
                 </span>
               </div>
               
-              <p className="text-xs text-zinc-600 dark:text-[#b4b4b4] leading-relaxed">
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 Capital fondeado por <strong>Tío Rodo</strong> (Bs. 10,000) colocado a <strong>Magali Molina</strong> (Bs. 15,000 @ 10%).
               </p>
 
               <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-                  <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Cobras a Magali:</span>
-                  <strong className="text-zinc-900 dark:text-white text-sm font-mono block mt-0.5">Bs. 1,500/m</strong>
+                <div className="p-2.5 rounded-lg bg-[#1b1c20] border border-[#26282e]">
+                  <span className="text-[11px] text-zinc-400 block">Cobras a Magali:</span>
+                  <strong className="text-white text-sm font-mono block mt-0.5">Bs. 1,500/m</strong>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-[#1e1e1e] border border-zinc-200 dark:border-[#333333]">
-                  <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block">Pagas a Tío Rodo:</span>
-                  <strong className="text-zinc-800 dark:text-[#e5e5e5] text-sm font-mono block mt-0.5">Bs. 300/m</strong>
+                <div className="p-2.5 rounded-lg bg-[#1b1c20] border border-[#26282e]">
+                  <span className="text-[11px] text-zinc-400 block">Pagas a Tío Rodo:</span>
+                  <strong className="text-zinc-200 text-sm font-mono block mt-0.5">Bs. 300/m</strong>
                 </div>
               </div>
 
-              <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center justify-between pt-1 border-t border-zinc-200 dark:border-[#333333]">
+              <div className="text-xs font-semibold text-emerald-400 flex items-center justify-between pt-1 border-t border-[#222327]">
                 <span>Ganancia Neta Mensual:</span>
                 <span className="font-mono text-sm font-bold">+Bs. 700.00 / mes</span>
               </div>
@@ -147,41 +147,41 @@ export default function LoanInspectorDrawer({
           )}
 
           {/* ESTADO FINANCIERO Y CONTROL DE CAPITAL */}
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-3 shadow-xs">
+          <div className="p-3.5 rounded-xl bg-[#151619] border border-[#222327] space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-zinc-500 dark:text-[#8e8e8e] uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
                 Auditoría de Capital
               </span>
-              <span className="text-xs font-mono font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-mono font-medium text-emerald-400">
                 Amortizado: {porcentajeAmortizado}%
               </span>
             </div>
 
             {/* Barra de Progreso de Amortización */}
-            <div className="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-[#1c1c1c] overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-[#1b1c20] border border-[#26282e] overflow-hidden">
               <div 
-                className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full transition-all duration-300"
+                className="h-full bg-[#2563eb] rounded-full transition-all duration-300"
                 style={{ width: `${porcentajeAmortizado}%` }}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
               <div>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">Saldo Insoluto:</span>
-                <strong className="text-base font-bold font-mono text-zinc-900 dark:text-white block">
+                <span className="text-[10px] text-zinc-400 block">Saldo Insoluto:</span>
+                <strong className="text-base font-bold font-mono text-white block">
                   {symbol} {saldoCapitalActual.toLocaleString()}
                 </strong>
-                <span className="text-[10px] text-zinc-400 dark:text-[#737373]">
+                <span className="text-[10px] text-zinc-500 font-mono">
                   Inicial: {symbol} {capitalOriginal.toLocaleString()}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e] block">Próxima Cuota:</span>
-                <strong className="text-base font-bold font-mono text-zinc-900 dark:text-white block">
+                <span className="text-[10px] text-zinc-400 block">Próxima Cuota:</span>
+                <strong className="text-base font-bold font-mono text-white block">
                   {symbol} {cuotaProxima?.total ? Number(cuotaProxima.total).toLocaleString() : '0'}
                 </strong>
-                <span className="text-[10px] text-zinc-400 dark:text-[#737373]">
+                <span className="text-[10px] text-zinc-500 font-mono">
                   {cuotasPagadas} de {cronograma.length} saldadas
                 </span>
               </div>
@@ -191,17 +191,17 @@ export default function LoanInspectorDrawer({
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button
                 onClick={() => onOpenCapitalPayment && onOpenCapitalPayment(loan)}
-                className="py-2 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#303030] dark:hover:bg-[#383838] text-zinc-800 dark:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-zinc-200 dark:border-[#404040] shadow-xs active:scale-[0.99]"
+                className="py-2 px-2.5 rounded-lg bg-[#1b1c20] hover:bg-[#222329] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-[#26282e] shadow-xs active:scale-[0.99]"
               >
-                <TrendingDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <TrendingDown className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                 <span className="truncate">Abono a Capital</span>
               </button>
 
               <button
                 onClick={() => onOpenExtension && onOpenExtension(loan)}
-                className="py-2 px-2.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-[#303030] dark:hover:bg-[#383838] text-zinc-800 dark:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-zinc-200 dark:border-[#404040] shadow-xs active:scale-[0.99]"
+                className="py-2 px-2.5 rounded-lg bg-[#1b1c20] hover:bg-[#222329] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-[#26282e] shadow-xs active:scale-[0.99]"
               >
-                <Clock className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                <Clock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                 <span className="truncate">Extender Plazo</span>
               </button>
             </div>
@@ -211,44 +211,44 @@ export default function LoanInspectorDrawer({
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => onOpenVouchers && onOpenVouchers(loan)}
-              className="p-2.5 rounded-xl bg-white dark:bg-[#262626] hover:bg-zinc-50 dark:hover:bg-[#2e2e2e] border border-zinc-200 dark:border-[#333333] flex flex-col items-center justify-center gap-1.5 text-center transition-all group shadow-xs"
+              className="p-2.5 rounded-xl bg-[#151619] hover:bg-[#1b1c20] border border-[#222327] flex flex-col items-center justify-center gap-1.5 text-center transition-all group shadow-xs"
             >
-              <Receipt className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-              <span className="text-[11px] font-semibold text-zinc-900 dark:text-white leading-tight">Bauchers QR</span>
-              <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Comprobantes</span>
+              <Receipt className="w-4 h-4 text-[#3b82f6] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-semibold text-white leading-tight">Bauchers QR</span>
+              <span className="text-[10px] text-zinc-400">Comprobantes</span>
             </button>
 
             <button
               onClick={() => onOpenExpressNotes && onOpenExpressNotes(loan)}
-              className="p-2.5 rounded-xl bg-white dark:bg-[#262626] hover:bg-zinc-50 dark:hover:bg-[#2e2e2e] border border-zinc-200 dark:border-[#333333] flex flex-col items-center justify-center gap-1.5 text-center transition-all group relative shadow-xs"
+              className="p-2.5 rounded-xl bg-[#151619] hover:bg-[#1b1c20] border border-[#222327] flex flex-col items-center justify-center gap-1.5 text-center transition-all group relative shadow-xs"
             >
-              <MessageSquare className="w-4 h-4 text-amber-500 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-              <span className="text-[11px] font-semibold text-zinc-900 dark:text-white leading-tight">Notas Express</span>
-              <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">
+              <MessageSquare className="w-4 h-4 text-[#3b82f6] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-semibold text-white leading-tight">Notas Express</span>
+              <span className="text-[10px] text-zinc-400">
                 {notasExpressCount > 0 ? `${notasExpressCount} notas` : 'Bitácora'}
               </span>
             </button>
 
             <button
               onClick={() => onSendWhatsApp && onSendWhatsApp(loan, cuotaProxima)}
-              className="p-2.5 rounded-xl bg-white dark:bg-[#262626] hover:bg-zinc-50 dark:hover:bg-[#2e2e2e] border border-zinc-200 dark:border-[#333333] flex flex-col items-center justify-center gap-1.5 text-center transition-all group shadow-xs"
+              className="p-2.5 rounded-xl bg-[#151619] hover:bg-[#1b1c20] border border-[#222327] flex flex-col items-center justify-center gap-1.5 text-center transition-all group shadow-xs"
             >
-              <Send className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-              <span className="text-[11px] font-semibold text-zinc-900 dark:text-white leading-tight">WhatsApp</span>
-              <span className="text-[10px] text-zinc-500 dark:text-[#8e8e8e]">Aviso Cobro</span>
+              <Send className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-semibold text-white leading-tight">WhatsApp</span>
+              <span className="text-[10px] text-zinc-400">Aviso Cobro</span>
             </button>
           </div>
 
           {/* INTEGRACIÓN DE GOOGLE DRIVE PARA EL EXPEDIENTE */}
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-2.5 text-xs shadow-xs">
+          <div className="p-3.5 rounded-xl bg-[#151619] border border-[#222327] space-y-2.5 text-xs shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-[#3b82f6] flex items-center gap-1.5">
                 <HardDrive className="w-3.5 h-3.5" />
                 <span>Documentos en Google Drive</span>
               </span>
               <button
                 onClick={() => setEditingDrive(!editingDrive)}
-                className="text-[10px] text-zinc-500 hover:text-zinc-900 dark:text-[#888] dark:hover:text-white flex items-center gap-1"
+                className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1"
               >
                 <Edit3 className="w-3 h-3" />
                 <span>{editingDrive ? 'Cancelar' : 'Editar Enlace'}</span>
@@ -262,11 +262,11 @@ export default function LoanInspectorDrawer({
                   value={driveInput}
                   onChange={(e) => setDriveInput(e.target.value)}
                   placeholder="https://drive.google.com/drive/folders/..."
-                  className="w-full bg-zinc-100 dark:bg-[#1f1f1f] border border-zinc-300 dark:border-[#383838] px-3 py-1.5 rounded-lg text-xs font-mono outline-none"
+                  className="w-full bg-[#1b1c20] border border-[#26282e] px-3 py-1.5 rounded-lg text-xs font-mono text-white outline-none focus:border-[#2563eb]"
                 />
                 <button
                   onClick={handleSaveDriveUrl}
-                  className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 text-xs font-semibold flex items-center gap-1 shadow-xs active:scale-[0.98]"
+                  className="px-3 py-1.5 rounded-lg bg-[#2563eb] text-white text-xs font-semibold flex items-center gap-1 shadow-xs active:scale-[0.98]"
                 >
                   <Save className="w-3 h-3" />
                   <span>Guardar Enlace</span>
@@ -278,7 +278,7 @@ export default function LoanInspectorDrawer({
                   href={currentDriveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-1.5 px-3 rounded-lg bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/50 flex items-center justify-between text-xs font-medium hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-all truncate"
+                  className="flex-1 py-1.5 px-3 rounded-lg bg-[#1b1c20] hover:bg-[#202126] text-[#3b82f6] border border-[#26282e] flex items-center justify-between text-xs font-medium transition-all truncate"
                 >
                   <span className="truncate">{loan.drive_url || loan.drive_contrato ? 'Carpeta Asignada' : 'Abrir Google Drive General'}</span>
                   <ExternalLink className="w-3.5 h-3.5 shrink-0 ml-1.5" />
@@ -291,7 +291,7 @@ export default function LoanInspectorDrawer({
           {cuotaProxima && !cuotaProxima.pagado && (
             <button
               onClick={() => onPayCuota(loan, cuotaProxima)}
-              className="w-full py-2.5 px-3.5 rounded-lg bg-zinc-900 hover:bg-black text-white dark:bg-[#f3f3f3] dark:hover:bg-white dark:text-[#171717] font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs active:scale-[0.99]"
+              className="w-full py-2.5 px-3.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.99]"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>Marcar Cuota Pagada ({symbol} {cuotaProxima.total})</span>
@@ -299,44 +299,44 @@ export default function LoanInspectorDrawer({
           )}
 
           {/* DETALLES DEL EXPEDIENTE */}
-          <div className="p-3.5 rounded-xl bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#333333] space-y-2 text-xs shadow-xs">
-            <span className="text-[11px] font-semibold text-zinc-500 dark:text-[#8e8e8e] uppercase tracking-wider block">
+          <div className="p-3.5 rounded-xl bg-[#151619] border border-[#222327] space-y-2 text-xs shadow-xs">
+            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
               Datos Registrados
             </span>
             
-            <div className="flex justify-between items-center py-1 border-b border-zinc-100 dark:border-[#303030]">
-              <span className="text-zinc-500 dark:text-[#a3a3a3]">Modalidad de Cobro:</span>
-              <span className="font-semibold text-zinc-900 dark:text-white capitalize">
+            <div className="flex justify-between items-center py-1 border-b border-[#222327]">
+              <span className="text-zinc-400">Modalidad de Cobro:</span>
+              <span className="font-semibold text-white capitalize">
                 {loan.tipo_pago === 'diario' ? 'Cobro Diario' : 'Cobro Mensual'}
               </span>
             </div>
 
-            <div className="flex justify-between items-center py-1 border-b border-zinc-100 dark:border-[#303030]">
-              <span className="text-zinc-500 dark:text-[#a3a3a3]">Fecha Inicio:</span>
-              <span className="font-mono text-zinc-900 dark:text-white font-medium">{loan.inicio || 'No registrada'}</span>
+            <div className="flex justify-between items-center py-1 border-b border-[#222327]">
+              <span className="text-zinc-400">Fecha Inicio:</span>
+              <span className="font-mono text-white font-medium">{loan.inicio || 'No registrada'}</span>
             </div>
 
-            <div className="flex justify-between items-center py-1 border-b border-zinc-100 dark:border-[#303030]">
-              <span className="text-zinc-500 dark:text-[#a3a3a3]">Fecha Vencimiento:</span>
-              <span className="font-mono text-zinc-900 dark:text-white font-semibold">{loan.fin || 'Sin límite'}</span>
+            <div className="flex justify-between items-center py-1 border-b border-[#222327]">
+              <span className="text-zinc-400">Fecha Vencimiento:</span>
+              <span className="font-mono text-white font-semibold">{loan.fin || 'Sin límite'}</span>
             </div>
 
-            <div className="flex justify-between items-center py-1 border-b border-zinc-100 dark:border-[#303030]">
-              <span className="text-zinc-500 dark:text-[#a3a3a3]">Teléfono / Contacto:</span>
-              <span className="font-mono text-zinc-900 dark:text-white">{loan.telefono || 'Sin teléfono'}</span>
+            <div className="flex justify-between items-center py-1 border-b border-[#222327]">
+              <span className="text-zinc-400">Teléfono / Contacto:</span>
+              <span className="font-mono text-white">{loan.telefono || 'Sin teléfono'}</span>
             </div>
 
             {loan.garantia && (
-              <div className="flex justify-between items-center py-1 border-b border-zinc-100 dark:border-[#303030]">
-                <span className="text-zinc-500 dark:text-[#a3a3a3]">Garantía:</span>
-                <span className="text-zinc-900 dark:text-white font-medium">{loan.garantia}</span>
+              <div className="flex justify-between items-center py-1 border-b border-[#222327]">
+                <span className="text-zinc-400">Garantía:</span>
+                <span className="text-white font-medium">{loan.garantia}</span>
               </div>
             )}
 
             {loan.notas && (
               <div className="pt-1">
-                <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] block mb-1">Cláusulas / Observaciones:</span>
-                <div className="p-2 rounded-lg bg-zinc-50 dark:bg-[#1c1c1c] text-xs text-zinc-700 dark:text-[#d4d4d4] leading-relaxed whitespace-pre-wrap font-mono border border-zinc-200 dark:border-[#2d2d2d]">
+                <span className="text-[11px] text-zinc-400 block mb-1">Cláusulas / Observaciones:</span>
+                <div className="p-2 rounded-lg bg-[#1b1c20] text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap font-mono border border-[#26282e]">
                   {loan.notas}
                 </div>
               </div>
@@ -346,10 +346,10 @@ export default function LoanInspectorDrawer({
           {/* CRONOGRAMA DE CUOTAS */}
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-semibold text-zinc-500 dark:text-[#8e8e8e] uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
                 Cuotas Programadas ({cronograma.length})
               </span>
-              <span className="text-[10px] text-zinc-400 dark:text-[#737373]">
+              <span className="text-[10px] text-zinc-500 font-mono">
                 {cuotasPagadas} pagadas
               </span>
             </div>
@@ -358,36 +358,36 @@ export default function LoanInspectorDrawer({
               {cronograma.map((c) => (
                 <div 
                   key={c.key}
-                  className={`p-3 rounded-lg flex items-center justify-between text-xs transition-all ${
+                  className={`p-3 rounded-xl flex items-center justify-between text-xs transition-all border ${
                     c.pagado 
-                      ? 'bg-zinc-100 dark:bg-[#232323] border border-zinc-200 dark:border-[#2d2d2d] text-zinc-400 dark:text-[#a3a3a3]' 
-                      : 'bg-white dark:bg-[#262626] border border-zinc-200 dark:border-[#383838] text-zinc-900 dark:text-white shadow-2xs'
+                      ? 'bg-[#16171a] border-[#1e1f23] text-zinc-400' 
+                      : 'bg-[#1b1c20] border-[#222327] text-white shadow-2xs'
                   }`}
                 >
                   <div>
-                    <span className="font-medium block text-zinc-900 dark:text-white">{c.label}</span>
-                    <span className="text-[11px] text-zinc-500 dark:text-[#8e8e8e] font-mono">{c.fechaVencimiento}</span>
+                    <span className="font-medium block text-white">{c.label}</span>
+                    <span className="text-[11px] text-zinc-400 font-mono">{c.fechaVencimiento}</span>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-bold text-sm text-zinc-900 dark:text-white">
+                    <span className="font-mono font-bold text-sm text-white">
                       {symbol} {c.total.toLocaleString()}
                     </span>
                     {c.pagado ? (
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-transparent px-2 py-0.5 rounded font-medium">
+                      <span className="text-[11px] text-emerald-400 bg-[#16271c] border border-emerald-900/40 px-2 py-0.5 rounded font-medium">
                         Pagado
                       </span>
                     ) : (
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => onPayCuota(loan, c)}
-                          className="px-2.5 py-1 rounded bg-zinc-900 hover:bg-black text-white dark:bg-[#333333] dark:hover:bg-[#404040] text-xs font-medium transition-all shadow-2xs"
+                          className="px-2.5 py-1 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-medium transition-all shadow-xs"
                         >
                           Abonar
                         </button>
                         <button
                           onClick={() => onOpenReceipt && onOpenReceipt({ nombre: loan.nombre, ci: loan.ci }, loan, c)}
-                          className="p-1 rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333] text-zinc-600 dark:text-[#a3a3a3] hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-transparent"
+                          className="p-1 rounded-lg bg-[#1f2025] hover:bg-[#282a32] text-zinc-400 hover:text-white border border-[#26282e]"
                           title="Ver Recibo"
                         >
                           <Receipt className="w-3.5 h-3.5" />
